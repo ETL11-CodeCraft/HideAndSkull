@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7ad646f684aab2f428e4197c96d5d00c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 282791
+  packageName: KayKit - Halloween Bits (for Unity)
+  packageVersion: 1.0.0
+  assetPath: Assets/KayKit/Packs/Bits/KayKit - Halloween Bits (For Unity)/Materials/URP/HalloweenBits_URP.mat
+  uploadId: 678581
