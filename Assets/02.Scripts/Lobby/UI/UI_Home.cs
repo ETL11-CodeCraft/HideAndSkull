@@ -39,17 +39,22 @@ namespace HideAndSkull.Lobby.UI
             PhotonNetwork.AddCallbackTarget(this);
         }
 
+        //Todo : Lobby Canvas Active true되도록 설정
         private void Connect()
         {
             PhotonNetwork.ConnectUsingSettings();
+            PhotonNetwork.LocalPlayer.NickName = _nickName.text;
         }
 
         public void OnJoinedLobby()
         {
             StartCoroutine(C_ServerConnectText());
-            PhotonNetwork.LocalPlayer.NickName = _nickName.text;
         }
 
+        /// <summary>
+        /// 서버 접속 후 3초간 서버 접속 메세지 출력
+        /// </summary>
+        /// <returns></returns>
         public IEnumerator C_ServerConnectText()
         {
             _serverConnect.gameObject.SetActive(true) ;
