@@ -42,8 +42,10 @@ namespace HideAndSkull.Lobby.UI
         //Todo : Lobby Canvas Active true되도록 설정
         private void Connect()
         {
-            PhotonNetwork.ConnectUsingSettings();
             PhotonNetwork.LocalPlayer.NickName = _nickName.text;
+
+            UI_Manager.instance.Resolve<UI_Lobby>()
+                               .Show();
         }
 
         public void OnJoinedLobby()

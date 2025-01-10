@@ -52,11 +52,11 @@ namespace HideAndSkull.Lobby.UI
             base.Start();
 
             _chatEnter.onClick.AddListener(MessageSend);
-            _gameStart.onClick.AddListener(() => 
+            _gameStart.onClick.AddListener(() =>
             {
                 SceneManager.LoadScene(1);
             });
-            _exitRoom.onClick.AddListener(() => 
+            _exitRoom.onClick.AddListener(() =>
             {
                 PhotonNetwork.LeaveRoom();
             });
@@ -66,8 +66,14 @@ namespace HideAndSkull.Lobby.UI
         {
             base.Show();
 
+            if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("RoomCode"))
+            {
+                string roomCode = PhotonNetwork.CurrentRoom.CustomProperties["RoomCode"].ToString();
+                _roomCode.text = "룸코드 : " + roomCode;
+            }
+
             //Pooling ChatText, PlayerText
-            for(int i = 0; i < _chatList.Count; i++)
+            for (int i = 0; i < _chatList.Count; i++)
             {
                 TMP_Text chat = Instantiate(_chatText, _chatListContent);
                 chat.text = "";
@@ -75,7 +81,7 @@ namespace HideAndSkull.Lobby.UI
                 _chatList.Add(chat);
             }
 
-            for(int i = 0; i < _playerList.Count; i++)
+            for (int i = 0; i < _playerList.Count; i++)
             {
                 TMP_Text playerNickName = Instantiate(_playerNickName, _playerListContent);
                 playerNickName.text = "";
@@ -98,6 +104,7 @@ namespace HideAndSkull.Lobby.UI
             }
         }
 
+        //Todo : Player 목록 갱신시 확인하여 마스터 변경
         public void OnMasterClientSwitched(Player newMasterClient)
         {
         }
