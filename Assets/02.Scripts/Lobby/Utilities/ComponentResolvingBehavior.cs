@@ -101,4 +101,9 @@ namespace HideAndSkull.Lobby.Utilities
             }
         }
     }
+
+    public class A : ComponentResolvingBehavior
+    {
+        [Resolve] Transform _content;
+    }
 }
