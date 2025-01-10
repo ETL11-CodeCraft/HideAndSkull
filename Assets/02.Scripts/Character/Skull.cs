@@ -26,21 +26,51 @@ namespace HideAndSkull.Character
         private const float IDLE_DURATION = 3f;
         private const float MOVE_DURATION = 5f;
         private const float STOP_AFTER_MOVE = 1f;
+        private const float WALK_SPEED = 3f;
+        private const float RUN_SPEED = 5f;
+        private readonly Vector3 _cameraOffset = new Vector3(0, 2.5f, -3.5f);
+        private readonly Quaternion _cameraRotation = new Quaternion(0.075f, 0, 0, 1f);
 
         private float _speed = 3f;  //프레임당 이동거리
-
-        private WaitForSeconds _idleWait = new WaitForSeconds(IDLE_DURATION);
-        private WaitForSeconds _stopAfterMoveWait = new WaitForSeconds(STOP_AFTER_MOVE);
-        private Coroutine _aiActCoroutine;
+        private bool _isRunning = false;
         private ActFlag _currentAct;
+
+        private readonly WaitForSeconds _idleWait = new WaitForSeconds(IDLE_DURATION);
+        private readonly WaitForSeconds _stopAfterMoveWait = new WaitForSeconds(STOP_AFTER_MOVE);
+        private Coroutine _aiActCoroutine;
 
 
         private void Start()
         {
-            //TEST
-            StartAIAct();
+            SetPlayerCamera();
+        }
+        
+        #region Player
+        private void SetPlayerCamera()
+        {
+            if (!Camera.main) return;
+            
+            Camera.main.transform.SetParent(transform);
+            Camera.main.transform.localPosition = _cameraOffset;
+            Camera.main.transform.localRotation = _cameraRotation;
         }
 
+        public void PressRunButton()
+        {
+            if (_isRunning)
+            {
+                _speed = WALK_SPEED;
+                _isRunning = false;
+            }
+            else
+            {
+                _speed = RUN_SPEED;
+                _isRunning = true;
+            }
+        }
+        #endregion
+
+        #region AI
         /// <summary>
         /// AI라면 해당 함수를 한번 실행
         /// </summary>
@@ -90,5 +120,6 @@ namespace HideAndSkull.Character
                 yield return null;
             }
         }
+        #endregion
     }
 }
