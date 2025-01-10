@@ -31,7 +31,7 @@ namespace HideAndSkull.Character
         private const float WALK_SPEED = 3f;
         private const float RUN_SPEED = 5f;
         private const float ROTATE_SPEED = 5f;
-        private readonly Vector3 _cameraOffset = new Vector3(0, 1.5f, -3.5f);
+        private readonly Vector3 _cameraOffset = new Vector3(0, 2.5f, -3.5f);
         private readonly Quaternion _cameraRotation = new Quaternion(0.075f, 0, 0, 1f);
 
         //AI, Player 공통
@@ -58,6 +58,12 @@ namespace HideAndSkull.Character
             if (!Camera.main) return;
 
             _cameraAttachTransform = transform.Find("CameraAttach");
+            if (!_cameraAttachTransform)
+            {
+                _cameraAttachTransform = new GameObject("CameraAttach").transform;
+                _cameraAttachTransform.SetParent(transform);
+                _cameraAttachTransform.localPosition = Vector3.zero;
+            }
             
             Camera.main.transform.SetParent(_cameraAttachTransform);
             Camera.main.transform.localPosition = _cameraOffset;
