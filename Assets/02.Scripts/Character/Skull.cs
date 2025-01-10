@@ -21,24 +21,31 @@ namespace HideAndSkull.Character
     public class Skull : MonoBehaviour
     {
         public PlayMode PlayMode { get; set; }
+        private float Speed => _isRunning ? RUN_SPEED : WALK_SPEED;  //프레임당 이동거리
 
 
+        //상수
         private const float IDLE_DURATION = 3f;
         private const float MOVE_DURATION = 5f;
         private const float STOP_AFTER_MOVE = 1f;
         private const float WALK_SPEED = 3f;
         private const float RUN_SPEED = 5f;
-        private readonly Vector3 _cameraOffset = new Vector3(0, 2.5f, -3.5f);
+        private const float ROTATE_SPEED = 5f;
+        private readonly Vector3 _cameraOffset = new Vector3(0, 1.5f, -3.5f);
         private readonly Quaternion _cameraRotation = new Quaternion(0.075f, 0, 0, 1f);
 
-        private float _speed = 3f;  //프레임당 이동거리
+        //AI, Player 공통
         private bool _isRunning = false;
         private ActFlag _currentAct;
 
+        //AI
         private readonly WaitForSeconds _idleWait = new WaitForSeconds(IDLE_DURATION);
         private readonly WaitForSeconds _stopAfterMoveWait = new WaitForSeconds(STOP_AFTER_MOVE);
         private Coroutine _aiActCoroutine;
 
+        //Player
+        private Transform _cameraAttachTransform;
+        
 
         private void Start()
         {
@@ -49,24 +56,38 @@ namespace HideAndSkull.Character
         private void SetPlayerCamera()
         {
             if (!Camera.main) return;
+
+            _cameraAttachTransform = transform.Find("CameraAttach");
             
-            Camera.main.transform.SetParent(transform);
+            Camera.main.transform.SetParent(_cameraAttachTransform);
             Camera.main.transform.localPosition = _cameraOffset;
             Camera.main.transform.localRotation = _cameraRotation;
         }
 
+        public void PressRightButton()
+        {
+            _cameraAttachTransform.Rotate(Vector3.down * ROTATE_SPEED);
+        }
+
+        public void PressLeftButton()
+        {
+            _cameraAttachTransform.Rotate(Vector3.up * ROTATE_SPEED);
+        }
+
+        public void PressUpButton()
+        {
+            if (_cameraAttachTransform.localRotation != Quaternion.identity)
+            {
+                transform.forward = _cameraAttachTransform.forward;
+                _cameraAttachTransform.localRotation = Quaternion.identity;
+            }
+            
+            transform.position += transform.forward * Speed * Time.deltaTime;
+        }
+
         public void PressRunButton()
         {
-            if (_isRunning)
-            {
-                _speed = WALK_SPEED;
-                _isRunning = false;
-            }
-            else
-            {
-                _speed = RUN_SPEED;
-                _isRunning = true;
-            }
+            _isRunning = !_isRunning;
         }
         #endregion
 
@@ -110,11 +131,11 @@ namespace HideAndSkull.Character
 
         private IEnumerator Move()
         {
-            Vector2 tempDirection = Random.insideUnitCircle.normalized * _speed * Time.deltaTime;
+            Vector2 tempDirection = Random.insideUnitCircle.normalized * (Speed * Time.deltaTime);
             Vector3 randomDirection = new Vector3(tempDirection.x, 0, tempDirection.y);
             transform.rotation = Quaternion.LookRotation(randomDirection);
-            
-            for(float elapsedTIme = 0f;  elapsedTIme < MOVE_DURATION; elapsedTIme+=Time.deltaTime)
+
+            for (float elapsedTIme = 0f; elapsedTIme < MOVE_DURATION; elapsedTIme += Time.deltaTime)
             {
                 transform.position += randomDirection;
                 yield return null;
