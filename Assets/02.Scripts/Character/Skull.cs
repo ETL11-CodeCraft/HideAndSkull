@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.AI;
+using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 namespace HideAndSkull.Character
 {
@@ -20,6 +21,7 @@ namespace HideAndSkull.Character
 
     public class Skull : MonoBehaviour
     {
+        private static readonly int IsAttacking = Animator.StringToHash("IsAttacking");
         public PlayMode PlayMode { get; set; }
         private float Speed => _isRunning ? RUN_SPEED : WALK_SPEED;  //프레임당 이동거리
 
@@ -35,8 +37,9 @@ namespace HideAndSkull.Character
         private readonly Quaternion _cameraRotation = new Quaternion(0.075f, 0, 0, 1f);
 
         //AI, Player 공통
-        private bool _isRunning = false;
+        private bool _isRunning;
         private ActFlag _currentAct;
+        private Animator _animator;
 
         //AI
         private readonly WaitForSeconds _idleWait = new WaitForSeconds(IDLE_DURATION);
@@ -44,8 +47,15 @@ namespace HideAndSkull.Character
         private Coroutine _aiActCoroutine;
 
         //Player
+        [SerializeField] private BoxCollider _boxCollider;
         private Transform _cameraAttachTransform;
-        
+
+
+        private void Awake()
+        {
+            _animator = GetComponent<Animator>();
+            _boxCollider.enabled = false;
+        }
 
         private void Start()
         {
@@ -94,6 +104,19 @@ namespace HideAndSkull.Character
         public void PressRunButton()
         {
             _isRunning = !_isRunning;
+        }
+
+        public void PressAttackButton()
+        {
+            _boxCollider.enabled = true;
+            _animator.SetTrigger(IsAttacking);
+            Debug.Log("Start Attack");
+        }
+
+        public void OnEndAttackAnimation()
+        {
+            _boxCollider.enabled = false;
+            Debug.Log("End Attack");
         }
         #endregion
 
