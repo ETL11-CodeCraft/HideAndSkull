@@ -67,13 +67,14 @@ namespace HideAndSkull.Character
             _isDead = true;
             //TODO :: 공격 하지 못하도록 막기
 
+            //이후 내용은 죽은 애니메이션이 끝나면 해야함
             switch (PlayMode)
             {
                 case PlayMode.AI:
                     Destroy(gameObject);
                     break;
                 case PlayMode.Player:
-                    //TODO :: 플레이어라면 반투명하게 설정
+                    //TODO :: 플레이어라면 투명하게 설정
                     break;
             }
         }
