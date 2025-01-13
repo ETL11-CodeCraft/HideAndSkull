@@ -29,6 +29,7 @@ namespace HideAndSkull.Character
         //상수
         private static readonly int IsAttacking = Animator.StringToHash("IsAttacking");
         private static readonly int IsDead = Animator.StringToHash("IsDead");
+        private static readonly int IsWalk = Animator.StringToHash("IsWalk");
         private const float IDLE_DURATION = 3f;
         private const float MOVE_DURATION = 5f;
         private const float STOP_AFTER_MOVE = 1f;
@@ -59,7 +60,7 @@ namespace HideAndSkull.Character
         private bool _canAction = true;
         private Vector3 _movement;
         //DEBUG
-        PlayerInputActions inputActions;
+        PlayerInputActions _inputActions;
 
 
         private void Awake()
@@ -95,6 +96,11 @@ namespace HideAndSkull.Character
                     if(_movement.y > 0)
                     {
                         UpPerform();
+                        _animator.SetBool(IsWalk, true);
+                    }
+                    else
+                    {
+                        _animator.SetBool(IsWalk, false);
                     }
                     if(_movement.x > 0)
                     {
@@ -144,13 +150,13 @@ namespace HideAndSkull.Character
             SetPlayerCamera();
 
             //TEST
-            inputActions = new PlayerInputActions();
-            inputActions.Enable();
+            _inputActions = new PlayerInputActions();
+            _inputActions.Enable();
             //PC용 BINDING
-            inputActions.Player.Move.performed += PressMoveButton;
-            inputActions.Player.Move.canceled += PressMoveButton;
-            inputActions.Player.Sprint.performed += PressRunButton;
-            inputActions.Player.Attack.performed += PressAttackButton;
+            _inputActions.Player.Move.performed += PressMoveButton;
+            _inputActions.Player.Move.canceled += PressMoveButton;
+            _inputActions.Player.Sprint.performed += PressRunButton;
+            _inputActions.Player.Attack.performed += PressAttackButton;
         }
 
         private void SetPlayerCamera()
@@ -172,12 +178,12 @@ namespace HideAndSkull.Character
 
         public void RightPerform()
         {
-            _cameraAttachTransform.Rotate(Vector3.up * ROTATE_SPEED * Time.deltaTime);
+            _cameraAttachTransform.Rotate(Vector3.up * (ROTATE_SPEED * Time.deltaTime));
         }
 
         public void LeftPerform()
         {
-            _cameraAttachTransform.Rotate(Vector3.down * ROTATE_SPEED * Time.deltaTime);
+            _cameraAttachTransform.Rotate(Vector3.down * (ROTATE_SPEED * Time.deltaTime));
         }
 
         public void UpPerform()
@@ -188,7 +194,7 @@ namespace HideAndSkull.Character
                 _cameraAttachTransform.localRotation = Quaternion.identity;
             }
             
-            transform.position += transform.forward * Speed * Time.deltaTime;
+            transform.position += transform.forward * (Speed * Time.deltaTime);
         }
 
         public void RunPerform()
@@ -217,11 +223,6 @@ namespace HideAndSkull.Character
         public void PressMoveButton(InputAction.CallbackContext context)
         {
             _movement = context.ReadValue<Vector2>();
-        }
-
-        public void CancelMoveButton(InputAction.CallbackContext context)
-        {
-            _movement = Vector3.zero;
         }
 
         public void PressRunButton(InputAction.CallbackContext context)
@@ -254,17 +255,22 @@ namespace HideAndSkull.Character
             if (_moveElapsed > MOVE_DURATION + _durationNoise)
             {
                 _currentAct = ActFlag.None;
+                _moveDirection = Vector3.zero;
                 _moveElapsed = 0f;
+                _animator.SetBool(IsWalk, false);
             }
             else
             {
                 if(_moveDirection == Vector3.zero)
                 {
-                    Vector2 tempDirection = Random.insideUnitCircle.normalized * (Speed * Time.deltaTime);
+                    Vector2 tempDirection = Random.insideUnitCircle.normalized;
                     _moveDirection = new Vector3(tempDirection.x, 0, tempDirection.y);
+                    Debug.Log(_moveDirection);
+                    transform.forward = new Vector3(_moveDirection.x, 0, _moveDirection.z);
                 }
                 
-                transform.Translate(_moveDirection);
+                transform.Translate(Vector3.forward * (Speed * Time.deltaTime));
+                _animator.SetBool(IsWalk, true);
                 _moveElapsed += Time.deltaTime;
             }
         }
