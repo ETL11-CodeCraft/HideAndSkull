@@ -55,18 +55,18 @@ namespace HideAndSkull.Character
         private Coroutine _aiActCoroutine;
 
         //Player
-        [SerializeField] private BoxCollider _boxCollider;
+        [SerializeField] private BoxCollider _swordCollider;
         private Transform _cameraAttachTransform;
         private bool _canAction = true;
         private Vector3 _movement;
         //DEBUG
-        PlayerInputActions _inputActions;
+        private PlayerInputActions _inputActions;
 
 
         private void Awake()
         {
             _animator = GetComponent<Animator>();
-            _boxCollider.enabled = false;
+            _swordCollider.enabled = false;
             _skinnedMeshRenderers = GetComponentsInChildren<Renderer>();
         }
 
@@ -136,9 +136,9 @@ namespace HideAndSkull.Character
                     Destroy(gameObject);
                     break;
                 case PlayMode.Player:
-                    foreach (Renderer renderer in _skinnedMeshRenderers)
+                    foreach (Renderer meshRenderer in _skinnedMeshRenderers)
                     {
-                        renderer.enabled = false;
+                        meshRenderer.enabled = false;
                     }
                     break;
             }
@@ -208,7 +208,7 @@ namespace HideAndSkull.Character
         {
             if(!_canAction) return;
 
-            _boxCollider.enabled = true;
+            _swordCollider.enabled = true;
             _canAction = false;
 
             _animator.SetTrigger(IsAttacking);
@@ -216,7 +216,7 @@ namespace HideAndSkull.Character
 
         public void OnEndAttackAnimation()
         {
-            _boxCollider.enabled = false;
+            _swordCollider.enabled = false;
             _canAction = true;
         }
 
@@ -265,7 +265,6 @@ namespace HideAndSkull.Character
                 {
                     Vector2 tempDirection = Random.insideUnitCircle.normalized;
                     _moveDirection = new Vector3(tempDirection.x, 0, tempDirection.y);
-                    Debug.Log(_moveDirection);
                     transform.forward = new Vector3(_moveDirection.x, 0, _moveDirection.z);
                 }
                 
