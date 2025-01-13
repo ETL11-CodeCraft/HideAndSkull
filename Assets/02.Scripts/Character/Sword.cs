@@ -7,7 +7,6 @@ namespace HideAndSkull.Character
     {
         private void OnTriggerEnter(Collider other)
         {
-            Debug.Log($"[{nameof(Sword)}] TriggerEnter :: {other.name}");
             if (other.TryGetComponent(out Skull skull))
             {
                 skull.Die();

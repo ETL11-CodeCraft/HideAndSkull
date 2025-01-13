@@ -28,6 +28,7 @@ namespace HideAndSkull.Character
 
         //상수
         private static readonly int IsAttacking = Animator.StringToHash("IsAttacking");
+        private static readonly int IsDead = Animator.StringToHash("IsDead");
         private const float IDLE_DURATION = 3f;
         private const float MOVE_DURATION = 5f;
         private const float STOP_AFTER_MOVE = 1f;
@@ -65,19 +66,24 @@ namespace HideAndSkull.Character
 
         public void Die()
         {
-            //TODO :: 죽을 때 애니메이션 출력
-            _isDead = true;
-            //TODO :: 공격 하지 못하도록 막기
+            if(!_isDead)
+            {
+                Debug.Log(1);
+                //TODO :: 공격 하지 못하도록 막기
+                _animator.SetTrigger(IsDead);
+                _isDead = true;
+            }
+        }
 
-            //이후 내용은 죽은 애니메이션이 끝나면 해야함
+        public void OnEndDieAnimation()
+        {
             switch (PlayMode)
             {
                 case PlayMode.AI:
                     Destroy(gameObject);
                     break;
                 case PlayMode.Player:
-                    //TODO :: 플레이어라면 투명하게 설정
-                    foreach(Renderer renderer in _skinnedMeshRenderers)
+                    foreach (Renderer renderer in _skinnedMeshRenderers)
                     {
                         renderer.enabled = false;
                     }
@@ -146,13 +152,11 @@ namespace HideAndSkull.Character
         {
             _boxCollider.enabled = true;
             _animator.SetTrigger(IsAttacking);
-            Debug.Log("Start Attack");
         }
 
         public void OnEndAttackAnimation()
         {
             _boxCollider.enabled = false;
-            Debug.Log("End Attack");
         }
 
         public void PressMoveButton(InputAction.CallbackContext context)
@@ -174,14 +178,12 @@ namespace HideAndSkull.Character
 
         public void PressRunButton(InputAction.CallbackContext context)
         {
-            _isRunning = !_isRunning;
+            PressRunButton();
         }
 
         public void PressAttackButton(InputAction.CallbackContext context)
         {
-            _boxCollider.enabled = true;
-            _animator.SetTrigger(IsAttacking);
-            Debug.Log("Start Attack");
+            PressAttackButton();
         }
         #endregion
 
