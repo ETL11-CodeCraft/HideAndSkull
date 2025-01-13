@@ -42,6 +42,7 @@ namespace HideAndSkull.Character
         private bool _isDead;
         private ActFlag _currentAct;
         private Animator _animator;
+        private Renderer[] _skinnedMeshRenderers = new Renderer[4];
 
         //AI
         private readonly WaitForSeconds _idleWait = new WaitForSeconds(IDLE_DURATION);
@@ -59,6 +60,7 @@ namespace HideAndSkull.Character
         {
             _animator = GetComponent<Animator>();
             _boxCollider.enabled = false;
+            _skinnedMeshRenderers = GetComponentsInChildren<Renderer>();
         }
 
         public void Die()
@@ -75,6 +77,11 @@ namespace HideAndSkull.Character
                     break;
                 case PlayMode.Player:
                     //TODO :: 플레이어라면 투명하게 설정
+                    foreach(Renderer renderer in _skinnedMeshRenderers)
+                    {
+                        renderer.enabled = false;
+                    }
+
                     break;
             }
         }
