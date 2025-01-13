@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
@@ -21,12 +22,12 @@ namespace HideAndSkull.Character
 
     public class Skull : MonoBehaviour
     {
-        private static readonly int IsAttacking = Animator.StringToHash("IsAttacking");
         public PlayMode PlayMode { get; set; }
         private float Speed => _isRunning ? RUN_SPEED : WALK_SPEED;  //프레임당 이동거리
 
 
         //상수
+        private static readonly int IsAttacking = Animator.StringToHash("IsAttacking");
         private const float IDLE_DURATION = 3f;
         private const float MOVE_DURATION = 5f;
         private const float STOP_AFTER_MOVE = 1f;
@@ -38,6 +39,7 @@ namespace HideAndSkull.Character
 
         //AI, Player 공통
         private bool _isRunning;
+        private bool _isDead;
         private ActFlag _currentAct;
         private Animator _animator;
 
@@ -49,6 +51,8 @@ namespace HideAndSkull.Character
         //Player
         [SerializeField] private BoxCollider _boxCollider;
         private Transform _cameraAttachTransform;
+        //DEBUG
+        PlayerInputActions inputActions;
 
 
         private void Awake()
@@ -57,12 +61,36 @@ namespace HideAndSkull.Character
             _boxCollider.enabled = false;
         }
 
-        private void Start()
+        public void Die()
+        {
+            //TODO :: 죽을 때 애니메이션 출력
+            _isDead = true;
+            //TODO :: 공격 하지 못하도록 막기
+
+            switch (PlayMode)
+            {
+                case PlayMode.AI:
+                    Destroy(gameObject);
+                    break;
+                case PlayMode.Player:
+                    //TODO :: 플레이어라면 반투명하게 설정
+                    break;
+            }
+        }
+
+        #region Player
+        public void StartPlayerAct()
         {
             SetPlayerCamera();
+
+            //TEST
+            inputActions = new PlayerInputActions();
+            inputActions.Enable();
+            inputActions.Player.Move.performed += PressMoveButton;
+            inputActions.Player.Sprint.performed += PressRunButton;
+            inputActions.Player.Attack.performed += PressAttackButton;
         }
-        
-        #region Player
+
         private void SetPlayerCamera()
         {
             if (!Camera.main) return;
@@ -82,12 +110,12 @@ namespace HideAndSkull.Character
 
         public void PressRightButton()
         {
-            _cameraAttachTransform.Rotate(Vector3.down * ROTATE_SPEED);
+            _cameraAttachTransform.Rotate(Vector3.up * ROTATE_SPEED);
         }
 
         public void PressLeftButton()
         {
-            _cameraAttachTransform.Rotate(Vector3.up * ROTATE_SPEED);
+            _cameraAttachTransform.Rotate(Vector3.down * ROTATE_SPEED);
         }
 
         public void PressUpButton()
@@ -117,6 +145,35 @@ namespace HideAndSkull.Character
         {
             _boxCollider.enabled = false;
             Debug.Log("End Attack");
+        }
+
+        public void PressMoveButton(InputAction.CallbackContext context)
+        {
+            Vector2 movement = context.ReadValue<Vector2>();
+            if(movement.x > 0)
+            {
+                PressRightButton();
+            }
+            if(movement.x < 0)
+            {
+                PressLeftButton();
+            }
+            if(movement.y > 0)
+            {
+                PressUpButton();
+            }
+        }
+
+        public void PressRunButton(InputAction.CallbackContext context)
+        {
+            _isRunning = !_isRunning;
+        }
+
+        public void PressAttackButton(InputAction.CallbackContext context)
+        {
+            _boxCollider.enabled = true;
+            _animator.SetTrigger(IsAttacking);
+            Debug.Log("Start Attack");
         }
         #endregion
 

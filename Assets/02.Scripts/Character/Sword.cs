@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace HideAndSkull.Character
@@ -11,7 +10,7 @@ namespace HideAndSkull.Character
             Debug.Log($"[{nameof(Sword)}] TriggerEnter :: {other.name}");
             if (other.TryGetComponent(out Skull skull))
             {
-                //죽음 처리
+                skull.Die();
             }
         }
     }
