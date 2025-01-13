@@ -107,7 +107,6 @@ namespace HideAndSkull.Lobby.UI
         private void RefreshPlayerList(List<TMP_Text> playerList)
         {
             //PoolingPlayerList
-
             for (int i = 0; i < PLAYER_LIST_LIMIT_MAX; i++)
             {
                 TMP_Text playerNickName = Instantiate(_playerNickName, _playerListContent);
@@ -199,7 +198,11 @@ namespace HideAndSkull.Lobby.UI
 
             if (!isInput) // ²ËÂ÷¸é ÇÑÄ­¾¿ À§·Î ¿Ã¸²
             {
-                for (int i = 1; i < _chatList.Count; i++) _chatList[i - 1].text = _chatList[i].text;
+                for (int i = 1; i < _chatList.Count; i++)
+                {
+                    _chatList[i - 1].text = _chatList[i].text;
+                }
+
                 _chatList[_chatList.Count - 1].text = message;
             }
         }

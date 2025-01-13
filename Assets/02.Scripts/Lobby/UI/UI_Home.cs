@@ -39,10 +39,20 @@ namespace HideAndSkull.Lobby.UI
             PhotonNetwork.AddCallbackTarget(this);
         }
 
-        //Todo : Lobby Canvas Active true되도록 설정
+        //Todo : NickName 확인 후 입력된 글자가 있으면 로비로 이동
         private void Connect()
         {
-            PhotonNetwork.LocalPlayer.NickName = _nickName.text;
+            string nickName = _nickName.text.Trim();
+
+            if(nickName == "")
+            {
+                UI_ConfirmWindow confirmWindow = UI_Manager.instance.Resolve<UI_ConfirmWindow>();
+
+                confirmWindow.Show("닉네임은 공백으로 이루어질 수 없습니다.\n숫자나 영어, 한글을 이용해 입력해주세요.");
+                return;
+            }
+
+            PhotonNetwork.LocalPlayer.NickName = nickName;
             Debug.Log(PhotonNetwork.LocalPlayer.NickName + " 닉네임이 등록되었습니다.");
 
             UI_Manager.instance.Resolve<UI_Lobby>()
