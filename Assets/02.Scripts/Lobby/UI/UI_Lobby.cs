@@ -7,11 +7,11 @@ using UnityEngine.UI;
 
 namespace HideAndSkull.Lobby.UI
 {
-    //Todo : "방만들기" 버튼 클릭시 방 생성하고 방으로 이동. (룸코드 생성)
-    //Todo : "코드입력" 버튼 클릭시 코드 입력 팝업 띄우기
-    //Todo : 해당 코드를 가진 방이 있는지 검사. 입장할 수 있으면 방 입장. 아니면 에러 출력(popup) 후 로비로
-    //Todo : "빠른입장" 버튼 클릭시 이미 생성된 방 중 랜덤으로 입장. 없으면 방 자동 생성
-    //Todo : "나가기" 버튼 클릭시 홈으로 이동 또는 앱 종료
+    //Todo : "방만들기" 버튼 클릭시 방 생성하고 방으로 이동 (확인)
+    //Todo : "코드입력" 버튼 클릭시 코드 입력 팝업 띄우기 (확인)
+    //Todo : 해당 코드를 가진 방이 있는지 검사. 입장할 수 있으면 방 입장, 아니면 에러 출력(popup) 후 로비로
+    //Todo : "빠른입장" 버튼 클릭시 이미 생성된 방 중 랜덤으로 입장, 없으면 방 자동 생성
+    //Todo : "나가기" 버튼 클릭시 홈으로 이동 또는 앱 종료 (확인)
     public class UI_Lobby : UI_Screen, ILobbyCallbacks, IMatchmakingCallbacks
     {
         [Resolve] Button _createRoom;
@@ -34,7 +34,7 @@ namespace HideAndSkull.Lobby.UI
                 CreateRoomWithRandomCode();
             });
 
-            //Todo : 코드입력 팝업 띄우기
+            //Todo : 코드입력 팝업 띄우기 - 팝업 띄우기 확인 / 코드입력으로 룸 입장하기 미확인
             _codeInput.onClick.AddListener(() =>
             {
                 UI_CodeInput codeInputPopup = UI_Manager.instance.Resolve<UI_CodeInput>();
@@ -47,13 +47,24 @@ namespace HideAndSkull.Lobby.UI
                 PhotonNetwork.JoinRandomRoom();
             });
 
-            //Todo : 홈으로 돌아가기
+            // 홈으로 돌아가기
             _backHome.onClick.AddListener(OnLeftLobby);
         }
 
         public override void Show()
         {
             base.Show();
+            Debug.Log(PhotonNetwork.LocalPlayer.NickName + "님이 로비에 입장하였습니다.");
+        }
+
+        private void OnEnable()
+        {
+            PhotonNetwork.AddCallbackTarget(this);
+        }
+
+        private void OnDisable()
+        {
+            PhotonNetwork.AddCallbackTarget(this);
         }
 
         /// <summary>
@@ -97,6 +108,7 @@ namespace HideAndSkull.Lobby.UI
 
         public void OnCreatedRoom()
         {
+            Debug.Log("OnCreatedRoom");
         }
 
         public void OnCreateRoomFailed(short returnCode, string message)
@@ -104,12 +116,12 @@ namespace HideAndSkull.Lobby.UI
             // 중복된 방 이름 발생: 새로운 랜덤 코드 생성 및 재시도
             if (returnCode == ErrorCode.GameIdAlreadyExists)
             {
-                Debug.Log("Duplicate room code detected. Generating a new code...");
+                Debug.Log("방 코드가 중복됩니다. 새로운 코드 생성 중...");
                 CreateRoomWithRandomCode();
             }
             else
             {
-                Debug.LogError("Room creation failed for another reason: " + message);
+                Debug.LogError("방 생성이 실패하였습니다 : " + message);
             }
         }
 

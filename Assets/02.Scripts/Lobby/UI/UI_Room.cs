@@ -52,10 +52,12 @@ namespace HideAndSkull.Lobby.UI
             base.Start();
 
             _chatEnter.onClick.AddListener(MessageSend);
+
             _gameStart.onClick.AddListener(() =>
             {
                 SceneManager.LoadScene(1);
             });
+
             _exitRoom.onClick.AddListener(() =>
             {
                 PhotonNetwork.LeaveRoom();
@@ -70,6 +72,10 @@ namespace HideAndSkull.Lobby.UI
             {
                 string roomCode = PhotonNetwork.CurrentRoom.CustomProperties["RoomCode"].ToString();
                 _roomCode.text = "룸코드 : " + roomCode;
+            }
+            else
+            {
+                _roomCode.text = "룸코드를 찾을 수 없습니다.";
             }
 
             //Pooling ChatText, PlayerText
@@ -107,6 +113,8 @@ namespace HideAndSkull.Lobby.UI
         //Todo : Player 목록 갱신시 확인하여 마스터 변경
         public void OnMasterClientSwitched(Player newMasterClient)
         {
+            if (newMasterClient.ActorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
+                TogglePlayerButtons(newMasterClient);
         }
 
         public void OnPlayerEnteredRoom(Player newPlayer)
@@ -127,7 +135,7 @@ namespace HideAndSkull.Lobby.UI
         {
         }
 
-        #region PlayerList
+        #region PlayerList  //플레이어 리스트는 방장과 다른 플레이어들을 구별해서 표기하며, 입장시 추가하고 퇴장시 제거한다.
         [PunRPC]
         private void PlayerListRenewal(Player player)
         {
@@ -141,6 +149,9 @@ namespace HideAndSkull.Lobby.UI
         [PunRPC]
         private void PlayerListRPC(string nickName)
         {
+            //기존에 있는 플레이어 닉네임이면 삭제.
+            //기존에 없는 플레이어 닉네임이면 추가.
+            //List 갱신할 때 마스터 클라이언트 바뀌면 [방장] 플레이어도 갱신
 
         }
         #endregion
@@ -155,7 +166,23 @@ namespace HideAndSkull.Lobby.UI
         [PunRPC]
         private void ChatRPC(string message)
         {
+            bool isInput = false;
 
+            for (int i = 0; i < _chatList.Count; i++)
+            {
+                if (_chatList[i].text == "")
+                {
+                    isInput = true;
+                    _chatList[i].text = message;
+                    break;
+                }
+            }
+
+            if (!isInput) // 꽉차면 한칸씩 위로 올림
+            {
+                for (int i = 1; i < _chatList.Count; i++) _chatList[i - 1].text = _chatList[i].text;
+                _chatList[_chatList.Count - 1].text = message;
+            }
         }
         #endregion
     }
