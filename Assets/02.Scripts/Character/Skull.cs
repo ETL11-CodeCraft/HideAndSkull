@@ -53,6 +53,7 @@ namespace HideAndSkull.Character
         //Player
         [SerializeField] private BoxCollider _boxCollider;
         private Transform _cameraAttachTransform;
+        private bool _canAction = true;
         //DEBUG
         PlayerInputActions inputActions;
 
@@ -68,15 +69,17 @@ namespace HideAndSkull.Character
         {
             if(!_isDead)
             {
-                Debug.Log(1);
-                //TODO :: 공격 하지 못하도록 막기
-                _animator.SetTrigger(IsDead);
+                _canAction = false;
                 _isDead = true;
+
+                _animator.SetTrigger(IsDead);
             }
         }
 
         public void OnEndDieAnimation()
         {
+            _canAction = true;
+
             switch (PlayMode)
             {
                 case PlayMode.AI:
@@ -124,16 +127,22 @@ namespace HideAndSkull.Character
 
         public void PressRightButton()
         {
+            if (!_canAction) return;
+
             _cameraAttachTransform.Rotate(Vector3.up * ROTATE_SPEED);
         }
 
         public void PressLeftButton()
         {
+            if (!_canAction) return;
+
             _cameraAttachTransform.Rotate(Vector3.down * ROTATE_SPEED);
         }
 
         public void PressUpButton()
         {
+            if(!_canAction) return;
+
             if (_cameraAttachTransform.localRotation != Quaternion.identity)
             {
                 transform.forward = _cameraAttachTransform.forward;
@@ -145,18 +154,25 @@ namespace HideAndSkull.Character
 
         public void PressRunButton()
         {
+            if (!_canAction) return;
+
             _isRunning = !_isRunning;
         }
 
         public void PressAttackButton()
         {
+            if(!_canAction) return;
+
             _boxCollider.enabled = true;
+            _canAction = false;
+
             _animator.SetTrigger(IsAttacking);
         }
 
         public void OnEndAttackAnimation()
         {
             _boxCollider.enabled = false;
+            _canAction = true;
         }
 
         public void PressMoveButton(InputAction.CallbackContext context)
