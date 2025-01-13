@@ -9,9 +9,10 @@ namespace HideAndSkull.Lobby.UI
 {
     //Todo : "방만들기" 버튼 클릭시 방 생성하고 방으로 이동 (확인)
     //Todo : "코드입력" 버튼 클릭시 코드 입력 팝업 띄우기 (확인)
-    //Todo : 해당 코드를 가진 방이 있는지 검사. 입장할 수 있으면 방 입장, 아니면 에러 출력(popup) 후 로비로
-    //Todo : "빠른입장" 버튼 클릭시 이미 생성된 방 중 랜덤으로 입장, 없으면 방 자동 생성
+    //Todo : 해당 코드를 가진 방이 있는지 검사. 입장할 수 있으면 방 입장, 아니면 에러 출력(popup) 후 로비로 (확인)
+    //Todo : "빠른입장" 버튼 클릭시 이미 생성된 방 중 랜덤으로 입장, 없으면 방 자동 생성 (확인)
     //Todo : "나가기" 버튼 클릭시 홈으로 이동 또는 앱 종료 (확인)
+    //Todo : MasterClient인데 로비에 있을 때, 더 이상 MasterClient가 아니도록 갱신
     public class UI_Lobby : UI_Screen, ILobbyCallbacks, IMatchmakingCallbacks
     {
         [Resolve] Button _createRoom;
@@ -94,15 +95,15 @@ namespace HideAndSkull.Lobby.UI
         private string GenerateRandomRoomCode(int codeLength)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            char[] stringChars = new char[codeLength];
+            char[] randomChars = new char[codeLength];
             System.Random random = new System.Random();
 
             for (int i = 0; i < codeLength; i++)
             {
-                stringChars[i] = chars[random.Next(chars.Length)];
+                randomChars[i] = chars[random.Next(chars.Length)];
             }
 
-            return new string(stringChars);
+            return new string(randomChars);
         }
 
 
