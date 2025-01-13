@@ -7,10 +7,12 @@ using UnityEngine.UI;
 
 namespace HideAndSkull.Lobby.UI
 {
-    //Todo : "방만들기" 버튼 클릭시 방 생성하고 방으로 이동. (룸코드 생성)
-    //Todo : "코드입력" 버튼 클릭시 코드 입력 팝업 띄우기
-    //Todo : "빠른입장" 버튼 클릭시 이미 생성된 방 중 랜덤으로 입장. 없으면 방 자동 생성
-    //Todo : "나가기" 버튼 클릭시 홈으로 이동 또는 앱 종료
+    //Todo : "방만들기" 버튼 클릭시 방 생성하고 방으로 이동 (확인)
+    //Todo : "코드입력" 버튼 클릭시 코드 입력 팝업 띄우기 (확인)
+    //Todo : 해당 코드를 가진 방이 있는지 검사. 입장할 수 있으면 방 입장, 아니면 에러 출력(popup) 후 로비로 (확인)
+    //Todo : "빠른입장" 버튼 클릭시 이미 생성된 방 중 랜덤으로 입장, 없으면 방 자동 생성 (확인)
+    //Todo : "나가기" 버튼 클릭시 홈으로 이동 또는 앱 종료 (확인)
+    //Todo : MasterClient인데 로비에 있을 때, 더 이상 MasterClient가 아니도록 갱신
     public class UI_Lobby : UI_Screen, ILobbyCallbacks, IMatchmakingCallbacks
     {
         [Resolve] Button _createRoom;
@@ -31,17 +33,39 @@ namespace HideAndSkull.Lobby.UI
             {
                 //Todo : Random한 코드 생성. 기존의 방들과 코드가 겹치면 안되며, 코드로 방에 접근할 수 있어야 함.
                 CreateRoomWithRandomCode();
-                Hide();
             });
 
-            //Todo : 해당 코드를 가진 방이 있는지 검사. 입장할 수 있으면 방 입장. 아니면 에러 출력 후 로비로
-            _codeInput.onClick.AddListener(() => { });
+            //Todo : 코드입력 팝업 띄우기 - 팝업 띄우기 확인 / 코드입력으로 룸 입장하기 미확인
+            _codeInput.onClick.AddListener(() =>
+            {
+                UI_CodeInput codeInputPopup = UI_Manager.instance.Resolve<UI_CodeInput>();
+                codeInputPopup.Show();
+            });
 
             //Todo : 입장할 수 있는 방 검사 후 있으면 입장, 없으면 새로운 방 생성
-            _quickEnterRoom.onClick.AddListener(() => { });
+            _quickEnterRoom.onClick.AddListener(() =>
+            {
+                PhotonNetwork.JoinRandomRoom();
+            });
 
-            //Todo : 홈으로 돌아가기
-            _backHome.onClick.AddListener(() => { });
+            // 홈으로 돌아가기
+            _backHome.onClick.AddListener(OnLeftLobby);
+        }
+
+        public override void Show()
+        {
+            base.Show();
+            Debug.Log(PhotonNetwork.LocalPlayer.NickName + "님이 로비에 입장하였습니다.");
+        }
+
+        private void OnEnable()
+        {
+            PhotonNetwork.AddCallbackTarget(this);
+        }
+
+        private void OnDisable()
+        {
+            PhotonNetwork.AddCallbackTarget(this);
         }
 
         /// <summary>
@@ -60,7 +84,7 @@ namespace HideAndSkull.Lobby.UI
             },
             };
 
-            PhotonNetwork.CreateRoom(randomRoomCode, roomOptions, TypedLobby.Default);
+            PhotonNetwork.CreateRoom(randomRoomCode, roomOptions);
         }
 
         /// <summary>
@@ -71,20 +95,21 @@ namespace HideAndSkull.Lobby.UI
         private string GenerateRandomRoomCode(int codeLength)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            char[] stringChars = new char[codeLength];
+            char[] randomChars = new char[codeLength];
             System.Random random = new System.Random();
 
             for (int i = 0; i < codeLength; i++)
             {
-                stringChars[i] = chars[random.Next(chars.Length)];
+                randomChars[i] = chars[random.Next(chars.Length)];
             }
 
-            return new string(stringChars);
+            return new string(randomChars);
         }
 
 
         public void OnCreatedRoom()
         {
+            Debug.Log("OnCreatedRoom");
         }
 
         public void OnCreateRoomFailed(short returnCode, string message)
@@ -92,12 +117,12 @@ namespace HideAndSkull.Lobby.UI
             // 중복된 방 이름 발생: 새로운 랜덤 코드 생성 및 재시도
             if (returnCode == ErrorCode.GameIdAlreadyExists)
             {
-                Debug.Log("Duplicate room code detected. Generating a new code...");
+                Debug.Log("방 코드가 중복됩니다. 새로운 코드 생성 중...");
                 CreateRoomWithRandomCode();
             }
             else
             {
-                Debug.LogError("Room creation failed for another reason: " + message);
+                Debug.LogError("방 생성이 실패하였습니다 : " + message);
             }
         }
 
@@ -111,21 +136,36 @@ namespace HideAndSkull.Lobby.UI
 
         public void OnJoinedRoom()
         {
+            UI_Manager.instance.Resolve<UI_Room>()
+                               .Show();
         }
 
         public void OnJoinRandomFailed(short returnCode, string message)
         {
+            CreateRoomWithRandomCode();
         }
 
         public void OnJoinRoomFailed(short returnCode, string message)
         {
+            UI_ConfirmWindow confirmWindow = UI_Manager.instance.Resolve<UI_ConfirmWindow>();
+
+            confirmWindow.Show("올바른 코드가 아닙니다.");
+            return;
         }
 
         public void OnLeftLobby()
-        { }
+        {
+            UI_Manager.instance.Resolve<UI_Home>()
+                               .Show();
+
+            Hide();
+        }
 
         public void OnLeftRoom()
-        { }
+        {
+            //Tode : Hide Room UI
+            Show();
+        }
 
         public void OnLobbyStatisticsUpdate(List<TypedLobbyInfo> lobbyStatistics)
         { }

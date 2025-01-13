@@ -55,7 +55,7 @@ namespace HideAndSkull.Lobby.Network
 
             PhotonNetwork.AutomaticallySyncScene = true;    //현재 속해있는 방의 방장이 씬을 전환하면 따라서 전환하는 옵션
             //PhotonNetwork.NickName = "";  //닉네임 설정 가능
-            Debug.Log($"[{nameof(PhotonManager)}] Connecedt to master server");
+            Debug.Log($"[{nameof(PhotonManager)}] Connected to master server");
             PhotonNetwork.JoinLobby();
         }
 
