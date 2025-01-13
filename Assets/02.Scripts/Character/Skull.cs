@@ -32,9 +32,10 @@ namespace HideAndSkull.Character
         private const float IDLE_DURATION = 3f;
         private const float MOVE_DURATION = 5f;
         private const float STOP_AFTER_MOVE = 1f;
+        private const float DURATION_NOISE_RANGE = 1f;
         private const float WALK_SPEED = 3f;
         private const float RUN_SPEED = 5f;
-        private const float ROTATE_SPEED = 5f;
+        private const float ROTATE_SPEED = 60f;
         private readonly Vector3 _cameraOffset = new Vector3(0, 2.5f, -3.5f);
         private readonly Quaternion _cameraRotation = new Quaternion(0.075f, 0, 0, 1f);
 
@@ -46,14 +47,17 @@ namespace HideAndSkull.Character
         private Renderer[] _skinnedMeshRenderers = new Renderer[4];
 
         //AI
-        private readonly WaitForSeconds _idleWait = new WaitForSeconds(IDLE_DURATION);
-        private readonly WaitForSeconds _stopAfterMoveWait = new WaitForSeconds(STOP_AFTER_MOVE);
+        private float _idleElapsed = 0f;
+        private float _moveElapsed = 0f;
+        private float _durationNoise = 0f;
+        private Vector3 _moveDirection;
         private Coroutine _aiActCoroutine;
 
         //Player
         [SerializeField] private BoxCollider _boxCollider;
         private Transform _cameraAttachTransform;
         private bool _canAction = true;
+        private Vector3 _movement;
         //DEBUG
         PlayerInputActions inputActions;
 
@@ -63,6 +67,46 @@ namespace HideAndSkull.Character
             _animator = GetComponent<Animator>();
             _boxCollider.enabled = false;
             _skinnedMeshRenderers = GetComponentsInChildren<Renderer>();
+        }
+
+        private void Update()
+        {
+            if (PlayMode == PlayMode.AI)
+            {
+                switch (_currentAct)
+                {
+                    case ActFlag.None:
+                        _currentAct = (ActFlag)Random.Range(1, 3);
+                        _durationNoise = Random.Range(-DURATION_NOISE_RANGE, DURATION_NOISE_RANGE);
+                        break;
+                    case ActFlag.Idle:
+                        Idle();
+                        break;
+                    case ActFlag.Move:
+                        Move();
+                        break;
+                }
+            }
+            if(PlayMode == PlayMode.Player)
+            {
+                if(_canAction)
+                {
+                    //PC 바인딩 실행
+                    if(_movement.y > 0)
+                    {
+                        UpPerform();
+                    }
+                    if(_movement.x > 0)
+                    {
+                        RightPerform();
+                    }
+                    if(_movement.x < 0)
+                    {
+                        LeftPerform();
+                    }
+
+                }
+            }
         }
 
         public void Die()
@@ -90,7 +134,6 @@ namespace HideAndSkull.Character
                     {
                         renderer.enabled = false;
                     }
-
                     break;
             }
         }
@@ -103,7 +146,9 @@ namespace HideAndSkull.Character
             //TEST
             inputActions = new PlayerInputActions();
             inputActions.Enable();
+            //PC용 BINDING
             inputActions.Player.Move.performed += PressMoveButton;
+            inputActions.Player.Move.canceled += PressMoveButton;
             inputActions.Player.Sprint.performed += PressRunButton;
             inputActions.Player.Attack.performed += PressAttackButton;
         }
@@ -125,24 +170,18 @@ namespace HideAndSkull.Character
             Camera.main.transform.localRotation = _cameraRotation;
         }
 
-        public void PressRightButton()
+        public void RightPerform()
         {
-            if (!_canAction) return;
-
-            _cameraAttachTransform.Rotate(Vector3.up * ROTATE_SPEED);
+            _cameraAttachTransform.Rotate(Vector3.up * ROTATE_SPEED * Time.deltaTime);
         }
 
-        public void PressLeftButton()
+        public void LeftPerform()
         {
-            if (!_canAction) return;
-
-            _cameraAttachTransform.Rotate(Vector3.down * ROTATE_SPEED);
+            _cameraAttachTransform.Rotate(Vector3.down * ROTATE_SPEED * Time.deltaTime);
         }
 
-        public void PressUpButton()
+        public void UpPerform()
         {
-            if(!_canAction) return;
-
             if (_cameraAttachTransform.localRotation != Quaternion.identity)
             {
                 transform.forward = _cameraAttachTransform.forward;
@@ -152,14 +191,14 @@ namespace HideAndSkull.Character
             transform.position += transform.forward * Speed * Time.deltaTime;
         }
 
-        public void PressRunButton()
+        public void RunPerform()
         {
             if (!_canAction) return;
 
             _isRunning = !_isRunning;
         }
 
-        public void PressAttackButton()
+        public void AttackPerform()
         {
             if(!_canAction) return;
 
@@ -177,80 +216,56 @@ namespace HideAndSkull.Character
 
         public void PressMoveButton(InputAction.CallbackContext context)
         {
-            Vector2 movement = context.ReadValue<Vector2>();
-            if(movement.x > 0)
-            {
-                PressRightButton();
-            }
-            if(movement.x < 0)
-            {
-                PressLeftButton();
-            }
-            if(movement.y > 0)
-            {
-                PressUpButton();
-            }
+            _movement = context.ReadValue<Vector2>();
+        }
+
+        public void CancelMoveButton(InputAction.CallbackContext context)
+        {
+            _movement = Vector3.zero;
         }
 
         public void PressRunButton(InputAction.CallbackContext context)
         {
-            PressRunButton();
+            RunPerform();
         }
 
         public void PressAttackButton(InputAction.CallbackContext context)
         {
-            PressAttackButton();
+            AttackPerform();
         }
         #endregion
 
         #region AI
-        /// <summary>
-        /// AI라면 해당 함수를 한번 실행
-        /// </summary>
-        public void StartAIAct()
+        private void Idle()
         {
-            // 코루틴은 한번만 실행 / 사용자가 플레이하는 캐릭터는 실행할 수 없음
-            if (_aiActCoroutine != null || PlayMode == PlayMode.Player) return;
-
-            _aiActCoroutine = StartCoroutine(Act());
-        }
-
-        /// <summary>
-        /// AI의 행동을 랜덤으로 골라 실행하는 함수
-        /// </summary>
-        private IEnumerator Act()
-        {
-            while (true)
+            if (_idleElapsed > IDLE_DURATION + _durationNoise)
             {
-                _currentAct = (ActFlag)Random.Range(1, 3);
-                switch (_currentAct)
-                {
-                    case ActFlag.Idle:
-                        yield return Idle();
-                        break;
-                    case ActFlag.Move:
-                        yield return Move();
-                        yield return _stopAfterMoveWait;
-                        break;
-                }
+                _currentAct = ActFlag.None;
+                _idleElapsed = 0f;
+            }
+            else
+            {
+                _idleElapsed += Time.deltaTime;
             }
         }
 
-        private IEnumerator Idle()
+        private void Move()
         {
-            yield return _idleWait;
-        }
-
-        private IEnumerator Move()
-        {
-            Vector2 tempDirection = Random.insideUnitCircle.normalized * (Speed * Time.deltaTime);
-            Vector3 randomDirection = new Vector3(tempDirection.x, 0, tempDirection.y);
-            transform.rotation = Quaternion.LookRotation(randomDirection);
-
-            for (float elapsedTIme = 0f; elapsedTIme < MOVE_DURATION; elapsedTIme += Time.deltaTime)
+            if (_moveElapsed > MOVE_DURATION + _durationNoise)
             {
-                transform.position += randomDirection;
-                yield return null;
+                _currentAct = ActFlag.None;
+                _moveElapsed = 0f;
+            }
+            else
+            {
+                if(_moveDirection == Vector3.zero)
+                {
+                    Vector2 tempDirection = Random.insideUnitCircle.normalized * (Speed * Time.deltaTime);
+                    _moveDirection = new Vector3(tempDirection.x, 0, tempDirection.y);
+                }
+                
+                transform.Translate(_moveDirection);
+                _moveElapsed += Time.deltaTime;
             }
         }
         #endregion

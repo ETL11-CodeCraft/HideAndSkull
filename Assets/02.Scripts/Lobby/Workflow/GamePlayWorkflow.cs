@@ -7,6 +7,7 @@ namespace HideAndSkull.Lobby.Workflow
     public class GamePlayWorkflow : MonoBehaviour
     {
         private Skull _skull;
+        [SerializeField] Transform[] _spawnPoints;
 
         private void Awake()
         {
@@ -23,8 +24,8 @@ namespace HideAndSkull.Lobby.Workflow
 
         IEnumerator C_Workflow()
         {
-            SpawnCharacter(new Vector3(0, 0, -5));
-            SpawnAI(new Vector3(0, 0, 0));
+            SpawnCharacter(_spawnPoints[0].position);
+            SpawnAI(_spawnPoints[1].position);
             yield return null;
         }
 
@@ -45,7 +46,6 @@ namespace HideAndSkull.Lobby.Workflow
 
             Skull AISkull = Instantiate(_skull, transform, Quaternion.identity);
             AISkull.PlayMode = Character.PlayMode.AI;
-            //AISkull.StartAIAct();
         }
     }
 }
