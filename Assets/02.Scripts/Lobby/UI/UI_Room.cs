@@ -74,7 +74,7 @@ namespace HideAndSkull.Lobby.UI
                 {
                     UI_ConfirmWindow confirmWindow = UI_Manager.instance.Resolve<UI_ConfirmWindow>();
 
-                    confirmWindow.Show("플레이어가 2명 이상일 때, 플레이 가능합니다.");
+                    confirmWindow.Show("플레이어가 2명 이상일 때,\n플레이 가능합니다.");
                     return;
                 }
 
@@ -102,7 +102,6 @@ namespace HideAndSkull.Lobby.UI
             }
 
             TogglePlayerButtons(PhotonNetwork.LocalPlayer);
-            _photonView.RPC("ChatRPC", RpcTarget.All, $"<color=yellow>{PhotonNetwork.MasterClient.NickName}님이 참가하셨습니다</color>");
             _photonView.RPC("PlayerListRPC", RpcTarget.All);
         }
 
@@ -176,7 +175,7 @@ namespace HideAndSkull.Lobby.UI
         }
 
         #region PlayerList  
-        //플레이어 리스트는 방장과 다른 플레이어들을 구별해서 표기하며, 입장시 추가하고 퇴장시 제거한다.
+        //플레이어 리스트는 방장과 다른 플레이어들을 구별해서 표기하며, 입장 및 퇴장시 재정렬한다.
         [PunRPC]
         private void PlayerListRPC()
         {
@@ -195,7 +194,7 @@ namespace HideAndSkull.Lobby.UI
                 if (player.IsMasterClient)
                     _playerArray[index].text = $"[방장] {player.NickName}";
                 else
-                    _playerArray[index].text = $"         {player.NickName}";
+                    _playerArray[index].text = $"           {player.NickName}";
 
                 index++;
             }
