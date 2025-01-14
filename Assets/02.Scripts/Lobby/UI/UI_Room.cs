@@ -2,6 +2,7 @@ using ExitGames.Client.Photon;
 using HideAndSkull.Lobby.Utilities;
 using Photon.Pun;
 using Photon.Realtime;
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -125,7 +126,7 @@ namespace HideAndSkull.Lobby.UI
 
             int index = 0;
 
-           foreach(Player player in PhotonNetwork.CurrentRoom.Players.Values)
+            foreach (Player player in PhotonNetwork.CurrentRoom.Players.Values)
             {
                 if (player.IsMasterClient)
                     _playerArray[index].text = $"[방장] {player.NickName}";
@@ -159,14 +160,18 @@ namespace HideAndSkull.Lobby.UI
         {
             _photonView.RPC("ChatRPC", RpcTarget.All, $"<color=yellow>{newPlayer.NickName}님이 참가하셨습니다</color>");
 
-            RefreshPlayerList();
+            _photonView.RPC("PlayerListRPC", RpcTarget.All);
+
+            //RefreshPlayerList();
         }
 
         public void OnPlayerLeftRoom(Player otherPlayer)
         {
             _photonView.RPC("ChatRPC", RpcTarget.All, $"<color=yellow>{otherPlayer.NickName}님이 퇴장하셨습니다</color>");
 
-            RefreshPlayerList();
+            _photonView.RPC("PlayerListRPC", RpcTarget.All);
+
+            //RefreshPlayerList();
         }
 
         public void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
@@ -181,15 +186,11 @@ namespace HideAndSkull.Lobby.UI
         //플레이어 리스트는 방장과 다른 플레이어들을 구별해서 표기하며, 입장시 추가하고 퇴장시 제거한다.
         private void PlayerListRenewal(Player player)
         {
-            if (player.IsMasterClient)
-                _photonView.RPC("PlayerListRPC", RpcTarget.All, "[방장]" + PhotonNetwork.NickName);
-            else
-                _photonView.RPC("PlayerListRPC", RpcTarget.All, "      " + PhotonNetwork.NickName);
-
+            _photonView.RPC("PlayerListRPC", RpcTarget.All);
         }
 
         [PunRPC]
-        private void PlayerListRPC(string nickName)
+        private void PlayerListRPC()
         {
             //기존에 있는 플레이어 닉네임이면 삭제.
             //기존에 없는 플레이어 닉네임이면 추가.
@@ -199,12 +200,17 @@ namespace HideAndSkull.Lobby.UI
 
             for (int i = 0; i < _playerArray.Length; i++)
             {
-                if (_playerArray[i].text == "")
+                foreach (Player player in PhotonNetwork.CurrentRoom.Players.Values)
                 {
-                    isInput = true;
-                    _playerArray[i].text = nickName;
-                    break;
+                    if (player.IsMasterClient)
+                        _playerArray[i].text = $"[방장] {player.NickName}";
+                    else
+                        _playerArray[i].text = $"       {player.NickName}";
+
+                    i++;
                 }
+
+                _playerArray[i].text = $"";
             }
 
             if (!isInput) // 꽉차면 Fail
