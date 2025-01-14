@@ -18,6 +18,7 @@ namespace HideAndSkull.Character
         None,
         Idle,
         Move,
+        Die
     }
 
     public class Skull : MonoBehaviour
@@ -56,6 +57,7 @@ namespace HideAndSkull.Character
 
         //Player
         [SerializeField] private BoxCollider _swordCollider;
+        private CapsuleCollider _characterCollider;
         private Transform _cameraAttachTransform;
         private bool _canAction = true;
         private Vector3 _movement;
@@ -68,6 +70,7 @@ namespace HideAndSkull.Character
             _animator = GetComponent<Animator>();
             _swordCollider.enabled = false;
             _skinnedMeshRenderers = GetComponentsInChildren<Renderer>();
+            _characterCollider = GetComponent<CapsuleCollider>();
         }
 
         private void Update()
@@ -85,6 +88,9 @@ namespace HideAndSkull.Character
                         break;
                     case ActFlag.Move:
                         Move();
+                        break;
+                    case ActFlag.Die:
+                        //죽었을 때는 아무것도 하지 않기
                         break;
                 }
             }
@@ -110,7 +116,6 @@ namespace HideAndSkull.Character
                     {
                         LeftPerform();
                     }
-
                 }
             }
         }
@@ -121,6 +126,7 @@ namespace HideAndSkull.Character
             {
                 _canAction = false;
                 _isDead = true;
+                _currentAct = ActFlag.Die;
 
                 _animator.SetTrigger(IsDead);
             }
@@ -139,6 +145,7 @@ namespace HideAndSkull.Character
                     foreach (Renderer meshRenderer in _skinnedMeshRenderers)
                     {
                         meshRenderer.enabled = false;
+                        _characterCollider.enabled = false;
                     }
                     break;
             }
