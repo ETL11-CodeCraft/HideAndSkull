@@ -145,6 +145,8 @@ namespace HideAndSkull.Character
         #region Player
         public void StartPlayerAct()
         {
+            if (!_photonView.IsMine) return;
+
             SetPlayerCamera();
 
             //TEST
@@ -199,6 +201,12 @@ namespace HideAndSkull.Character
         {
             if (!_canAction) return;
 
+            _photonView.RPC(nameof(RunPerform_RPC), RpcTarget.AllViaServer);
+        }
+
+        [PunRPC]
+        public void RunPerform_RPC()
+        {
             _isRunning = !_isRunning;
         }
 
@@ -206,6 +214,12 @@ namespace HideAndSkull.Character
         {
             if(!_canAction) return;
 
+            _photonView.RPC(nameof(AttackPerform_RPC), RpcTarget.AllViaServer);
+        }
+
+        [PunRPC]
+        public void AttackPerform_RPC()
+        {
             _boxCollider.enabled = true;
             _canAction = false;
 
