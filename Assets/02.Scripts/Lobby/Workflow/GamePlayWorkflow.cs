@@ -1,4 +1,5 @@
 using HideAndSkull.Character;
+using Photon.Pun;
 using System.Collections;
 using UnityEngine;
 
@@ -6,16 +7,8 @@ namespace HideAndSkull.Lobby.Workflow
 {
     public class GamePlayWorkflow : MonoBehaviour
     {
-        private Skull _skull;
         [SerializeField] Transform[] _spawnPoints;
-
-        private void Awake()
-        {
-            if (!_skull)
-            {
-                _skull = Resources.Load<Skull>("Character/Skull");
-            }
-        }
+        static int spawnedCnt = 0;
 
         private void Start()
         {
@@ -24,27 +17,27 @@ namespace HideAndSkull.Lobby.Workflow
 
         IEnumerator C_Workflow()
         {
-            SpawnCharacter(_spawnPoints[0].position);
-            SpawnAI(_spawnPoints[1].position);
+            SpawnCharacter(_spawnPoints[spawnedCnt++].position);
+            if(PhotonNetwork.IsMasterClient)
+            {
+                for(int i= PhotonNetwork.PlayerList.Length; i < 20; i++)
+                {
+                    SpawnAI(_spawnPoints[spawnedCnt++].position);
+                }
+            }
             yield return null;
         }
 
         private void SpawnCharacter(Vector3 transform)
         {
-            if (!_skull)
-                throw new System.Exception($"[{nameof(GamePlayWorkflow)}] Can't Find Skull Prefab");
-
-            Skull playerSkull = Instantiate(_skull, transform, Quaternion.identity);
+            Skull playerSkull = PhotonNetwork.Instantiate("Character/Skull", transform, Quaternion.identity).GetComponent<Skull>();
             playerSkull.PlayMode = Character.PlayMode.Player;
             playerSkull.StartPlayerAct();
         }
 
         private void SpawnAI(Vector3 transform)
         {
-            if (!_skull)
-                throw new System.Exception($"[{nameof(GamePlayWorkflow)}] Can't Find Skull Prefab");
-
-            Skull AISkull = Instantiate(_skull, transform, Quaternion.identity);
+            Skull AISkull = PhotonNetwork.Instantiate("Character/Skull", transform, Quaternion.identity).GetComponent<Skull>();
             AISkull.PlayMode = Character.PlayMode.AI;
         }
     }

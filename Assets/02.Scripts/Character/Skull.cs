@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Photon.Pun;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
@@ -20,6 +21,7 @@ namespace HideAndSkull.Character
         Move,
     }
 
+    [RequireComponent(typeof(PhotonTransformView))]
     public class Skull : MonoBehaviour
     {
         public PlayMode PlayMode { get; set; }
@@ -58,6 +60,7 @@ namespace HideAndSkull.Character
         private Transform _cameraAttachTransform;
         private bool _canAction = true;
         private Vector3 _movement;
+        private PhotonView _photonView;
         //DEBUG
         PlayerInputActions inputActions;
 
@@ -67,6 +70,7 @@ namespace HideAndSkull.Character
             _animator = GetComponent<Animator>();
             _boxCollider.enabled = false;
             _skinnedMeshRenderers = GetComponentsInChildren<Renderer>();
+            _photonView = GetComponent<PhotonView>();
         }
 
         private void Update()
@@ -87,7 +91,7 @@ namespace HideAndSkull.Character
                         break;
                 }
             }
-            if(PlayMode == PlayMode.Player)
+            if(PlayMode == PlayMode.Player && _photonView.IsMine)
             {
                 if(_canAction)
                 {
