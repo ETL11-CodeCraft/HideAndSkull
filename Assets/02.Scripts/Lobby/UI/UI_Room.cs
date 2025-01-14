@@ -2,7 +2,6 @@ using ExitGames.Client.Photon;
 using HideAndSkull.Lobby.Utilities;
 using Photon.Pun;
 using Photon.Realtime;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -70,7 +69,7 @@ namespace HideAndSkull.Lobby.UI
             //ConfirmWindow를 사용하여 게임 시작할 수 없음을 표기할까.
             _gameStart.onClick.AddListener(() =>
             {
-                if(PhotonNetwork.CurrentRoom.PlayerCount < 2)
+                if (PhotonNetwork.CurrentRoom.PlayerCount < 2)
                 {
                     UI_ConfirmWindow confirmWindow = UI_Manager.instance.Resolve<UI_ConfirmWindow>();
 
@@ -103,6 +102,7 @@ namespace HideAndSkull.Lobby.UI
 
             TogglePlayerButtons(PhotonNetwork.LocalPlayer);
             _photonView.RPC("PlayerListRPC", RpcTarget.All);
+            ChattingClear();
         }
 
         private void PoolingChatList()
@@ -153,8 +153,6 @@ namespace HideAndSkull.Lobby.UI
             _photonView.RPC("ChatRPC", RpcTarget.All, $"<color=yellow>{newPlayer.NickName}님이 참가하셨습니다</color>");
 
             _photonView.RPC("PlayerListRPC", RpcTarget.All);
-
-            //RefreshPlayerList();
         }
 
         public void OnPlayerLeftRoom(Player otherPlayer)
@@ -207,6 +205,14 @@ namespace HideAndSkull.Lobby.UI
         #endregion
 
         #region Chatting
+        private void ChattingClear()
+        {
+            for (int i = 0; i < _chatArray.Length; i++)
+            {
+                _chatArray[i].text = "";
+            }
+        }
+
         private void MessageSend()
         {
             _photonView.RPC("ChatRPC", RpcTarget.All, PhotonNetwork.NickName + " : " + _chatInput.text);
