@@ -196,8 +196,6 @@ namespace HideAndSkull.Lobby.UI
             //기존에 없는 플레이어 닉네임이면 추가.
             //List 갱신할 때 마스터 클라이언트 바뀌면 [방장] 플레이어도 갱신
 
-            bool isInput = false;
-
             for (int i = 0; i < _playerArray.Length; i++)
             {
                 foreach (Player player in PhotonNetwork.CurrentRoom.Players.Values)
@@ -211,11 +209,6 @@ namespace HideAndSkull.Lobby.UI
                 }
 
                 _playerArray[i].text = $"";
-            }
-
-            if (!isInput) // 꽉차면 Fail
-            {
-                Debug.Log($"등록될 수 없는 플레이어가 있습니다. : {nickName}");
             }
         }
         #endregion
