@@ -64,9 +64,7 @@ namespace HideAndSkull.Lobby.UI
 
             _chatEnter.onClick.AddListener(MessageSend);
 
-            //방장 한 명만 룸에 있을 때, 게임 시작하기 버튼을
-            //interaction = false로 지정하고 color.gray로 설정할까.
-            //ConfirmWindow를 사용하여 게임 시작할 수 없음을 표기할까.
+            //방장 한 명만 룸에 있을 때, 게임 시작하기 버튼을 누르면 ConfirmWindow를 사용하여 게임 시작할 수 없음을 표기
             _gameStart.onClick.AddListener(() =>
             {
                 if (PhotonNetwork.CurrentRoom.PlayerCount < 2)

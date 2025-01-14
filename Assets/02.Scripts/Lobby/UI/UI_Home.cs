@@ -39,7 +39,7 @@ namespace HideAndSkull.Lobby.UI
             PhotonNetwork.AddCallbackTarget(this);
         }
 
-        //Todo : NickName 확인 후 입력된 글자가 있으면 로비로 이동
+        //NickName 확인 후 입력된 글자가 있으면 로비로 이동
         private void Connect()
         {
             string nickName = _nickName.text.Trim();
