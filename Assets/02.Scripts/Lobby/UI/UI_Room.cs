@@ -10,10 +10,10 @@ using UnityEngine.UI;
 
 namespace HideAndSkull.Lobby.UI
 {
-    //Todo : 룸코드 띄우기
+    //Todo : 룸코드 띄우기 (확인)
     //Todo : 플레이어 목록 갱신하기
-    //Todo : 채팅창에 플레이어 입장 / 퇴장 띄우기
-    //Todo : 채팅창에 입력하기
+    //Todo : 채팅창에 플레이어 입장 / 퇴장 띄우기 (확인)
+    //Todo : 채팅창에 입력하기 (확인)
     [RequireComponent(typeof(PhotonView))]
     public class UI_Room : UI_Screen, IInRoomCallbacks
     {
@@ -26,8 +26,8 @@ namespace HideAndSkull.Lobby.UI
         [Resolve] Button _exitRoom;
         [Resolve] RectTransform _playerListContent;
         [Resolve] TMP_Text _playerNickName;
-        List<TMP_Text> _chatList;
-        List<TMP_Text> _playerList;
+        TMP_Text[] _chatArray;   //List -> Array로 변경할까
+        TMP_Text[] _playerArray;
         PhotonView _photonView;
 
         const int CHAT_LIST_LIMIT_MAX = 12;
@@ -40,11 +40,11 @@ namespace HideAndSkull.Lobby.UI
 
             _photonView = GetComponent<PhotonView>();
 
-            _chatList = new List<TMP_Text>(CHAT_LIST_LIMIT_MAX);
-            _playerList = new List<TMP_Text>(PLAYER_LIST_LIMIT_MAX);
+            _chatArray = new TMP_Text[CHAT_LIST_LIMIT_MAX];
+            _playerArray = new TMP_Text[PLAYER_LIST_LIMIT_MAX];
 
-            RefreshChatList(_chatList);
-            RefreshPlayerList(_playerList);
+            PoolingChatList();
+            PoolingPlayerList();
         }
 
         private void OnEnable()
@@ -91,20 +91,19 @@ namespace HideAndSkull.Lobby.UI
             TogglePlayerButtons(PhotonNetwork.LocalPlayer);
         }
 
-        private void RefreshChatList(List<TMP_Text> chatList)
+        private void PoolingChatList()
         {
             //PoolingChatList
-
             for (int i = 0; i < CHAT_LIST_LIMIT_MAX; i++)
             {
                 TMP_Text chat = Instantiate(_chatText, _chatListContent);
                 chat.text = "";
                 chat.gameObject.SetActive(true);
-                _chatList.Add(chat);
+                _chatArray[i] = chat;
             }
         }
 
-        private void RefreshPlayerList(List<TMP_Text> playerList)
+        private void PoolingPlayerList()
         {
             //PoolingPlayerList
             for (int i = 0; i < PLAYER_LIST_LIMIT_MAX; i++)
@@ -112,7 +111,28 @@ namespace HideAndSkull.Lobby.UI
                 TMP_Text playerNickName = Instantiate(_playerNickName, _playerListContent);
                 playerNickName.text = "";
                 playerNickName.gameObject.SetActive(true);
-                _playerList.Add(playerNickName);
+                _playerArray[i] = playerNickName;
+            }
+        }
+
+        //플레이어 리스트를 모두 초기화한 후, 룸의 플레이어를 하나씩 입력할까?
+        private void RefreshPlayerList()
+        {
+            for (int i = 0; i < PLAYER_LIST_LIMIT_MAX; i++)
+            {
+                _playerArray[i].text = "";
+            }
+
+            int index = 0;
+
+           foreach(Player player in PhotonNetwork.CurrentRoom.Players.Values)
+            {
+                if (player.IsMasterClient)
+                    _playerArray[index].text = $"[방장] {player.NickName}";
+                else
+                    _playerArray[index].text = $"       {player.NickName}";
+
+                index++;
             }
         }
 
@@ -138,11 +158,15 @@ namespace HideAndSkull.Lobby.UI
         public void OnPlayerEnteredRoom(Player newPlayer)
         {
             _photonView.RPC("ChatRPC", RpcTarget.All, $"<color=yellow>{newPlayer.NickName}님이 참가하셨습니다</color>");
+
+            RefreshPlayerList();
         }
 
         public void OnPlayerLeftRoom(Player otherPlayer)
         {
             _photonView.RPC("ChatRPC", RpcTarget.All, $"<color=yellow>{otherPlayer.NickName}님이 퇴장하셨습니다</color>");
+
+            RefreshPlayerList();
         }
 
         public void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
@@ -171,6 +195,22 @@ namespace HideAndSkull.Lobby.UI
             //기존에 없는 플레이어 닉네임이면 추가.
             //List 갱신할 때 마스터 클라이언트 바뀌면 [방장] 플레이어도 갱신
 
+            bool isInput = false;
+
+            for (int i = 0; i < _playerArray.Length; i++)
+            {
+                if (_playerArray[i].text == "")
+                {
+                    isInput = true;
+                    _playerArray[i].text = nickName;
+                    break;
+                }
+            }
+
+            if (!isInput) // 꽉차면 Fail
+            {
+                Debug.Log($"등록될 수 없는 플레이어가 있습니다. : {nickName}");
+            }
         }
         #endregion
 
@@ -186,24 +226,24 @@ namespace HideAndSkull.Lobby.UI
         {
             bool isInput = false;
 
-            for (int i = 0; i < _chatList.Count; i++)
+            for (int i = 0; i < _chatArray.Length; i++)
             {
-                if (_chatList[i].text == "")
+                if (_chatArray[i].text == "")
                 {
                     isInput = true;
-                    _chatList[i].text = message;
+                    _chatArray[i].text = message;
                     break;
                 }
             }
 
             if (!isInput) // 꽉차면 한칸씩 위로 올림
             {
-                for (int i = 1; i < _chatList.Count; i++)
+                for (int i = 1; i < _chatArray.Length; i++)
                 {
-                    _chatList[i - 1].text = _chatList[i].text;
+                    _chatArray[i - 1].text = _chatArray[i].text;
                 }
 
-                _chatList[_chatList.Count - 1].text = message;
+                _chatArray[_chatArray.Length - 1].text = message;
             }
         }
         #endregion
