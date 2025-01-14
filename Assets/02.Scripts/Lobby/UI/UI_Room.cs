@@ -90,6 +90,8 @@ namespace HideAndSkull.Lobby.UI
             }
 
             TogglePlayerButtons(PhotonNetwork.LocalPlayer);
+            _photonView.RPC("ChatRPC", RpcTarget.All, $"<color=yellow>{PhotonNetwork.MasterClient.NickName}님이 참가하셨습니다</color>");
+            _photonView.RPC("PlayerListRPC", RpcTarget.All);
         }
 
         private void PoolingChatList()
@@ -117,25 +119,25 @@ namespace HideAndSkull.Lobby.UI
         }
 
         //플레이어 리스트를 모두 초기화한 후, 룸의 플레이어를 하나씩 입력할까?
-        private void RefreshPlayerList()
-        {
-            for (int i = 0; i < PLAYER_LIST_LIMIT_MAX; i++)
-            {
-                _playerArray[i].text = "";
-            }
+        //private void RefreshPlayerList()
+        //{
+        //    for (int i = 0; i < PLAYER_LIST_LIMIT_MAX; i++)
+        //    {
+        //        _playerArray[i].text = "";
+        //    }
 
-            int index = 0;
+        //    int index = 0;
 
-            foreach (Player player in PhotonNetwork.CurrentRoom.Players.Values)
-            {
-                if (player.IsMasterClient)
-                    _playerArray[index].text = $"[방장] {player.NickName}";
-                else
-                    _playerArray[index].text = $"       {player.NickName}";
+        //    foreach (Player player in PhotonNetwork.CurrentRoom.Players.Values)
+        //    {
+        //        if (player.IsMasterClient)
+        //            _playerArray[index].text = $"[방장] {player.NickName}";
+        //        else
+        //            _playerArray[index].text = $"       {player.NickName}";
 
-                index++;
-            }
-        }
+        //        index++;
+        //    }
+        //}
 
         void TogglePlayerButtons(Player player)
         {
@@ -184,11 +186,6 @@ namespace HideAndSkull.Lobby.UI
 
         #region PlayerList  
         //플레이어 리스트는 방장과 다른 플레이어들을 구별해서 표기하며, 입장시 추가하고 퇴장시 제거한다.
-        private void PlayerListRenewal(Player player)
-        {
-            _photonView.RPC("PlayerListRPC", RpcTarget.All);
-        }
-
         [PunRPC]
         private void PlayerListRPC()
         {
@@ -196,18 +193,20 @@ namespace HideAndSkull.Lobby.UI
             //기존에 없는 플레이어 닉네임이면 추가.
             //List 갱신할 때 마스터 클라이언트 바뀌면 [방장] 플레이어도 갱신
 
-            for (int i = 0; i < _playerArray.Length; i++)
+            int index = 0;
+
+            foreach (Player player in PhotonNetwork.CurrentRoom.Players.Values)
             {
-                foreach (Player player in PhotonNetwork.CurrentRoom.Players.Values)
-                {
-                    if (player.IsMasterClient)
-                        _playerArray[i].text = $"[방장] {player.NickName}";
-                    else
-                        _playerArray[i].text = $"       {player.NickName}";
+                if (player.IsMasterClient)
+                    _playerArray[index].text = $"[방장] {player.NickName}";
+                else
+                    _playerArray[index].text = $"       {player.NickName}";
 
-                    i++;
-                }
+                index++;
+            }
 
+            for (int i = index; i < _playerArray.Length; i++)
+            {
                 _playerArray[i].text = $"";
             }
         }
