@@ -4,6 +4,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -64,8 +65,19 @@ namespace HideAndSkull.Lobby.UI
 
             _chatEnter.onClick.AddListener(MessageSend);
 
+            //방장 한 명만 룸에 있을 때, 게임 시작하기 버튼을
+            //interaction = false로 지정하고 color.gray로 설정할까.
+            //ConfirmWindow를 사용하여 게임 시작할 수 없음을 표기할까.
             _gameStart.onClick.AddListener(() =>
             {
+                if(PhotonNetwork.CurrentRoom.PlayerCount < 2)
+                {
+                    UI_ConfirmWindow confirmWindow = UI_Manager.instance.Resolve<UI_ConfirmWindow>();
+
+                    confirmWindow.Show("플레이어가 2명 이상일 때, 플레이 가능합니다.");
+                    return;
+                }
+
                 SceneManager.LoadScene(1);
             });
 
@@ -117,27 +129,6 @@ namespace HideAndSkull.Lobby.UI
                 _playerArray[i] = playerNickName;
             }
         }
-
-        //플레이어 리스트를 모두 초기화한 후, 룸의 플레이어를 하나씩 입력할까?
-        //private void RefreshPlayerList()
-        //{
-        //    for (int i = 0; i < PLAYER_LIST_LIMIT_MAX; i++)
-        //    {
-        //        _playerArray[i].text = "";
-        //    }
-
-        //    int index = 0;
-
-        //    foreach (Player player in PhotonNetwork.CurrentRoom.Players.Values)
-        //    {
-        //        if (player.IsMasterClient)
-        //            _playerArray[index].text = $"[방장] {player.NickName}";
-        //        else
-        //            _playerArray[index].text = $"       {player.NickName}";
-
-        //        index++;
-        //    }
-        //}
 
         void TogglePlayerButtons(Player player)
         {
@@ -195,12 +186,16 @@ namespace HideAndSkull.Lobby.UI
 
             int index = 0;
 
-            foreach (Player player in PhotonNetwork.CurrentRoom.Players.Values)
+            ICollection<Player> players = PhotonNetwork.CurrentRoom.Players.Values;
+
+            List<Player> sortedPlayers = players.OrderBy(player => player.ActorNumber).ToList();
+
+            foreach (Player player in sortedPlayers)
             {
                 if (player.IsMasterClient)
                     _playerArray[index].text = $"[방장] {player.NickName}";
                 else
-                    _playerArray[index].text = $"       {player.NickName}";
+                    _playerArray[index].text = $"         {player.NickName}";
 
                 index++;
             }
