@@ -51,8 +51,11 @@ namespace HideAndSkull.Settings.Sound
 
         IEnumerator C_TestSFXPlay()
         {
-            yield return new WaitForSeconds(1f);
-            PlaySFX("ClickUI");
+            while(true)
+            {
+                yield return new WaitForSeconds(1f);
+                PlaySFX("ClickUI");
+            }
         }
 
         void InitializeAudioClips()
