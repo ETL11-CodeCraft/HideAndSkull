@@ -1,8 +1,10 @@
 ﻿using Photon.Pun;
 using System.Collections;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 namespace HideAndSkull.Character
@@ -19,6 +21,7 @@ namespace HideAndSkull.Character
         None,
         Idle,
         Move,
+        Die
     }
 
     [RequireComponent(typeof(PhotonTransformView))]
@@ -31,6 +34,7 @@ namespace HideAndSkull.Character
         //상수
         private static readonly int IsAttacking = Animator.StringToHash("IsAttacking");
         private static readonly int IsDead = Animator.StringToHash("IsDead");
+        private static readonly int IsWalk = Animator.StringToHash("IsWalk");
         private const float IDLE_DURATION = 3f;
         private const float MOVE_DURATION = 5f;
         private const float STOP_AFTER_MOVE = 1f;
@@ -56,20 +60,30 @@ namespace HideAndSkull.Character
         private Coroutine _aiActCoroutine;
 
         //Player
-        [SerializeField] private BoxCollider _boxCollider;
+        [SerializeField] private BoxCollider _swordCollider;
+        private CapsuleCollider _characterCollider;
         private Transform _cameraAttachTransform;
         private bool _canAction = true;
         private Vector3 _movement;
         private PhotonView _photonView;
         //DEBUG
-        PlayerInputActions inputActions;
+        private PlayerInputActions _inputActions;
+        private GraphicRaycaster _graphicRaycaster;
+        private List<RaycastResult> _results = new List<RaycastResult>(2);
+        private PointerEventData _pointerEventData;
+        private bool _isTouching;
+        private bool _isTouchFlagDirty;
+        private Vector2 _touchPosition;
 
 
         private void Awake()
         {
             _animator = GetComponent<Animator>();
-            _boxCollider.enabled = false;
+            _swordCollider.enabled = false;
             _skinnedMeshRenderers = GetComponentsInChildren<Renderer>();
+            _characterCollider = GetComponent<CapsuleCollider>();
+            _graphicRaycaster = GameObject.Find("Canvas - Buttons").GetComponent<GraphicRaycaster>();
+            _pointerEventData = new PointerEventData(null);
             _photonView = GetComponent<PhotonView>();
         }
 
@@ -89,6 +103,9 @@ namespace HideAndSkull.Character
                     case ActFlag.Move:
                         Move();
                         break;
+                    case ActFlag.Die:
+                        //죽었을 때는 아무것도 하지 않기
+                        break;
                 }
             }
             if(PlayMode == PlayMode.Player && _photonView.IsMine)
@@ -99,6 +116,11 @@ namespace HideAndSkull.Character
                     if(_movement.y > 0)
                     {
                         UpPerform();
+                        _animator.SetBool(IsWalk, true);
+                    }
+                    else
+                    {
+                        _animator.SetBool(IsWalk, false);
                     }
                     if(_movement.x > 0)
                     {
@@ -108,7 +130,43 @@ namespace HideAndSkull.Character
                     {
                         LeftPerform();
                     }
+                    //Mobile 바인딩 실행
+                    if (_isTouching)
+                    {
+                        _pointerEventData.position = _touchPosition;
+                        _results.Clear();
+                        _graphicRaycaster.Raycast(_pointerEventData, _results);
 
+                        if (_results.Count > 0)
+                        {
+                            switch (_results[0].gameObject.name)
+                            {
+                                case "Right":
+                                    RightPerform();
+                                    break;
+                                case "Left":
+                                    LeftPerform();
+                                    break;
+                                case "Up":
+                                    UpPerform();
+                                    break;
+                                case "Run":
+                                    if (!_isTouchFlagDirty)
+                                    {
+                                        _isTouchFlagDirty = true;
+                                        RunPerform();
+                                    }
+                                    break;
+                                case "Attack":
+                                    if (!_isTouchFlagDirty)
+                                    {
+                                        _isTouchFlagDirty = true;
+                                        AttackPerform();
+                                    }
+                                    break;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -119,6 +177,7 @@ namespace HideAndSkull.Character
             {
                 _canAction = false;
                 _isDead = true;
+                _currentAct = ActFlag.Die;
 
                 _animator.SetTrigger(IsDead);
             }
@@ -134,9 +193,10 @@ namespace HideAndSkull.Character
                     Destroy(gameObject);
                     break;
                 case PlayMode.Player:
-                    foreach (Renderer renderer in _skinnedMeshRenderers)
+                    foreach (Renderer meshRenderer in _skinnedMeshRenderers)
                     {
-                        renderer.enabled = false;
+                        meshRenderer.enabled = false;
+                        _characterCollider.enabled = false;
                     }
                     break;
             }
@@ -150,13 +210,16 @@ namespace HideAndSkull.Character
             SetPlayerCamera();
 
             //TEST
-            inputActions = new PlayerInputActions();
-            inputActions.Enable();
-            //PC용 BINDING
-            inputActions.Player.Move.performed += PressMoveButton;
-            inputActions.Player.Move.canceled += PressMoveButton;
-            inputActions.Player.Sprint.performed += PressRunButton;
-            inputActions.Player.Attack.performed += PressAttackButton;
+            _inputActions = new PlayerInputActions();
+            _inputActions.Enable();
+            //PC용 Binding
+            _inputActions.Player.Move.performed += PressMoveButton;
+            _inputActions.Player.Move.canceled += PressMoveButton;
+            _inputActions.Player.Sprint.performed += PressRunButton;
+            _inputActions.Player.Attack.performed += PressAttackButton;
+            //Mobile용 Binding
+            _inputActions.UI.Point.performed += OnTouchScreen;
+            _inputActions.UI.Click.canceled += OnReleaseScreen;
         }
 
         private void SetPlayerCamera()
@@ -176,17 +239,17 @@ namespace HideAndSkull.Character
             Camera.main.transform.localRotation = _cameraRotation;
         }
 
-        public void RightPerform()
+        private void RightPerform()
         {
-            _cameraAttachTransform.Rotate(Vector3.up * ROTATE_SPEED * Time.deltaTime);
+            _cameraAttachTransform.Rotate(Vector3.up * (ROTATE_SPEED * Time.deltaTime));
         }
 
-        public void LeftPerform()
+        private void LeftPerform()
         {
-            _cameraAttachTransform.Rotate(Vector3.down * ROTATE_SPEED * Time.deltaTime);
+            _cameraAttachTransform.Rotate(Vector3.down * (ROTATE_SPEED * Time.deltaTime));
         }
 
-        public void UpPerform()
+        private void UpPerform()
         {
             if (_cameraAttachTransform.localRotation != Quaternion.identity)
             {
@@ -194,10 +257,10 @@ namespace HideAndSkull.Character
                 _cameraAttachTransform.localRotation = Quaternion.identity;
             }
             
-            transform.position += transform.forward * Speed * Time.deltaTime;
+            transform.position += transform.forward * (Speed * Time.deltaTime);
         }
 
-        public void RunPerform()
+        private void RunPerform()
         {
             if (!_canAction) return;
 
@@ -210,7 +273,7 @@ namespace HideAndSkull.Character
             _isRunning = !_isRunning;
         }
 
-        public void AttackPerform()
+        private void AttackPerform()
         {
             if(!_canAction) return;
 
@@ -220,7 +283,7 @@ namespace HideAndSkull.Character
         [PunRPC]
         public void AttackPerform_RPC()
         {
-            _boxCollider.enabled = true;
+            _swordCollider.enabled = true;
             _canAction = false;
 
             _animator.SetTrigger(IsAttacking);
@@ -228,29 +291,39 @@ namespace HideAndSkull.Character
 
         public void OnEndAttackAnimation()
         {
-            _boxCollider.enabled = false;
+            _swordCollider.enabled = false;
             _canAction = true;
         }
 
-        public void PressMoveButton(InputAction.CallbackContext context)
+        private void PressMoveButton(InputAction.CallbackContext context)
         {
             _movement = context.ReadValue<Vector2>();
         }
 
-        public void CancelMoveButton(InputAction.CallbackContext context)
-        {
-            _movement = Vector3.zero;
-        }
-
-        public void PressRunButton(InputAction.CallbackContext context)
+        private void PressRunButton(InputAction.CallbackContext context)
         {
             RunPerform();
         }
 
-        public void PressAttackButton(InputAction.CallbackContext context)
+        private void PressAttackButton(InputAction.CallbackContext context)
         {
             AttackPerform();
         }
+
+        private void OnTouchScreen(InputAction.CallbackContext context)
+        {
+            
+            _touchPosition = context.ReadValue<Vector2>();
+            _isTouching = true;
+        }
+
+        private void OnReleaseScreen(InputAction.CallbackContext context)
+        {
+            
+            _isTouching = false;
+            _isTouchFlagDirty = false;
+        }
+
         #endregion
 
         #region AI
@@ -272,17 +345,21 @@ namespace HideAndSkull.Character
             if (_moveElapsed > MOVE_DURATION + _durationNoise)
             {
                 _currentAct = ActFlag.None;
+                _moveDirection = Vector3.zero;
                 _moveElapsed = 0f;
+                _animator.SetBool(IsWalk, false);
             }
             else
             {
                 if(_moveDirection == Vector3.zero)
                 {
-                    Vector2 tempDirection = Random.insideUnitCircle.normalized * (Speed * Time.deltaTime);
+                    Vector2 tempDirection = Random.insideUnitCircle.normalized;
                     _moveDirection = new Vector3(tempDirection.x, 0, tempDirection.y);
+                    transform.forward = new Vector3(_moveDirection.x, 0, _moveDirection.z);
                 }
                 
-                transform.Translate(_moveDirection);
+                transform.Translate(Vector3.forward * (Speed * Time.deltaTime));
+                _animator.SetBool(IsWalk, true);
                 _moveElapsed += Time.deltaTime;
             }
         }
