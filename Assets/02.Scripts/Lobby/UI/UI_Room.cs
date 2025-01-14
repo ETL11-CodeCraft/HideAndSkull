@@ -27,7 +27,7 @@ namespace HideAndSkull.Lobby.UI
         [Resolve] Button _exitRoom;
         [Resolve] RectTransform _playerListContent;
         [Resolve] TMP_Text _playerNickName;
-        TMP_Text[] _chatArray;   //List -> Array로 변경할까
+        TMP_Text[] _chatArray;
         TMP_Text[] _playerArray;
         PhotonView _photonView;
 

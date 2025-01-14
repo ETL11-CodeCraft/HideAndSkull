@@ -60,8 +60,15 @@ namespace HideAndSkull.Lobby.UI
 
         public virtual void Show()
         {
-            _canvas.enabled = true;
-            onShow?.Invoke();
+            if (_canvas != null)
+            {
+                _canvas.enabled = true;
+                onShow?.Invoke();
+            }
+            else
+            {
+                Debug.Log("Canvas가 없습니다.");
+            }
         }
 
         public virtual void Hide()
