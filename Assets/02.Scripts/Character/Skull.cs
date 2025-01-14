@@ -1,7 +1,8 @@
-﻿using System.Collections;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 namespace HideAndSkull.Character
@@ -63,6 +64,12 @@ namespace HideAndSkull.Character
         private Vector3 _movement;
         //DEBUG
         private PlayerInputActions _inputActions;
+        private GraphicRaycaster _graphicRaycaster;
+        private List<RaycastResult> _results = new List<RaycastResult>(2);
+        private PointerEventData _pointerEventData;
+        private bool _isTouching;
+        private bool _isTouchFlagDirty;
+        private Vector2 _touchPosition;
 
 
         private void Awake()
@@ -71,6 +78,8 @@ namespace HideAndSkull.Character
             _swordCollider.enabled = false;
             _skinnedMeshRenderers = GetComponentsInChildren<Renderer>();
             _characterCollider = GetComponent<CapsuleCollider>();
+            _graphicRaycaster = GameObject.Find("Canvas - Buttons").GetComponent<GraphicRaycaster>();
+            _pointerEventData = new PointerEventData(null);
         }
 
         private void Update()
@@ -116,6 +125,43 @@ namespace HideAndSkull.Character
                     {
                         LeftPerform();
                     }
+                    //Mobile 바인딩 실행
+                    if (_isTouching)
+                    {
+                        _pointerEventData.position = _touchPosition;
+                        _results.Clear();
+                        _graphicRaycaster.Raycast(_pointerEventData, _results);
+
+                        if (_results.Count > 0)
+                        {
+                            switch (_results[0].gameObject.name)
+                            {
+                                case "Right":
+                                    RightPerform();
+                                    break;
+                                case "Left":
+                                    LeftPerform();
+                                    break;
+                                case "Up":
+                                    UpPerform();
+                                    break;
+                                case "Run":
+                                    if (!_isTouchFlagDirty)
+                                    {
+                                        _isTouchFlagDirty = true;
+                                        RunPerform();
+                                    }
+                                    break;
+                                case "Attack":
+                                    if (!_isTouchFlagDirty)
+                                    {
+                                        _isTouchFlagDirty = true;
+                                        AttackPerform();
+                                    }
+                                    break;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -159,11 +205,14 @@ namespace HideAndSkull.Character
             //TEST
             _inputActions = new PlayerInputActions();
             _inputActions.Enable();
-            //PC용 BINDING
+            //PC용 Binding
             _inputActions.Player.Move.performed += PressMoveButton;
             _inputActions.Player.Move.canceled += PressMoveButton;
             _inputActions.Player.Sprint.performed += PressRunButton;
             _inputActions.Player.Attack.performed += PressAttackButton;
+            //Mobile용 Binding
+            _inputActions.UI.Point.performed += OnTouchScreen;
+            _inputActions.UI.Click.canceled += OnReleaseScreen;
         }
 
         private void SetPlayerCamera()
@@ -183,17 +232,17 @@ namespace HideAndSkull.Character
             Camera.main.transform.localRotation = _cameraRotation;
         }
 
-        public void RightPerform()
+        private void RightPerform()
         {
             _cameraAttachTransform.Rotate(Vector3.up * (ROTATE_SPEED * Time.deltaTime));
         }
 
-        public void LeftPerform()
+        private void LeftPerform()
         {
             _cameraAttachTransform.Rotate(Vector3.down * (ROTATE_SPEED * Time.deltaTime));
         }
 
-        public void UpPerform()
+        private void UpPerform()
         {
             if (_cameraAttachTransform.localRotation != Quaternion.identity)
             {
@@ -204,14 +253,14 @@ namespace HideAndSkull.Character
             transform.position += transform.forward * (Speed * Time.deltaTime);
         }
 
-        public void RunPerform()
+        private void RunPerform()
         {
             if (!_canAction) return;
 
             _isRunning = !_isRunning;
         }
 
-        public void AttackPerform()
+        private void AttackPerform()
         {
             if(!_canAction) return;
 
@@ -227,20 +276,35 @@ namespace HideAndSkull.Character
             _canAction = true;
         }
 
-        public void PressMoveButton(InputAction.CallbackContext context)
+        private void PressMoveButton(InputAction.CallbackContext context)
         {
             _movement = context.ReadValue<Vector2>();
         }
 
-        public void PressRunButton(InputAction.CallbackContext context)
+        private void PressRunButton(InputAction.CallbackContext context)
         {
             RunPerform();
         }
 
-        public void PressAttackButton(InputAction.CallbackContext context)
+        private void PressAttackButton(InputAction.CallbackContext context)
         {
             AttackPerform();
         }
+
+        private void OnTouchScreen(InputAction.CallbackContext context)
+        {
+            
+            _touchPosition = context.ReadValue<Vector2>();
+            _isTouching = true;
+        }
+
+        private void OnReleaseScreen(InputAction.CallbackContext context)
+        {
+            
+            _isTouching = false;
+            _isTouchFlagDirty = false;
+        }
+
         #endregion
 
         #region AI
