@@ -1,4 +1,4 @@
-using HideAndSkull.Lobby.UI;
+﻿using HideAndSkull.Lobby.UI;
 using HideAndSkull.Lobby.Utilities;
 using UnityEngine.UI;
 using UnityEngine;
