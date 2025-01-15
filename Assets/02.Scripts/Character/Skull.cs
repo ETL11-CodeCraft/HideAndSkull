@@ -1,7 +1,10 @@
-﻿using System.Collections;
+﻿using Photon.Pun;
+using System.Collections;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 namespace HideAndSkull.Character
@@ -18,8 +21,10 @@ namespace HideAndSkull.Character
         None,
         Idle,
         Move,
+        Die
     }
 
+    [RequireComponent(typeof(PhotonTransformView))]
     public class Skull : MonoBehaviour
     {
         public PlayMode PlayMode { get; set; }
@@ -29,12 +34,14 @@ namespace HideAndSkull.Character
         //상수
         private static readonly int IsAttacking = Animator.StringToHash("IsAttacking");
         private static readonly int IsDead = Animator.StringToHash("IsDead");
+        private static readonly int IsWalk = Animator.StringToHash("IsWalk");
         private const float IDLE_DURATION = 3f;
         private const float MOVE_DURATION = 5f;
         private const float STOP_AFTER_MOVE = 1f;
+        private const float DURATION_NOISE_RANGE = 1f;
         private const float WALK_SPEED = 3f;
         private const float RUN_SPEED = 5f;
-        private const float ROTATE_SPEED = 5f;
+        private const float ROTATE_SPEED = 60f;
         private readonly Vector3 _cameraOffset = new Vector3(0, 2.5f, -3.5f);
         private readonly Quaternion _cameraRotation = new Quaternion(0.075f, 0, 0, 1f);
 
@@ -46,23 +53,123 @@ namespace HideAndSkull.Character
         private Renderer[] _skinnedMeshRenderers = new Renderer[4];
 
         //AI
-        private readonly WaitForSeconds _idleWait = new WaitForSeconds(IDLE_DURATION);
-        private readonly WaitForSeconds _stopAfterMoveWait = new WaitForSeconds(STOP_AFTER_MOVE);
+        private float _idleElapsed = 0f;
+        private float _moveElapsed = 0f;
+        private float _durationNoise = 0f;
+        private Vector3 _moveDirection;
         private Coroutine _aiActCoroutine;
 
         //Player
-        [SerializeField] private BoxCollider _boxCollider;
+        [SerializeField] private BoxCollider _swordCollider;
+        private CapsuleCollider _characterCollider;
         private Transform _cameraAttachTransform;
         private bool _canAction = true;
+        private Vector3 _movement;
+        private PhotonView _photonView;
         //DEBUG
-        PlayerInputActions inputActions;
+        private PlayerInputActions _inputActions;
+        private GraphicRaycaster _graphicRaycaster;
+        private List<RaycastResult> _results = new List<RaycastResult>(2);
+        private PointerEventData _pointerEventData;
+        private bool _isTouching;
+        private bool _isTouchFlagDirty;
+        private Vector2 _touchPosition;
 
 
         private void Awake()
         {
             _animator = GetComponent<Animator>();
-            _boxCollider.enabled = false;
+            _swordCollider.enabled = false;
             _skinnedMeshRenderers = GetComponentsInChildren<Renderer>();
+            _characterCollider = GetComponent<CapsuleCollider>();
+            _graphicRaycaster = GameObject.Find("Canvas - Buttons").GetComponent<GraphicRaycaster>();
+            _pointerEventData = new PointerEventData(null);
+            _photonView = GetComponent<PhotonView>();
+        }
+
+        private void Update()
+        {
+            if (PlayMode == PlayMode.AI && _photonView.IsMine)
+            {
+                switch (_currentAct)
+                {
+                    case ActFlag.None:
+                        _currentAct = (ActFlag)Random.Range(1, 3);
+                        _durationNoise = Random.Range(-DURATION_NOISE_RANGE, DURATION_NOISE_RANGE);
+                        break;
+                    case ActFlag.Idle:
+                        Idle();
+                        break;
+                    case ActFlag.Move:
+                        Move();
+                        break;
+                    case ActFlag.Die:
+                        //죽었을 때는 아무것도 하지 않기
+                        break;
+                }
+            }
+            if (PlayMode == PlayMode.Player && _photonView.IsMine)
+            {
+                if(_canAction)
+                {
+                    //PC 바인딩 실행
+                    if(_movement.y > 0)
+                    {
+                        UpPerform();
+                        _photonView.RPC(nameof(PlayWalkAnimation), RpcTarget.AllViaServer);
+                    }
+                    else
+                    {
+                        _photonView.RPC(nameof(StopWalkAnimation), RpcTarget.AllViaServer);
+                    }
+                    if(_movement.x > 0)
+                    {
+                        RightPerform();
+                    }
+                    if(_movement.x < 0)
+                    {
+                        LeftPerform();
+                    }
+                    //Mobile 바인딩 실행
+                    if (_isTouching)
+                    {
+                        _pointerEventData.position = _touchPosition;
+                        _results.Clear();
+                        _graphicRaycaster.Raycast(_pointerEventData, _results);
+
+                        if (_results.Count > 0)
+                        {
+                            switch (_results[0].gameObject.name)
+                            {
+                                case "Right":
+                                    RightPerform();
+                                    break;
+                                case "Left":
+                                    LeftPerform();
+                                    break;
+                                case "Up":
+                                    UpPerform();
+                                    _photonView.RPC(nameof(PlayWalkAnimation), RpcTarget.AllViaServer);
+                                    break;
+                                case "Run":
+                                    if (!_isTouchFlagDirty)
+                                    {
+                                        _isTouchFlagDirty = true;
+                                        RunPerform();
+                                    }
+                                    break;
+                                case "Attack":
+                                    if (!_isTouchFlagDirty)
+                                    {
+                                        _isTouchFlagDirty = true;
+                                        AttackPerform();
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         public void Die()
@@ -71,6 +178,7 @@ namespace HideAndSkull.Character
             {
                 _canAction = false;
                 _isDead = true;
+                _currentAct = ActFlag.Die;
 
                 _animator.SetTrigger(IsDead);
             }
@@ -86,26 +194,52 @@ namespace HideAndSkull.Character
                     Destroy(gameObject);
                     break;
                 case PlayMode.Player:
-                    foreach (Renderer renderer in _skinnedMeshRenderers)
+                    foreach (Renderer meshRenderer in _skinnedMeshRenderers)
                     {
-                        renderer.enabled = false;
+                        meshRenderer.enabled = false;
+                        _characterCollider.enabled = false;
                     }
-
                     break;
             }
         }
 
-        #region Player
-        public void StartPlayerAct()
+        [PunRPC]
+        private void PlayWalkAnimation()
         {
+            _animator.SetBool(IsWalk, true);
+        }
+
+        [PunRPC]
+        private void StopWalkAnimation()
+        {
+            _animator.SetBool(IsWalk, false);
+        }
+
+        #region Player
+        public void InitPlayer()
+        {
+            if (!_photonView.IsMine) return;
+
             SetPlayerCamera();
+            _photonView.RPC(nameof(SetPlayModePlayer), RpcTarget.AllBufferedViaServer);
 
             //TEST
-            inputActions = new PlayerInputActions();
-            inputActions.Enable();
-            inputActions.Player.Move.performed += PressMoveButton;
-            inputActions.Player.Sprint.performed += PressRunButton;
-            inputActions.Player.Attack.performed += PressAttackButton;
+            _inputActions = new PlayerInputActions();
+            _inputActions.Enable();
+            //PC용 Binding
+            _inputActions.Player.Move.performed += PressMoveButton;
+            _inputActions.Player.Move.canceled += PressMoveButton;
+            _inputActions.Player.Sprint.performed += PressRunButton;
+            _inputActions.Player.Attack.performed += PressAttackButton;
+            //Mobile용 Binding
+            _inputActions.UI.Point.performed += OnTouchScreen;
+            _inputActions.UI.Click.canceled += OnReleaseScreen;
+        }
+
+        [PunRPC]
+        private void SetPlayModePlayer()
+        {
+            PlayMode = PlayMode.Player;
         }
 
         private void SetPlayerCamera()
@@ -125,45 +259,51 @@ namespace HideAndSkull.Character
             Camera.main.transform.localRotation = _cameraRotation;
         }
 
-        public void PressRightButton()
+        private void RightPerform()
         {
-            if (!_canAction) return;
-
-            _cameraAttachTransform.Rotate(Vector3.up * ROTATE_SPEED);
+            _cameraAttachTransform.Rotate(Vector3.up * (ROTATE_SPEED * Time.deltaTime));
         }
 
-        public void PressLeftButton()
+        private void LeftPerform()
         {
-            if (!_canAction) return;
-
-            _cameraAttachTransform.Rotate(Vector3.down * ROTATE_SPEED);
+            _cameraAttachTransform.Rotate(Vector3.down * (ROTATE_SPEED * Time.deltaTime));
         }
 
-        public void PressUpButton()
+        private void UpPerform()
         {
-            if(!_canAction) return;
-
             if (_cameraAttachTransform.localRotation != Quaternion.identity)
             {
                 transform.forward = _cameraAttachTransform.forward;
                 _cameraAttachTransform.localRotation = Quaternion.identity;
             }
             
-            transform.position += transform.forward * Speed * Time.deltaTime;
+            transform.position += transform.forward * (Speed * Time.deltaTime);
         }
 
-        public void PressRunButton()
+        private void RunPerform()
         {
             if (!_canAction) return;
 
+            _photonView.RPC(nameof(RunPerform_RPC), RpcTarget.AllViaServer);
+        }
+
+        [PunRPC]
+        public void RunPerform_RPC()
+        {
             _isRunning = !_isRunning;
         }
 
-        public void PressAttackButton()
+        private void AttackPerform()
         {
-            if(!_canAction) return;
+            if(!_canAction || _isDead) return;
 
-            _boxCollider.enabled = true;
+            _photonView.RPC(nameof(AttackPerform_RPC), RpcTarget.AllViaServer);
+        }
+
+        [PunRPC]
+        public void AttackPerform_RPC()
+        {
+            _swordCollider.enabled = true;
             _canAction = false;
 
             _animator.SetTrigger(IsAttacking);
@@ -171,86 +311,88 @@ namespace HideAndSkull.Character
 
         public void OnEndAttackAnimation()
         {
-            _boxCollider.enabled = false;
+            _swordCollider.enabled = false;
             _canAction = true;
         }
 
-        public void PressMoveButton(InputAction.CallbackContext context)
+        private void PressMoveButton(InputAction.CallbackContext context)
         {
-            Vector2 movement = context.ReadValue<Vector2>();
-            if(movement.x > 0)
-            {
-                PressRightButton();
-            }
-            if(movement.x < 0)
-            {
-                PressLeftButton();
-            }
-            if(movement.y > 0)
-            {
-                PressUpButton();
-            }
+            _movement = context.ReadValue<Vector2>();
         }
 
-        public void PressRunButton(InputAction.CallbackContext context)
+        private void PressRunButton(InputAction.CallbackContext context)
         {
-            PressRunButton();
+            RunPerform();
         }
 
-        public void PressAttackButton(InputAction.CallbackContext context)
+        private void PressAttackButton(InputAction.CallbackContext context)
         {
-            PressAttackButton();
+            AttackPerform();
         }
+
+        private void OnTouchScreen(InputAction.CallbackContext context)
+        {
+            
+            _touchPosition = context.ReadValue<Vector2>();
+            _isTouching = true;
+        }
+
+        private void OnReleaseScreen(InputAction.CallbackContext context)
+        {
+            
+            _isTouching = false;
+            _isTouchFlagDirty = false;
+            _photonView.RPC(nameof(StopWalkAnimation), RpcTarget.AllViaServer);
+        }
+
         #endregion
 
         #region AI
-        /// <summary>
-        /// AI라면 해당 함수를 한번 실행
-        /// </summary>
-        public void StartAIAct()
+        public void InitAI()
         {
-            // 코루틴은 한번만 실행 / 사용자가 플레이하는 캐릭터는 실행할 수 없음
-            if (_aiActCoroutine != null || PlayMode == PlayMode.Player) return;
-
-            _aiActCoroutine = StartCoroutine(Act());
+            _photonView.RPC(nameof(SetPlayModeAI), RpcTarget.AllBufferedViaServer);
         }
 
-        /// <summary>
-        /// AI의 행동을 랜덤으로 골라 실행하는 함수
-        /// </summary>
-        private IEnumerator Act()
+        [PunRPC]
+        private void SetPlayModeAI()
         {
-            while (true)
+            PlayMode = PlayMode.AI;
+        }
+
+        private void Idle()
+        {
+            if (_idleElapsed > IDLE_DURATION + _durationNoise)
             {
-                _currentAct = (ActFlag)Random.Range(1, 3);
-                switch (_currentAct)
-                {
-                    case ActFlag.Idle:
-                        yield return Idle();
-                        break;
-                    case ActFlag.Move:
-                        yield return Move();
-                        yield return _stopAfterMoveWait;
-                        break;
-                }
+                _currentAct = ActFlag.None;
+                _idleElapsed = 0f;
+            }
+            else
+            {
+                _idleElapsed += Time.deltaTime;
             }
         }
 
-        private IEnumerator Idle()
+        private void Move()
         {
-            yield return _idleWait;
-        }
-
-        private IEnumerator Move()
-        {
-            Vector2 tempDirection = Random.insideUnitCircle.normalized * (Speed * Time.deltaTime);
-            Vector3 randomDirection = new Vector3(tempDirection.x, 0, tempDirection.y);
-            transform.rotation = Quaternion.LookRotation(randomDirection);
-
-            for (float elapsedTIme = 0f; elapsedTIme < MOVE_DURATION; elapsedTIme += Time.deltaTime)
+            if (_moveElapsed > MOVE_DURATION + _durationNoise)
             {
-                transform.position += randomDirection;
-                yield return null;
+                _currentAct = ActFlag.None;
+                _moveDirection = Vector3.zero;
+                _moveElapsed = 0f;
+                _photonView.RPC(nameof(StopWalkAnimation), RpcTarget.AllViaServer);
+            }
+            else
+            {
+                if(_moveDirection == Vector3.zero)
+                {
+                    Vector2 tempDirection = Random.insideUnitCircle.normalized;
+                    _moveDirection = new Vector3(tempDirection.x, 0, tempDirection.y);
+                    transform.forward = new Vector3(_moveDirection.x, 0, _moveDirection.z);
+                }
+                
+                transform.Translate(Vector3.forward * (Speed * Time.deltaTime));
+                _photonView.RPC(nameof(PlayWalkAnimation), RpcTarget.AllViaServer);
+                _moveElapsed += Time.deltaTime;
             }
         }
         #endregion
