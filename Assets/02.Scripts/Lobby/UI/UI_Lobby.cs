@@ -28,21 +28,26 @@ namespace HideAndSkull.Lobby.UI
         {
             base.Start();
 
-            //Todo : 최대 인원 8명, 랜덤한 6자리의 코드를 가진 방 생성
+            //최대 인원 8명, 랜덤한 6자리의 코드를 가진 방 생성
             _createRoom.onClick.AddListener(() =>
             {
                 //Todo : Random한 코드 생성. 기존의 방들과 코드가 겹치면 안되며, 코드로 방에 접근할 수 있어야 함.
                 CreateRoomWithRandomCode();
             });
 
-            //Todo : 코드입력 팝업 띄우기 - 팝업 띄우기 확인 / 코드입력으로 룸 입장하기 미확인
+            //코드입력 팝업 띄우기 - 팝업 띄우기 확인 / 코드입력으로 룸 입장하기 미확인
             _codeInput.onClick.AddListener(() =>
             {
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    OnLeftRoom();
+                }
+
                 UI_CodeInput codeInputPopup = UI_Manager.instance.Resolve<UI_CodeInput>();
                 codeInputPopup.Show();
             });
 
-            //Todo : 입장할 수 있는 방 검사 후 있으면 입장, 없으면 새로운 방 생성
+            //입장할 수 있는 방 검사 후 있으면 입장, 없으면 새로운 방 생성
             _quickEnterRoom.onClick.AddListener(() =>
             {
                 PhotonNetwork.JoinRandomRoom();
@@ -73,6 +78,11 @@ namespace HideAndSkull.Lobby.UI
         /// </summary>
         private void CreateRoomWithRandomCode()
         {
+            if(PhotonNetwork.IsMasterClient)
+            {
+                OnLeftRoom();
+            }
+
             string randomRoomCode = GenerateRandomRoomCode(ROOM_CODE_LENGTH);
 
             RoomOptions roomOptions = new RoomOptions
