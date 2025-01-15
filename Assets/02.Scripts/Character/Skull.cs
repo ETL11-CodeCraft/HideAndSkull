@@ -1,4 +1,5 @@
 ﻿using Photon.Pun;
+using Photon.Realtime;
 using System.Collections;
 ﻿using System.Collections.Generic;
 using UnityEngine;
@@ -25,7 +26,7 @@ namespace HideAndSkull.Character
     }
 
     [RequireComponent(typeof(PhotonTransformView))]
-    public class Skull : MonoBehaviour
+    public class Skull : MonoBehaviour, IPunOwnershipCallbacks
     {
         public PlayMode PlayMode { get; set; }
         private float Speed => _isRunning ? RUN_SPEED : WALK_SPEED;  //프레임당 이동거리
@@ -85,6 +86,15 @@ namespace HideAndSkull.Character
             _graphicRaycaster = GameObject.Find("Canvas - Buttons").GetComponent<GraphicRaycaster>();
             _pointerEventData = new PointerEventData(null);
             PhotonView = GetComponent<PhotonView>();
+        }
+
+        private void OnEnable()
+        {
+            PhotonNetwork.AddCallbackTarget(this);
+        }
+        private void OnDisable()
+        {
+            PhotonNetwork.RemoveCallbackTarget(this);
         }
 
         private void Update()
@@ -398,6 +408,26 @@ namespace HideAndSkull.Character
                 PhotonView.RPC(nameof(PlayWalkAnimation), RpcTarget.AllViaServer);
                 _moveElapsed += Time.deltaTime;
             }
+        }
+
+        public void OnOwnershipRequest(PhotonView targetView, Player requestingPlayer)
+        {
+            Debug.Log("OnOwnershipRequest");
+        }
+
+        public void OnOwnershipTransfered(PhotonView targetView, Player previousOwner)
+        {
+            Debug.Log("OnOwnershipTransfered");
+            if (targetView == PhotonView && PhotonView.IsMine)
+            {
+                Debug.Log("OnOwnershipTransfered IsMine");
+                InitPlayer();
+            }
+        }
+
+        public void OnOwnershipTransferFailed(PhotonView targetView, Player senderOfFailedRequest)
+        {
+            Debug.Log($"[{nameof(Skull)}] OnOwnershipTransferFailed");
         }
         #endregion
     }

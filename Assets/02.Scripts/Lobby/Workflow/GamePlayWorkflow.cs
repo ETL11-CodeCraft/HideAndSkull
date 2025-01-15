@@ -1,5 +1,6 @@
 using HideAndSkull.Character;
 using Photon.Pun;
+using Photon.Realtime;
 using System.Collections;
 using UnityEngine;
 
@@ -8,36 +9,31 @@ namespace HideAndSkull.Lobby.Workflow
     public class GamePlayWorkflow : MonoBehaviour
     {
         [SerializeField] Transform[] _spawnPoints;
-        static int spawnedCnt = 0;
+        Player[] _playerList;
+
 
         private void Start()
         {
-            StartCoroutine(C_Workflow());
+            if(PhotonNetwork.IsMasterClient)
+            {
+                StartCoroutine(C_Workflow());
+            }
         }
 
         IEnumerator C_Workflow()
         {
-            SpawnCharacter(_spawnPoints[spawnedCnt++].position);
-            if(PhotonNetwork.IsMasterClient)
+            _playerList = PhotonNetwork.PlayerList;
+            for (int i=0; i< _playerList.Length; i++)
             {
-                for(int i= PhotonNetwork.PlayerList.Length; i < 20; i++)
-                {
-                    SpawnAI(_spawnPoints[spawnedCnt++].position);
-                }
+                PhotonView photonView = PhotonNetwork.Instantiate("Character/Skull", _spawnPoints[i].position, Quaternion.identity).GetComponent<PhotonView>();
+                photonView.TransferOwnership(_playerList[i].ActorNumber);
+            }
+            for (int i = _playerList.Length; i < 20; i++)
+            {
+                Skull AISkull = PhotonNetwork.Instantiate("Character/Skull", _spawnPoints[i].position, Quaternion.identity).GetComponent<Skull>();
+                AISkull.InitAI();
             }
             yield return null;
-        }
-
-        private void SpawnCharacter(Vector3 transform)
-        {
-            Skull playerSkull = PhotonNetwork.Instantiate("Character/Skull", transform, Quaternion.identity).GetComponent<Skull>();
-            playerSkull.InitPlayer();
-        }
-
-        private void SpawnAI(Vector3 transform)
-        {
-            Skull AISkull = PhotonNetwork.Instantiate("Character/Skull", transform, Quaternion.identity).GetComponent<Skull>();
-            AISkull.InitAI();
         }
     }
 }
