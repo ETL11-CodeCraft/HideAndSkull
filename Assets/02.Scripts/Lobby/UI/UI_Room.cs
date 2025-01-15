@@ -1,4 +1,4 @@
-using ExitGames.Client.Photon;
+ï»¿using ExitGames.Client.Photon;
 using HideAndSkull.Lobby.Utilities;
 using Photon.Pun;
 using Photon.Realtime;
@@ -11,10 +11,10 @@ using UnityEngine.UI;
 
 namespace HideAndSkull.Lobby.UI
 {
-    //Todo : ·ëÄÚµå ¶ç¿ì±â (È®ÀÎ)
-    //Todo : ÇÃ·¹ÀÌ¾î ¸ñ·Ï °»½ÅÇÏ±â (È®ÀÎ)
-    //Todo : Ã¤ÆÃÃ¢¿¡ ÇÃ·¹ÀÌ¾î ÀÔÀå / ÅğÀå ¶ç¿ì±â (È®ÀÎ)
-    //Todo : Ã¤ÆÃÃ¢¿¡ ÀÔ·ÂÇÏ±â (È®ÀÎ)
+    //Todo : ë£¸ì½”ë“œ ë„ìš°ê¸° (í™•ì¸)
+    //Todo : í”Œë ˆì´ì–´ ëª©ë¡ ê°±ì‹ í•˜ê¸° (í™•ì¸)
+    //Todo : ì±„íŒ…ì°½ì— í”Œë ˆì´ì–´ ì…ì¥ / í‡´ì¥ ë„ìš°ê¸° (í™•ì¸)
+    //Todo : ì±„íŒ…ì°½ì— ì…ë ¥í•˜ê¸° (í™•ì¸)
     [RequireComponent(typeof(PhotonView))]
     public class UI_Room : UI_Screen, IInRoomCallbacks
     {
@@ -64,14 +64,14 @@ namespace HideAndSkull.Lobby.UI
 
             _chatEnter.onClick.AddListener(MessageSend);
 
-            //¹æÀå ÇÑ ¸í¸¸ ·ë¿¡ ÀÖÀ» ¶§, °ÔÀÓ ½ÃÀÛÇÏ±â ¹öÆ°À» ´©¸£¸é ConfirmWindow¸¦ »ç¿ëÇÏ¿© °ÔÀÓ ½ÃÀÛÇÒ ¼ö ¾øÀ½À» Ç¥±â
+            //ë°©ì¥ í•œ ëª…ë§Œ ë£¸ì— ìˆì„ ë•Œ, ê²Œì„ ì‹œì‘í•˜ê¸° ë²„íŠ¼ì„ ëˆ„ë¥´ë©´ ConfirmWindowë¥¼ ì‚¬ìš©í•˜ì—¬ ê²Œì„ ì‹œì‘í•  ìˆ˜ ì—†ìŒì„ í‘œê¸°
             _gameStart.onClick.AddListener(() =>
             {
                 if (PhotonNetwork.CurrentRoom.PlayerCount < 2)
                 {
                     UI_ConfirmWindow confirmWindow = UI_Manager.instance.Resolve<UI_ConfirmWindow>();
 
-                    confirmWindow.Show("ÇÃ·¹ÀÌ¾î°¡ 2¸í ÀÌ»óÀÏ ¶§,\nÇÃ·¹ÀÌ °¡´ÉÇÕ´Ï´Ù.");
+                    confirmWindow.Show("í”Œë ˆì´ì–´ê°€ 2ëª… ì´ìƒì¼ ë•Œ,\ní”Œë ˆì´ ê°€ëŠ¥í•©ë‹ˆë‹¤.");
                     return;
                 }
 
@@ -90,7 +90,7 @@ namespace HideAndSkull.Lobby.UI
         {
             base.Show();
 
-            //¸¶½ºÅÍ Å¬¶óÀÌ¾ğÆ®°¡ RoomÀ» ShowÇßÀ» ¶§ ·ëÀÇ ¿ÀÇÂ»óÅÂ¸¦ true·Î ÀüÈ¯ÇÑ´Ù.
+            //ë§ˆìŠ¤í„° í´ë¼ì´ì–¸íŠ¸ê°€ Roomì„ Showí–ˆì„ ë•Œ ë£¸ì˜ ì˜¤í”ˆìƒíƒœë¥¼ trueë¡œ ì „í™˜í•œë‹¤.
             if (PhotonNetwork.IsMasterClient)
             {
                 PhotonNetwork.CurrentRoom.IsOpen = true;
@@ -99,11 +99,11 @@ namespace HideAndSkull.Lobby.UI
             if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("RoomCode"))
             {
                 string roomCode = PhotonNetwork.CurrentRoom.CustomProperties["RoomCode"].ToString();
-                _roomCode.text = "·ëÄÚµå : " + roomCode;
+                _roomCode.text = "ë£¸ì½”ë“œ : " + roomCode;
             }
             else
             {
-                _roomCode.text = "·ëÄÚµå¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.";
+                _roomCode.text = "ë£¸ì½”ë“œë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.";
             }
 
             TogglePlayerButtons(PhotonNetwork.LocalPlayer);
@@ -147,7 +147,7 @@ namespace HideAndSkull.Lobby.UI
             }
         }
 
-        //Player ¸ñ·Ï °»½Å½Ã È®ÀÎÇÏ¿© ¸¶½ºÅÍ º¯°æ
+        //Player ëª©ë¡ ê°±ì‹ ì‹œ í™•ì¸í•˜ì—¬ ë§ˆìŠ¤í„° ë³€ê²½
         public void OnMasterClientSwitched(Player newMasterClient)
         {
             if (newMasterClient.ActorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
@@ -156,14 +156,14 @@ namespace HideAndSkull.Lobby.UI
 
         public void OnPlayerEnteredRoom(Player newPlayer)
         {
-             ChattingPlayerInAndOut($"<color=yellow>{newPlayer.NickName}´ÔÀÌ Âü°¡ÇÏ¼Ì½À´Ï´Ù</color>");
+             ChattingPlayerInAndOut($"<color=yellow>{newPlayer.NickName}ë‹˜ì´ ì°¸ê°€í•˜ì…¨ìŠµë‹ˆë‹¤</color>");
 
             _photonView.RPC("PlayerListRPC", RpcTarget.All);
         }
 
         public void OnPlayerLeftRoom(Player otherPlayer)
         {
-             ChattingPlayerInAndOut($"<color=yellow>{otherPlayer.NickName}´ÔÀÌ ÅğÀåÇÏ¼Ì½À´Ï´Ù</color>");
+             ChattingPlayerInAndOut($"<color=yellow>{otherPlayer.NickName}ë‹˜ì´ í‡´ì¥í•˜ì…¨ìŠµë‹ˆë‹¤</color>");
 
             _photonView.RPC("PlayerListRPC", RpcTarget.All);
         }
@@ -177,7 +177,7 @@ namespace HideAndSkull.Lobby.UI
         }
 
         #region PlayerList  
-        //ÇÃ·¹ÀÌ¾î ¸®½ºÆ®´Â ¹æÀå°ú ´Ù¸¥ ÇÃ·¹ÀÌ¾îµéÀ» ±¸º°ÇØ¼­ Ç¥±âÇÏ¸ç, ÀÔÀå ¹× ÅğÀå½Ã ÀçÁ¤·ÄÇÑ´Ù.
+        //í”Œë ˆì´ì–´ ë¦¬ìŠ¤íŠ¸ëŠ” ë°©ì¥ê³¼ ë‹¤ë¥¸ í”Œë ˆì´ì–´ë“¤ì„ êµ¬ë³„í•´ì„œ í‘œê¸°í•˜ë©°, ì…ì¥ ë° í‡´ì¥ì‹œ ì¬ì •ë ¬í•œë‹¤.
         [PunRPC]
         private void PlayerListRPC()
         {
@@ -192,7 +192,7 @@ namespace HideAndSkull.Lobby.UI
                 string playerNickNameText = "";
 
                 if (player.IsMasterClient)
-                    playerNickNameText = $"[¹æÀå] {player.NickName}";
+                    playerNickNameText = $"[ë°©ì¥] {player.NickName}";
                 else
                     playerNickNameText = $"           {player.NickName}";
 
@@ -234,7 +234,7 @@ namespace HideAndSkull.Lobby.UI
                 }
             }
 
-            if (!isInput) // ²ËÂ÷¸é ÇÑÄ­¾¿ À§·Î ¿Ã¸²
+            if (!isInput) // ê½‰ì°¨ë©´ í•œì¹¸ì”© ìœ„ë¡œ ì˜¬ë¦¼
             {
                 for (int i = 1; i < _chatArray.Length; i++)
                 {
@@ -266,7 +266,7 @@ namespace HideAndSkull.Lobby.UI
                 }
             }
 
-            if (!isInput) // ²ËÂ÷¸é ÇÑÄ­¾¿ À§·Î ¿Ã¸²
+            if (!isInput) // ê½‰ì°¨ë©´ í•œì¹¸ì”© ìœ„ë¡œ ì˜¬ë¦¼
             {
                 for (int i = 1; i < _chatArray.Length; i++)
                 {

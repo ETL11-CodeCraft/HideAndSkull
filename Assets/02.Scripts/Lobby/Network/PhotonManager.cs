@@ -1,4 +1,4 @@
-using Photon.Pun;
+ï»¿using Photon.Pun;
 using UnityEngine;
 
 namespace HideAndSkull.Lobby.Network
@@ -53,8 +53,8 @@ namespace HideAndSkull.Lobby.Network
         {
             base.OnConnectedToMaster();
 
-            PhotonNetwork.AutomaticallySyncScene = true;    //ÇöÀç ¼ÓÇØÀÖ´Â ¹æÀÇ ¹æÀåÀÌ ¾ÀÀ» ÀüÈ¯ÇÏ¸é µû¶ó¼­ ÀüÈ¯ÇÏ´Â ¿É¼Ç
-            //PhotonNetwork.NickName = "";  //´Ğ³×ÀÓ ¼³Á¤ °¡´É
+            PhotonNetwork.AutomaticallySyncScene = true;    //í˜„ì¬ ì†í•´ìˆëŠ” ë°©ì˜ ë°©ì¥ì´ ì”¬ì„ ì „í™˜í•˜ë©´ ë”°ë¼ì„œ ì „í™˜í•˜ëŠ” ì˜µì…˜
+            //PhotonNetwork.NickName = "";  //ë‹‰ë„¤ì„ ì„¤ì • ê°€ëŠ¥
             Debug.Log($"[{nameof(PhotonManager)}] Connected to master server");
             PhotonNetwork.JoinLobby();
         }

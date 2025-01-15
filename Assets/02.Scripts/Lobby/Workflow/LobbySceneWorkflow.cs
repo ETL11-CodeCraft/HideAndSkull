@@ -1,4 +1,4 @@
-using HideAndSkull.Lobby.UI;
+ï»¿using HideAndSkull.Lobby.UI;
 using Photon.Pun;
 using System.Collections;
 using UnityEngine;
@@ -16,7 +16,7 @@ namespace HideAndSkull.Lobby.Workflow
         {
             UI_Manager uiManager = UI_Manager.instance;
 
-            //Photon server¿¡ Á¢¼Ó¿Ï·á µÉ ¶§±îÁö ´ë±â
+            //Photon serverì— ì ‘ì†ì™„ë£Œ ë  ë•Œê¹Œì§€ ëŒ€ê¸°
             yield return new WaitUntil(() => PhotonNetwork.IsConnected);
 
             uiManager.Resolve<UI_Home>()

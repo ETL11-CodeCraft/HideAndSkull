@@ -1,4 +1,4 @@
-using HideAndSkull.Lobby.Utilities;
+ï»¿using HideAndSkull.Lobby.Utilities;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
@@ -7,13 +7,13 @@ using UnityEngine.UI;
 
 namespace HideAndSkull.Lobby.UI
 {
-    //Todo : "¹æ¸¸µé±â" ¹öÆ° Å¬¸¯½Ã ¹æ »ı¼ºÇÏ°í ¹æÀ¸·Î ÀÌµ¿ (È®ÀÎ)
-    //Todo : "ÄÚµåÀÔ·Â" ¹öÆ° Å¬¸¯½Ã ÄÚµå ÀÔ·Â ÆË¾÷ ¶ç¿ì±â (È®ÀÎ)
-    //Todo : ÇØ´ç ÄÚµå¸¦ °¡Áø ¹æÀÌ ÀÖ´ÂÁö °Ë»ç. ÀÔÀåÇÒ ¼ö ÀÖÀ¸¸é ¹æ ÀÔÀå, ¾Æ´Ï¸é ¿¡·¯ Ãâ·Â(popup) ÈÄ ·Îºñ·Î (È®ÀÎ)
-    //Todo : "ºü¸¥ÀÔÀå" ¹öÆ° Å¬¸¯½Ã ÀÌ¹Ì »ı¼ºµÈ ¹æ Áß ·£´ıÀ¸·Î ÀÔÀå, ¾øÀ¸¸é ¹æ ÀÚµ¿ »ı¼º (È®ÀÎ)
-    //Todo : "³ª°¡±â" ¹öÆ° Å¬¸¯½Ã È¨À¸·Î ÀÌµ¿ ¶Ç´Â ¾Û Á¾·á (È®ÀÎ)
-    //Todo : MasterClientÀÎµ¥ ·Îºñ¿¡ ÀÖÀ» ¶§, ´õ ÀÌ»ó MasterClient°¡ ¾Æ´Ïµµ·Ï °»½Å - ÇöÀç´Â LeftRoomÀ¸·Î ÇØ°á(ÃßÈÄ ¼öÁ¤)
-    //Todo : ÇÃ·¹ÀÌ ÁßÀÎ ¹æ¿¡ µé¾î°¥ ¼ö ¾øµµ·Ï Á¶Á¤
+    //Todo : "ë°©ë§Œë“¤ê¸°" ë²„íŠ¼ í´ë¦­ì‹œ ë°© ìƒì„±í•˜ê³  ë°©ìœ¼ë¡œ ì´ë™ (í™•ì¸)
+    //Todo : "ì½”ë“œì…ë ¥" ë²„íŠ¼ í´ë¦­ì‹œ ì½”ë“œ ì…ë ¥ íŒì—… ë„ìš°ê¸° (í™•ì¸)
+    //Todo : í•´ë‹¹ ì½”ë“œë¥¼ ê°€ì§„ ë°©ì´ ìˆëŠ”ì§€ ê²€ì‚¬. ì…ì¥í•  ìˆ˜ ìˆìœ¼ë©´ ë°© ì…ì¥, ì•„ë‹ˆë©´ ì—ëŸ¬ ì¶œë ¥(popup) í›„ ë¡œë¹„ë¡œ (í™•ì¸)
+    //Todo : "ë¹ ë¥¸ì…ì¥" ë²„íŠ¼ í´ë¦­ì‹œ ì´ë¯¸ ìƒì„±ëœ ë°© ì¤‘ ëœë¤ìœ¼ë¡œ ì…ì¥, ì—†ìœ¼ë©´ ë°© ìë™ ìƒì„± (í™•ì¸)
+    //Todo : "ë‚˜ê°€ê¸°" ë²„íŠ¼ í´ë¦­ì‹œ í™ˆìœ¼ë¡œ ì´ë™ ë˜ëŠ” ì•± ì¢…ë£Œ (í™•ì¸)
+    //Todo : MasterClientì¸ë° ë¡œë¹„ì— ìˆì„ ë•Œ, ë” ì´ìƒ MasterClientê°€ ì•„ë‹ˆë„ë¡ ê°±ì‹  - í˜„ì¬ëŠ” LeftRoomìœ¼ë¡œ í•´ê²°(ì¶”í›„ ìˆ˜ì •)
+    //Todo : í”Œë ˆì´ ì¤‘ì¸ ë°©ì— ë“¤ì–´ê°ˆ ìˆ˜ ì—†ë„ë¡ ì¡°ì •
     public class UI_Lobby : UI_Screen, ILobbyCallbacks, IMatchmakingCallbacks
     {
         [Resolve] Button _createRoom;
@@ -21,22 +21,22 @@ namespace HideAndSkull.Lobby.UI
         [Resolve] Button _quickEnterRoom;
         [Resolve] Button _backHome;
 
-        const int ROOM_PLAYER_COUNT = 8;    //ÀÔÀåÇÒ ¼ö ÀÖ´Â ÇÃ·¹ÀÌ¾îÀÇ ÃÖ´ë ÀÎ¿ø¼ö´Â 8¸í. ¸ğµç ¹æÀº 8¸í¹æÀ¸·Î »ı¼º
-        const int ROOM_CODE_LENGTH = 6;     //·£´ıÀ¸·Î »ı¼ºµÇ´Â ÄÚµåÀÇ ±æÀÌ
+        const int ROOM_PLAYER_COUNT = 8;    //ì…ì¥í•  ìˆ˜ ìˆëŠ” í”Œë ˆì´ì–´ì˜ ìµœëŒ€ ì¸ì›ìˆ˜ëŠ” 8ëª…. ëª¨ë“  ë°©ì€ 8ëª…ë°©ìœ¼ë¡œ ìƒì„±
+        const int ROOM_CODE_LENGTH = 6;     //ëœë¤ìœ¼ë¡œ ìƒì„±ë˜ëŠ” ì½”ë“œì˜ ê¸¸ì´
 
 
         protected override void Start()
         {
             base.Start();
 
-            //ÃÖ´ë ÀÎ¿ø 8¸í, ·£´ıÇÑ 6ÀÚ¸®ÀÇ ÄÚµå¸¦ °¡Áø ¹æ »ı¼º
+            //ìµœëŒ€ ì¸ì› 8ëª…, ëœë¤í•œ 6ìë¦¬ì˜ ì½”ë“œë¥¼ ê°€ì§„ ë°© ìƒì„±
             _createRoom.onClick.AddListener(() =>
             {
-                //RandomÇÑ ÄÚµå »ı¼º. ±âÁ¸ÀÇ ¹æµé°ú ÄÚµå°¡ °ãÄ¡¸é ¾ÈµÇ¸ç, ÄÚµå·Î ¹æ¿¡ Á¢±ÙÇÒ ¼ö ÀÖ¾î¾ß ÇÔ.
+                //Randomí•œ ì½”ë“œ ìƒì„±. ê¸°ì¡´ì˜ ë°©ë“¤ê³¼ ì½”ë“œê°€ ê²¹ì¹˜ë©´ ì•ˆë˜ë©°, ì½”ë“œë¡œ ë°©ì— ì ‘ê·¼í•  ìˆ˜ ìˆì–´ì•¼ í•¨.
                 CreateRoomWithRandomCode();
             });
 
-            //ÄÚµåÀÔ·Â ÆË¾÷ ¶ç¿ì±â - ÆË¾÷ ¶ç¿ì±â È®ÀÎ / ÄÚµåÀÔ·ÂÀ¸·Î ·ë ÀÔÀåÇÏ±â
+            //ì½”ë“œì…ë ¥ íŒì—… ë„ìš°ê¸° - íŒì—… ë„ìš°ê¸° í™•ì¸ / ì½”ë“œì…ë ¥ìœ¼ë¡œ ë£¸ ì…ì¥í•˜ê¸°
             _codeInput.onClick.AddListener(() =>
             {
                 if (PhotonNetwork.IsMasterClient)
@@ -48,20 +48,20 @@ namespace HideAndSkull.Lobby.UI
                 codeInputPopup.Show();
             });
 
-            //ÀÔÀåÇÒ ¼ö ÀÖ´Â ¹æ °Ë»ç ÈÄ ÀÖÀ¸¸é ÀÔÀå, ¾øÀ¸¸é »õ·Î¿î ¹æ »ı¼º
+            //ì…ì¥í•  ìˆ˜ ìˆëŠ” ë°© ê²€ì‚¬ í›„ ìˆìœ¼ë©´ ì…ì¥, ì—†ìœ¼ë©´ ìƒˆë¡œìš´ ë°© ìƒì„±
             _quickEnterRoom.onClick.AddListener(() =>
             {
                 PhotonNetwork.JoinRandomRoom();
             });
 
-            // È¨À¸·Î µ¹¾Æ°¡±â
+            // í™ˆìœ¼ë¡œ ëŒì•„ê°€ê¸°
             _backHome.onClick.AddListener(OnLeftLobby);
         }
 
         public override void Show()
         {
             base.Show();
-            Debug.Log(PhotonNetwork.LocalPlayer.NickName + "´ÔÀÌ ·Îºñ¿¡ ÀÔÀåÇÏ¿´½À´Ï´Ù.");
+            Debug.Log(PhotonNetwork.LocalPlayer.NickName + "ë‹˜ì´ ë¡œë¹„ì— ì…ì¥í•˜ì˜€ìŠµë‹ˆë‹¤.");
         }
 
         private void OnEnable()
@@ -75,7 +75,7 @@ namespace HideAndSkull.Lobby.UI
         }
 
         /// <summary>
-        /// °íÀ¯ÇÑ ·£´ı ÄÚµå¸¦ »ı¼ºÇÏ¿© ¹æÀ» »ı¼ºÇÕ´Ï´Ù.
+        /// ê³ ìœ í•œ ëœë¤ ì½”ë“œë¥¼ ìƒì„±í•˜ì—¬ ë°©ì„ ìƒì„±í•©ë‹ˆë‹¤.
         /// </summary>
         private void CreateRoomWithRandomCode()
         {
@@ -91,7 +91,7 @@ namespace HideAndSkull.Lobby.UI
                 MaxPlayers = ROOM_PLAYER_COUNT,
                 CustomRoomProperties = new ExitGames.Client.Photon.Hashtable
             {
-                { "RoomCode", randomRoomCode }, // Ä¿½ºÅÒ ÇÁ·ÎÆÛÆ¼¿¡ ·£´ı ÄÚµå Ãß°¡
+                { "RoomCode", randomRoomCode }, // ì»¤ìŠ¤í…€ í”„ë¡œí¼í‹°ì— ëœë¤ ì½”ë“œ ì¶”ê°€
             },
             };
 
@@ -99,10 +99,10 @@ namespace HideAndSkull.Lobby.UI
         }
 
         /// <summary>
-        /// ÁöÁ¤µÈ ±æÀÌÀÇ °íÀ¯ÇÑ ·£´ı ÄÚµå¸¦ »ı¼ºÇÕ´Ï´Ù.
+        /// ì§€ì •ëœ ê¸¸ì´ì˜ ê³ ìœ í•œ ëœë¤ ì½”ë“œë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
         /// </summary>
-        /// <param name="codeLength">ÄÚµå ±æÀÌ</param>
-        /// <returns>·£´ı ¹®ÀÚ¿­ ÄÚµå</returns>
+        /// <param name="codeLength">ì½”ë“œ ê¸¸ì´</param>
+        /// <returns>ëœë¤ ë¬¸ìì—´ ì½”ë“œ</returns>
         private string GenerateRandomRoomCode(int codeLength)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -125,15 +125,15 @@ namespace HideAndSkull.Lobby.UI
 
         public void OnCreateRoomFailed(short returnCode, string message)
         {
-            // Áßº¹µÈ ¹æ ÀÌ¸§ ¹ß»ı: »õ·Î¿î ·£´ı ÄÚµå »ı¼º ¹× Àç½Ãµµ
+            // ì¤‘ë³µëœ ë°© ì´ë¦„ ë°œìƒ: ìƒˆë¡œìš´ ëœë¤ ì½”ë“œ ìƒì„± ë° ì¬ì‹œë„
             if (returnCode == ErrorCode.GameIdAlreadyExists)
             {
-                Debug.Log("¹æ ÄÚµå°¡ Áßº¹µË´Ï´Ù. »õ·Î¿î ÄÚµå »ı¼º Áß...");
+                Debug.Log("ë°© ì½”ë“œê°€ ì¤‘ë³µë©ë‹ˆë‹¤. ìƒˆë¡œìš´ ì½”ë“œ ìƒì„± ì¤‘...");
                 CreateRoomWithRandomCode();
             }
             else
             {
-                Debug.LogError("¹æ »ı¼ºÀÌ ½ÇÆĞÇÏ¿´½À´Ï´Ù : " + message);
+                Debug.LogError("ë°© ìƒì„±ì´ ì‹¤íŒ¨í•˜ì˜€ìŠµë‹ˆë‹¤ : " + message);
             }
         }
 
@@ -160,7 +160,7 @@ namespace HideAndSkull.Lobby.UI
         {
             UI_ConfirmWindow confirmWindow = UI_Manager.instance.Resolve<UI_ConfirmWindow>();
 
-            confirmWindow.Show("¿Ã¹Ù¸¥ ÄÚµå°¡ ¾Æ´Õ´Ï´Ù.");
+            confirmWindow.Show("ì˜¬ë°”ë¥¸ ì½”ë“œê°€ ì•„ë‹™ë‹ˆë‹¤.");
             return;
         }
 
