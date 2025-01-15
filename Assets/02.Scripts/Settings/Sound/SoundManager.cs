@@ -5,6 +5,12 @@ using UnityEngine;
 
 namespace HideAndSkull.Settings.Sound
 {
+    public static class SoundParameter
+    {
+        public static readonly string BGM_VOLUME = "BGMVolume";
+        public static readonly string SFX_VOLUME = "SFXVolume";
+    }
+
     public class SoundManager : MonoBehaviour
     {
         public static SoundManager instance;
@@ -43,6 +49,8 @@ namespace HideAndSkull.Settings.Sound
         {
             _bgmSource = GetComponents<AudioSource>()[0];
             _sfxSource = GetComponents<AudioSource>()[1];
+            _bgmSource.volume = PlayerPrefs.GetFloat(SoundParameter.BGM_VOLUME, 0.75f);
+            _sfxSource.volume = PlayerPrefs.GetFloat(SoundParameter.SFX_VOLUME, 0.75f);
 
             PlayBGM("Home");
 

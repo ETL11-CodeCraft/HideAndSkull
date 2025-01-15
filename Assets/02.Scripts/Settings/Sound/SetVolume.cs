@@ -25,12 +25,12 @@ namespace HideAndSkull.Settings.Sound
 
         public void SetLevel(float sliderValue)
         {
-            if (_parameterName.Equals("BGMVolume"))
+            if (_parameterName.Equals(SoundParameter.BGM_VOLUME))
             {
                 SoundManager.instance.SetBGMVolume(sliderValue);
                 PlayerPrefs.SetFloat(_parameterName, sliderValue);
             }
-            else if (_parameterName.Equals("SFXVolume"))
+            else if (_parameterName.Equals(SoundParameter.SFX_VOLUME))
             {
                 SoundManager.instance.SetSFXVolume(sliderValue);
                 PlayerPrefs.SetFloat(_parameterName, sliderValue);
