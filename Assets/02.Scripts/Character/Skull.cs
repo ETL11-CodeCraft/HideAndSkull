@@ -191,7 +191,7 @@ namespace HideAndSkull.Character
             switch (PlayMode)
             {
                 case PlayMode.AI:
-                    Destroy(gameObject);
+                    PhotonNetwork.Destroy(_photonView);
                     break;
                 case PlayMode.Player:
                     foreach (Renderer meshRenderer in _skinnedMeshRenderers)
@@ -230,7 +230,7 @@ namespace HideAndSkull.Character
             _inputActions.Player.Move.performed += PressMoveButton;
             _inputActions.Player.Move.canceled += PressMoveButton;
             _inputActions.Player.Sprint.performed += PressRunButton;
-            _inputActions.Player.Attack.performed += PressAttackButton;
+            _inputActions.Player.Jump.performed += PressAttackButton;   //Test용 공격 space
             //Mobile용 Binding
             _inputActions.UI.Point.performed += OnTouchScreen;
             _inputActions.UI.Click.canceled += OnReleaseScreen;
