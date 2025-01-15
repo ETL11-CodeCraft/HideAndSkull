@@ -1,4 +1,7 @@
-﻿using Photon.Pun;
+﻿using HideAndSkull.Lobby.UI;
+using HideAndSkull.Lobby.Workflow;
+using HideAndSkull.Survivors.UI;
+using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
 ﻿using System.Collections.Generic;
@@ -31,6 +34,7 @@ namespace HideAndSkull.Character
         public PlayMode PlayMode { get; set; }
         private float Speed => _isRunning ? RUN_SPEED : WALK_SPEED;  //프레임당 이동거리
         public PhotonView PhotonView { get; private set; }
+        public GamePlayWorkflow GamePlayWorkflow { get; set; }
 
 
         //상수
@@ -213,6 +217,11 @@ namespace HideAndSkull.Character
                         meshRenderer.enabled = false;
                         _characterCollider.enabled = false;
                     }
+
+                    UI_ToastPanel uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
+                    uI_ToastPanel.ShowToast($"{PhotonNetwork.NickName}님이 사망하였습니다.");
+
+                    GamePlayWorkflow.SurvivePlayerCount--;
                     break;
             }
         }
