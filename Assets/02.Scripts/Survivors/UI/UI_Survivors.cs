@@ -29,15 +29,15 @@ namespace HideAndSkull.Survivors.UI
             _photonView.ViewID = 2;
         }
 
+        public void SetSurvivorCount(int count)
+        {
+            _photonView.RPC(nameof(SetSurvivorCountRPC), RpcTarget.All, count);
+        }
+
         [PunRPC]
         private void SetSurvivorCountRPC(int survivorCount)
         {
             this.survivorCount = survivorCount;
-        }
-
-        public void SetSurvivorCount(int count)
-        {
-            _photonView.RPC("SetSurvivorCountRPC", RpcTarget.All, count);
         }
     }
 }

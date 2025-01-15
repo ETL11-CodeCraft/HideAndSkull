@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections;
-using System.ComponentModel;
 using TMPro;
-using UnityEditor.VersionControl;
 using UnityEngine;
-using static UnityEngine.InputSystem.InputRemoting;
 
 namespace HideAndSkull.Survivors.UI
 {
