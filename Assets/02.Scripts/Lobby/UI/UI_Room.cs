@@ -12,7 +12,7 @@ using UnityEngine.UI;
 namespace HideAndSkull.Lobby.UI
 {
     //Todo : 룸코드 띄우기 (확인)
-    //Todo : 플레이어 목록 갱신하기
+    //Todo : 플레이어 목록 갱신하기 (확인)
     //Todo : 채팅창에 플레이어 입장 / 퇴장 띄우기 (확인)
     //Todo : 채팅창에 입력하기 (확인)
     [RequireComponent(typeof(PhotonView))]
@@ -139,7 +139,7 @@ namespace HideAndSkull.Lobby.UI
             }
         }
 
-        //Todo : Player 목록 갱신시 확인하여 마스터 변경
+        //Player 목록 갱신시 확인하여 마스터 변경
         public void OnMasterClientSwitched(Player newMasterClient)
         {
             if (newMasterClient.ActorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
@@ -148,18 +148,16 @@ namespace HideAndSkull.Lobby.UI
 
         public void OnPlayerEnteredRoom(Player newPlayer)
         {
-            _photonView.RPC("ChatRPC", RpcTarget.All, $"<color=yellow>{newPlayer.NickName}님이 참가하셨습니다</color>");
+            ChatRPC($"<color=yellow>{newPlayer.NickName}님이 참가하셨습니다</color>");
 
             _photonView.RPC("PlayerListRPC", RpcTarget.All);
         }
 
         public void OnPlayerLeftRoom(Player otherPlayer)
         {
-            _photonView.RPC("ChatRPC", RpcTarget.All, $"<color=yellow>{otherPlayer.NickName}님이 퇴장하셨습니다</color>");
+            ChatRPC($"<color=yellow>{otherPlayer.NickName}님이 퇴장하셨습니다</color>");
 
             _photonView.RPC("PlayerListRPC", RpcTarget.All);
-
-            //RefreshPlayerList();
         }
 
         public void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
@@ -175,10 +173,6 @@ namespace HideAndSkull.Lobby.UI
         [PunRPC]
         private void PlayerListRPC()
         {
-            //기존에 있는 플레이어 닉네임이면 삭제.
-            //기존에 없는 플레이어 닉네임이면 추가.
-            //List 갱신할 때 마스터 클라이언트 바뀌면 [방장] 플레이어도 갱신
-
             int index = 0;
 
             ICollection<Player> players = PhotonNetwork.CurrentRoom.Players.Values;

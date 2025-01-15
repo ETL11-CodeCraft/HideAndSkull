@@ -31,11 +31,11 @@ namespace HideAndSkull.Lobby.UI
             //최대 인원 8명, 랜덤한 6자리의 코드를 가진 방 생성
             _createRoom.onClick.AddListener(() =>
             {
-                //Todo : Random한 코드 생성. 기존의 방들과 코드가 겹치면 안되며, 코드로 방에 접근할 수 있어야 함.
+                //Random한 코드 생성. 기존의 방들과 코드가 겹치면 안되며, 코드로 방에 접근할 수 있어야 함.
                 CreateRoomWithRandomCode();
             });
 
-            //코드입력 팝업 띄우기 - 팝업 띄우기 확인 / 코드입력으로 룸 입장하기 미확인
+            //코드입력 팝업 띄우기 - 팝업 띄우기 확인 / 코드입력으로 룸 입장하기
             _codeInput.onClick.AddListener(() =>
             {
                 if (PhotonNetwork.IsMasterClient)
@@ -78,7 +78,7 @@ namespace HideAndSkull.Lobby.UI
         /// </summary>
         private void CreateRoomWithRandomCode()
         {
-            if(PhotonNetwork.IsMasterClient)
+            if (PhotonNetwork.IsMasterClient)
             {
                 OnLeftRoom();
             }
@@ -90,7 +90,8 @@ namespace HideAndSkull.Lobby.UI
                 MaxPlayers = ROOM_PLAYER_COUNT,
                 CustomRoomProperties = new ExitGames.Client.Photon.Hashtable
             {
-                { "RoomCode", randomRoomCode } // 커스텀 프로퍼티에 랜덤 코드 추가
+                { "RoomCode", randomRoomCode }, // 커스텀 프로퍼티에 랜덤 코드 추가
+                    {"isPlaying", false }
             },
             };
 
