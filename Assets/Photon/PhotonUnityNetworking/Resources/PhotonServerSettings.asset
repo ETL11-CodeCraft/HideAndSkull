@@ -19,7 +19,7 @@ MonoBehaviour:
     AppIdVoice: 
     AppVersion: 
     UseNameServer: 1
-    FixedRegion: 
+    FixedRegion: kr
     Server: 
     Port: 0
     ProxyServer: 
@@ -48,14 +48,8 @@ MonoBehaviour:
   - SetPlayModeAI
   - SetPlayModePlayer
   - StopWalkAnimation
-  - ShowToast
-  - ShowToastMessageDeadInfo
-  - MessageSend
-  - SetSurvivorCount
-  - SendToastMessage
-  - SendToastMessageRPC
   - SetSurvivorCountRPC
   - ShowToastRPC
   DisableAutoOpenWizard: 1
-  ShowSettings: 0
+  ShowSettings: 1
   DevRegionSetOnce: 1
