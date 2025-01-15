@@ -1,5 +1,6 @@
 ﻿using HideAndSkull.Lobby.UI;
 using HideAndSkull.Lobby.Utilities;
+using Photon.Pun;
 using TMPro;
 
 namespace HideAndSkull.Survivors.UI
@@ -9,7 +10,7 @@ namespace HideAndSkull.Survivors.UI
         public int survivorCount
         {
             get { return _survivorCountValue; }
-            set
+            private set
             {
                 _survivorCountValue = value;
                 _survivorCount.text = $"현재 생존한 플레이어 : <color=\"red\">{value}</color>명";
@@ -18,6 +19,26 @@ namespace HideAndSkull.Survivors.UI
 
         int _survivorCountValue;
         [Resolve] TMP_Text _survivorCount;
+        PhotonView _photonView;
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+            _photonView = GetComponent<PhotonView>();
+            _photonView.ViewID = 2;
+        }
+
+        [PunRPC]
+        private void SetSurvivorCountRPC(int survivorCount)
+        {
+            this.survivorCount = survivorCount;
+        }
+
+        public void SetSurvivorCount(int count)
+        {
+            _photonView.RPC("SetSurvivorCountRPC", RpcTarget.All, count);
+        }
     }
 }
 
