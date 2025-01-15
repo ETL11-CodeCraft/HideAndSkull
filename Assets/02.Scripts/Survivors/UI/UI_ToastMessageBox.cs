@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections;
 using System.ComponentModel;
 using TMPro;
@@ -36,7 +36,7 @@ namespace HideAndSkull.Survivors.UI
 
         private IEnumerator ShowToastCoroutine()
         {
-            // ÆäÀÌµå ÀÎ
+            // í˜ì´ë“œ ì¸
             float elapsedTime = 0f;
             while (elapsedTime < fadeDuration)
             {
@@ -47,7 +47,7 @@ namespace HideAndSkull.Survivors.UI
 
             yield return new WaitForSeconds(displayDuration);
 
-            // ÆäÀÌµå ¾Æ¿ô
+            // í˜ì´ë“œ ì•„ì›ƒ
             elapsedTime = 0f;
             while (elapsedTime < fadeDuration)
             {

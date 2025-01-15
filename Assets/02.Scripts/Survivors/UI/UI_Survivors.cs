@@ -1,4 +1,4 @@
-using HideAndSkull.Lobby.UI;
+ï»¿using HideAndSkull.Lobby.UI;
 using HideAndSkull.Lobby.Utilities;
 using TMPro;
 
@@ -12,7 +12,7 @@ namespace HideAndSkull.Survivors.UI
             set
             {
                 _survivorCountValue = value;
-                _survivorCount.text = $"ÇöÀç »ıÁ¸ÇÑ ÇÃ·¹ÀÌ¾î : <color=\"red\">{value}</color>¸í";
+                _survivorCount.text = $"í˜„ì¬ ìƒì¡´í•œ í”Œë ˆì´ì–´ : <color=\"red\">{value}</color>ëª…";
             }
         }
 
