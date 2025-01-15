@@ -31,14 +31,13 @@ namespace HideAndSkull.Lobby.Workflow
         private void SpawnCharacter(Vector3 transform)
         {
             Skull playerSkull = PhotonNetwork.Instantiate("Character/Skull", transform, Quaternion.identity).GetComponent<Skull>();
-            playerSkull.PlayMode = Character.PlayMode.Player;
-            playerSkull.StartPlayerAct();
+            playerSkull.InitPlayer();
         }
 
         private void SpawnAI(Vector3 transform)
         {
             Skull AISkull = PhotonNetwork.Instantiate("Character/Skull", transform, Quaternion.identity).GetComponent<Skull>();
-            AISkull.PlayMode = Character.PlayMode.AI;
+            AISkull.InitAI();
         }
     }
 }

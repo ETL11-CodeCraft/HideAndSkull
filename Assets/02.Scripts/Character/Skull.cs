@@ -89,7 +89,7 @@ namespace HideAndSkull.Character
 
         private void Update()
         {
-            if (PlayMode == PlayMode.AI)
+            if (PlayMode == PlayMode.AI && _photonView.IsMine)
             {
                 switch (_currentAct)
                 {
@@ -108,7 +108,7 @@ namespace HideAndSkull.Character
                         break;
                 }
             }
-            if(PlayMode == PlayMode.Player && _photonView.IsMine)
+            if (PlayMode == PlayMode.Player && _photonView.IsMine)
             {
                 if(_canAction)
                 {
@@ -203,11 +203,12 @@ namespace HideAndSkull.Character
         }
 
         #region Player
-        public void StartPlayerAct()
+        public void InitPlayer()
         {
             if (!_photonView.IsMine) return;
 
             SetPlayerCamera();
+            _photonView.RPC(nameof(SetPlayModePlayer), RpcTarget.AllBufferedViaServer);
 
             //TEST
             _inputActions = new PlayerInputActions();
@@ -220,6 +221,12 @@ namespace HideAndSkull.Character
             //Mobile용 Binding
             _inputActions.UI.Point.performed += OnTouchScreen;
             _inputActions.UI.Click.canceled += OnReleaseScreen;
+        }
+
+        [PunRPC]
+        private void SetPlayModePlayer()
+        {
+            PlayMode = PlayMode.Player;
         }
 
         private void SetPlayerCamera()
@@ -327,6 +334,17 @@ namespace HideAndSkull.Character
         #endregion
 
         #region AI
+        public void InitAI()
+        {
+            _photonView.RPC(nameof(SetPlayModeAI), RpcTarget.AllBufferedViaServer);
+        }
+
+        [PunRPC]
+        private void SetPlayModeAI()
+        {
+            PlayMode = PlayMode.AI;
+        }
+
         private void Idle()
         {
             if (_idleElapsed > IDLE_DURATION + _durationNoise)
