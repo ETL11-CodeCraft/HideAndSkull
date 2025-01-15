@@ -191,7 +191,7 @@ namespace HideAndSkull.Character
             switch (PlayMode)
             {
                 case PlayMode.AI:
-                    Destroy(gameObject);
+                    PhotonNetwork.Destroy(_photonView);
                     break;
                 case PlayMode.Player:
                     foreach (Renderer meshRenderer in _skinnedMeshRenderers)
