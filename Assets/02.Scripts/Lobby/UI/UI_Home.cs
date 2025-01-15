@@ -19,6 +19,8 @@ namespace HideAndSkull.Lobby.UI
         [Resolve] Button _exit;
         [Resolve] TMP_Text _serverConnect;
 
+        const int PLAYER_NICKNAME_MAX_LENGTH = 11;
+
 
         protected override void Start()
         {
@@ -50,6 +52,11 @@ namespace HideAndSkull.Lobby.UI
 
                 confirmWindow.Show("닉네임은 공백으로 이루어질 수 없습니다.\n숫자나 영어, 한글을 이용해 입력해주세요.");
                 return;
+            }
+
+            if(nickName.Length > 11)
+            {
+                nickName = nickName.Substring(0, PLAYER_NICKNAME_MAX_LENGTH);
             }
 
             PhotonNetwork.LocalPlayer.NickName = nickName;

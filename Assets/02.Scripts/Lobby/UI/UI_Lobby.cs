@@ -12,7 +12,8 @@ namespace HideAndSkull.Lobby.UI
     //Todo : 해당 코드를 가진 방이 있는지 검사. 입장할 수 있으면 방 입장, 아니면 에러 출력(popup) 후 로비로 (확인)
     //Todo : "빠른입장" 버튼 클릭시 이미 생성된 방 중 랜덤으로 입장, 없으면 방 자동 생성 (확인)
     //Todo : "나가기" 버튼 클릭시 홈으로 이동 또는 앱 종료 (확인)
-    //Todo : MasterClient인데 로비에 있을 때, 더 이상 MasterClient가 아니도록 갱신
+    //Todo : MasterClient인데 로비에 있을 때, 더 이상 MasterClient가 아니도록 갱신 - 현재는 LeftRoom으로 해결(추후 수정)
+    //Todo : 플레이 중인 방에 들어갈 수 없도록 조정
     public class UI_Lobby : UI_Screen, ILobbyCallbacks, IMatchmakingCallbacks
     {
         [Resolve] Button _createRoom;
@@ -91,7 +92,6 @@ namespace HideAndSkull.Lobby.UI
                 CustomRoomProperties = new ExitGames.Client.Photon.Hashtable
             {
                 { "RoomCode", randomRoomCode }, // 커스텀 프로퍼티에 랜덤 코드 추가
-                    {"isPlaying", false }
             },
             };
 

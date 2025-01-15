@@ -75,6 +75,8 @@ namespace HideAndSkull.Lobby.UI
                     return;
                 }
 
+                PhotonNetwork.CurrentRoom.IsOpen = false;
+
                 SceneManager.LoadScene(1);
             });
 
@@ -87,6 +89,12 @@ namespace HideAndSkull.Lobby.UI
         public override void Show()
         {
             base.Show();
+
+            //마스터 클라이언트가 Room을 Show했을 때 룸의 오픈상태를 true로 전환한다.
+            if (PhotonNetwork.IsMasterClient)
+            {
+                PhotonNetwork.CurrentRoom.IsOpen = true;
+            }
 
             if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("RoomCode"))
             {
@@ -148,14 +156,14 @@ namespace HideAndSkull.Lobby.UI
 
         public void OnPlayerEnteredRoom(Player newPlayer)
         {
-            ChatRPC($"<color=yellow>{newPlayer.NickName}님이 참가하셨습니다</color>");
+             ChattingPlayerInAndOut($"<color=yellow>{newPlayer.NickName}님이 참가하셨습니다</color>");
 
             _photonView.RPC("PlayerListRPC", RpcTarget.All);
         }
 
         public void OnPlayerLeftRoom(Player otherPlayer)
         {
-            ChatRPC($"<color=yellow>{otherPlayer.NickName}님이 퇴장하셨습니다</color>");
+             ChattingPlayerInAndOut($"<color=yellow>{otherPlayer.NickName}님이 퇴장하셨습니다</color>");
 
             _photonView.RPC("PlayerListRPC", RpcTarget.All);
         }
@@ -181,10 +189,17 @@ namespace HideAndSkull.Lobby.UI
 
             foreach (Player player in sortedPlayers)
             {
+                string playerNickNameText = "";
+
                 if (player.IsMasterClient)
-                    _playerArray[index].text = $"[방장] {player.NickName}";
+                    playerNickNameText = $"[방장] {player.NickName}";
                 else
-                    _playerArray[index].text = $"           {player.NickName}";
+                    playerNickNameText = $"           {player.NickName}";
+
+                if (PhotonNetwork.LocalPlayer == player)
+                    _playerArray[index].text = $"<color=yellow>{playerNickNameText}</color>";
+                else
+                    _playerArray[index].text = playerNickNameText;
 
                 index++;
             }
@@ -202,6 +217,31 @@ namespace HideAndSkull.Lobby.UI
             for (int i = 0; i < _chatArray.Length; i++)
             {
                 _chatArray[i].text = "";
+            }
+        }
+
+        private void ChattingPlayerInAndOut(string message)
+        {
+            bool isInput = false;
+
+            for (int i = 0; i < _chatArray.Length; i++)
+            {
+                if (_chatArray[i].text == "")
+                {
+                    isInput = true;
+                    _chatArray[i].text = message;
+                    break;
+                }
+            }
+
+            if (!isInput) // 꽉차면 한칸씩 위로 올림
+            {
+                for (int i = 1; i < _chatArray.Length; i++)
+                {
+                    _chatArray[i - 1].text = _chatArray[i].text;
+                }
+
+                _chatArray[_chatArray.Length - 1].text = message;
             }
         }
 
