@@ -21,7 +21,7 @@ public class RandomMapGenerator : MonoBehaviour
     {
         GenerateFloors();
 
-        //PlaceRandomObject();
+        PlaceRandomObject();
 
     }
 
@@ -169,5 +169,76 @@ public class RandomMapGenerator : MonoBehaviour
         }
 
         return _fencePrefabs[0];
+    }
+
+    private void PlaceRandomObject()
+    {
+        //오브젝트들이 하나씩 무조건 배치 되어야 함 
+
+        //배치된 위치는 랜덤이되 , 배치된 곳에 배치되면 안됨 (중복 방지)
+
+        //타일의 중앙에만 위치하지 않도록 랜덤한 변위 추가 
+        if (_objectPrefabs.Length == 0)
+        {
+            Debug.Log("No Object prefabs assigned.");
+            return;
+        }
+
+        HashSet<Vector3> usedPosition = new HashSet<Vector3>();
+
+        foreach (GameObject obj in _objectPrefabs)
+        {
+            int attempts = 0; //무한루프 방지용 시도 횟수 제한 
+            while (attempts < 100)
+            {
+                Vector3 basePosition = _floorPositionsList[Random.Range(0, _floorPositionsList.Count)];
+
+                Vector3 randomOffset = new Vector3(
+                    Random.Range(-_floorSize, _floorSize),
+                    0,
+                    Random.Range(-_floorSize, _floorSize)
+                    );
+
+                Vector3 finalPosition = basePosition + randomOffset;
+
+                if (usedPosition.Contains(finalPosition))
+                {
+                    attempts++;
+                    continue;
+                }
+
+                Instantiate(obj, finalPosition, Quaternion.identity);
+
+                AddPositionsToForbidden(finalPosition,usedPosition);
+                break;
+
+                if (attempts >= 100)
+                {
+                    Debug.LogWarning("시도횟수가 100회 이상이라 실패헀습니다.");
+                }
+            }
+        }
+    }
+
+    private void AddPositionsToForbidden(Vector3 position, HashSet<Vector3> forbiddenPositions)
+    {
+        Vector3[] directions =
+        {
+        new Vector3(_floorSize / 2f, 0, 0),  // 오른쪽
+        new Vector3(-_floorSize / 2f, 0, 0), // 왼쪽
+        new Vector3(0, 0, _floorSize / 2f),  // 위쪽
+        new Vector3(0, 0, -_floorSize / 2f), // 아래쪽
+        new Vector3(_floorSize / 2f, 0, _floorSize / 2f),  // 대각선 오른쪽 위
+        new Vector3(-_floorSize / 2f, 0, _floorSize / 2f), // 대각선 왼쪽 위
+        new Vector3(_floorSize / 2f, 0, -_floorSize / 2f), // 대각선 오른쪽 아래
+        new Vector3(-_floorSize / 2f, 0, -_floorSize / 2f) // 대각선 왼쪽 아래
+    };
+
+        // 금지된 위치 추가
+        forbiddenPositions.Add(position); // 자신도 금지 영역에 포함
+        foreach (Vector3 dir in directions)
+        {
+            forbiddenPositions.Add(position + dir);
+        }
     }
 }

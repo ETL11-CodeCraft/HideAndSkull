@@ -488,6 +488,17 @@ MonoBehaviour:
   - 0.4
   - 0.1
   - 0.5
+  _objectPrefabs:
+  - {fileID: 4586001145939837774, guid: 8390d40eb76c3614b894d6c2efc88ea3, type: 3}
+  - {fileID: 167303201072487959, guid: 772e8563c8cab4042a5609b7328ad07f, type: 3}
+  - {fileID: 8560043451279357097, guid: 0384dc5a9f2564142adabc8115d38122, type: 3}
+  - {fileID: 3260724076858078718, guid: 1d9c7964a194e3348ba4f70f60677086, type: 3}
+  - {fileID: 2195518022660030097, guid: b04e71a668cbf18469ee9f84d6df70b2, type: 3}
+  - {fileID: 3211372960159394131, guid: 34d36a0a658d8ac479a56be51a258d04, type: 3}
+  - {fileID: 2833441710711650722, guid: 535a5d0fff3b54b4bab9048a929e70bd, type: 3}
+  - {fileID: 2304467521075625767, guid: 8590fa163d05b394d808f1d7d52e7e3f, type: 3}
+  - {fileID: 6837391503067049699, guid: db8aff478f0cfac4d97b5d3aba87b800, type: 3}
+  - {fileID: 1715073971769927004, guid: 4347fcc4c015e4140a96d7b3e55a7758, type: 3}
 --- !u!4 &1764051163
 Transform:
   m_ObjectHideFlags: 0
