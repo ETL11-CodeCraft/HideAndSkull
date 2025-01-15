@@ -11,7 +11,7 @@ public class RandomMapGenerator : MonoBehaviour
     private List<Vector3> _floorPositionsList = new List<Vector3>();  //바닥 위치 저장하는 리스트
 
     [SerializeField] private GameObject[] _fencePrefabs;  //울타리 프리팹 배열
-    [SerializeField] private float[] _weights; //가중치 배열 - 울타리 프리팹을 위함 
+    private float[] _weights = { 0.5f, 0.4f, 0.1f}; //가중치 배열 - 울타리 프리팹을 위함 
     [SerializeField] private GameObject[] _objectPrefabs; //오브젝트 프리팹 배열
     void Start()
     {
