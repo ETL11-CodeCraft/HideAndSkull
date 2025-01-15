@@ -1,4 +1,6 @@
-﻿using Photon.Pun;
+﻿using HideAndSkull.Lobby.UI;
+using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
 
 namespace HideAndSkull.Lobby.Network
@@ -32,6 +34,13 @@ namespace HideAndSkull.Lobby.Network
                 s_instance = this;
             }
 
+            ConnectToPhotonServer();
+         
+            DontDestroyOnLoad(s_instance);
+        }
+
+        private void ConnectToPhotonServer()
+        { 
             if (PhotonNetwork.IsConnected == false)
             {
 #if UNITY_EDITOR
@@ -45,8 +54,6 @@ namespace HideAndSkull.Lobby.Network
                 bool isConnected = PhotonNetwork.ConnectUsingSettings();
                 Debug.Assert(isConnected, $"[{nameof(PhotonManager)}] Failed to connect to photon pun server");
             }
-
-            DontDestroyOnLoad(s_instance);
         }
 
         public override void OnConnectedToMaster()
@@ -62,7 +69,20 @@ namespace HideAndSkull.Lobby.Network
         public override void OnJoinedLobby()
         {
             base.OnJoinedLobby();
+
             Debug.Log($"[{nameof(PhotonManager)}] Joined lobby");
+        }
+
+        public override void OnDisconnected(DisconnectCause cause)
+        {
+            base.OnDisconnected(cause);
+
+            Debug.LogWarning($"Disconnected from Photon server. Cause: {cause}");
+
+            UI_ConfirmWindow confirmWindow = UI_Manager.instance.Resolve<UI_ConfirmWindow>();
+
+            confirmWindow.Show("서버 연결에 실패하였습니다. 재시도하시겠습니까?", ConnectToPhotonServer);
+            return;
         }
     }
 }
