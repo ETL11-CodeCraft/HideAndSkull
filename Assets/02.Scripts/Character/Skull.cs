@@ -116,11 +116,11 @@ namespace HideAndSkull.Character
                     if(_movement.y > 0)
                     {
                         UpPerform();
-                        _animator.SetBool(IsWalk, true);
+                        _photonView.RPC(nameof(PlayWalkAnimation), RpcTarget.AllViaServer);
                     }
                     else
                     {
-                        _animator.SetBool(IsWalk, false);
+                        _photonView.RPC(nameof(StopWalkAnimation), RpcTarget.AllViaServer);
                     }
                     if(_movement.x > 0)
                     {
@@ -149,6 +149,7 @@ namespace HideAndSkull.Character
                                     break;
                                 case "Up":
                                     UpPerform();
+                                    _photonView.RPC(nameof(PlayWalkAnimation), RpcTarget.AllViaServer);
                                     break;
                                 case "Run":
                                     if (!_isTouchFlagDirty)
@@ -200,6 +201,18 @@ namespace HideAndSkull.Character
                     }
                     break;
             }
+        }
+
+        [PunRPC]
+        private void PlayWalkAnimation()
+        {
+            _animator.SetBool(IsWalk, true);
+        }
+
+        [PunRPC]
+        private void StopWalkAnimation()
+        {
+            _animator.SetBool(IsWalk, false);
         }
 
         #region Player
@@ -282,7 +295,7 @@ namespace HideAndSkull.Character
 
         private void AttackPerform()
         {
-            if(!_canAction) return;
+            if(!_canAction || _isDead) return;
 
             _photonView.RPC(nameof(AttackPerform_RPC), RpcTarget.AllViaServer);
         }
@@ -329,6 +342,7 @@ namespace HideAndSkull.Character
             
             _isTouching = false;
             _isTouchFlagDirty = false;
+            _photonView.RPC(nameof(StopWalkAnimation), RpcTarget.AllViaServer);
         }
 
         #endregion
@@ -365,7 +379,7 @@ namespace HideAndSkull.Character
                 _currentAct = ActFlag.None;
                 _moveDirection = Vector3.zero;
                 _moveElapsed = 0f;
-                _animator.SetBool(IsWalk, false);
+                _photonView.RPC(nameof(StopWalkAnimation), RpcTarget.AllViaServer);
             }
             else
             {
@@ -377,7 +391,7 @@ namespace HideAndSkull.Character
                 }
                 
                 transform.Translate(Vector3.forward * (Speed * Time.deltaTime));
-                _animator.SetBool(IsWalk, true);
+                _photonView.RPC(nameof(PlayWalkAnimation), RpcTarget.AllViaServer);
                 _moveElapsed += Time.deltaTime;
             }
         }
