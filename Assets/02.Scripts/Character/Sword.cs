@@ -1,3 +1,4 @@
+﻿using Photon.Pun;
 using UnityEngine;
 
 namespace HideAndSkull.Character
@@ -7,9 +8,14 @@ namespace HideAndSkull.Character
     {
         private void OnTriggerEnter(Collider other)
         {
-            if (other.TryGetComponent(out Skull skull))
+            //맞았는지 판단은 MasterClient에서만 함
+            if(PhotonNetwork.IsMasterClient)
             {
-                skull.Die();
+                if (other.TryGetComponent(out Skull skull))
+                {
+                    //MasterClient에서 맞았다고 판단되면 모든 플레이어에게 해당 character가 죽었다고 호출함
+                    skull.PhotonView.RPC(nameof(skull.Die), RpcTarget.AllViaServer);
+                }
             }
         }
     }
