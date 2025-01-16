@@ -195,6 +195,14 @@ namespace HideAndSkull.Character
                 _isDead = true;
                 _currentAct = ActFlag.Die;
 
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    UI_ToastPanel uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
+                    uI_ToastPanel.ShowToast($"{PhotonView.Owner.NickName}님이 사망하였습니다.");
+
+                    GamePlayWorkflow.SurvivePlayerCount--;
+                }
+
                 _animator.SetTrigger(IsDead);
             }
         }
@@ -216,14 +224,6 @@ namespace HideAndSkull.Character
                     {
                         meshRenderer.enabled = false;
                         _characterCollider.enabled = false;
-                    }
-
-                    if(PhotonNetwork.IsMasterClient)
-                    {
-                        UI_ToastPanel uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
-                        uI_ToastPanel.ShowToast($"{PhotonView.Owner.NickName}님이 사망하였습니다.");
-
-                        GamePlayWorkflow.SurvivePlayerCount--;
                     }
                     break;
             }
