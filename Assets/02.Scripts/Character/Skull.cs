@@ -29,7 +29,7 @@ namespace HideAndSkull.Character
     }
 
     [RequireComponent(typeof(PhotonTransformView))]
-    public class Skull : MonoBehaviour, IPunOwnershipCallbacks
+    public class Skull : MonoBehaviour, IPunOwnershipCallbacks, IMatchmakingCallbacks
     {
         public PlayMode PlayMode { get; set; }
         private float Speed => _isRunning ? RUN_SPEED : WALK_SPEED;  //프레임당 이동거리
@@ -418,7 +418,9 @@ namespace HideAndSkull.Character
                 _moveElapsed += Time.deltaTime;
             }
         }
+        #endregion
 
+        #region Interface
         public void OnOwnershipRequest(PhotonView targetView, Player requestingPlayer)
         {
             Debug.Log("OnOwnershipRequest");
@@ -437,6 +439,36 @@ namespace HideAndSkull.Character
         public void OnOwnershipTransferFailed(PhotonView targetView, Player senderOfFailedRequest)
         {
             Debug.Log($"[{nameof(Skull)}] OnOwnershipTransferFailed");
+        }
+
+        public void OnFriendListUpdate(List<FriendInfo> friendList)
+        {
+        }
+
+        public void OnCreatedRoom()
+        {
+        }
+
+        public void OnCreateRoomFailed(short returnCode, string message)
+        {
+        }
+
+        public void OnJoinedRoom()
+        {
+        }
+
+        public void OnJoinRoomFailed(short returnCode, string message)
+        {
+        }
+
+        public void OnJoinRandomFailed(short returnCode, string message)
+        {
+        }
+
+        public void OnLeftRoom()
+        {
+            if (GamePlayWorkflow)
+                GamePlayWorkflow.SurvivePlayerCount--;
         }
         #endregion
     }

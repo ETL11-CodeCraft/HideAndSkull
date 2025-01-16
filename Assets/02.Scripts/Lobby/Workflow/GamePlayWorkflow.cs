@@ -4,6 +4,7 @@ using Photon.Realtime;
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace HideAndSkull.Lobby.Workflow
 {
@@ -22,6 +23,11 @@ namespace HideAndSkull.Lobby.Workflow
 
                 if (isChanged)
                     OnChangedSurvivePlayerCount?.Invoke();
+
+                if(_survivePlayerCount == 1)
+                {
+                    ShowWinner();
+                }
             }
         }
         private int _survivePlayerCount;
@@ -60,6 +66,14 @@ namespace HideAndSkull.Lobby.Workflow
                 AISkull.InitAI();
             }
             yield return null;
+        }
+
+        private void ShowWinner()
+        {
+            if (PhotonNetwork.IsMasterClient)
+            {
+                //SceneManager.LoadScene(0);
+            }
         }
     }
 }
