@@ -34,7 +34,6 @@ namespace HideAndSkull.Character
         public PlayMode PlayMode { get; set; }
         private float Speed => _isRunning ? RUN_SPEED : WALK_SPEED;  //프레임당 이동거리
         public PhotonView PhotonView { get; private set; }
-        public GamePlayWorkflow GamePlayWorkflow { get; set; }
 
 
         //상수
@@ -200,8 +199,6 @@ namespace HideAndSkull.Character
                     UI_ToastPanel uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
                     uI_ToastPanel.ShowToast($"{PhotonView.Owner.NickName}님이 사망하였습니다.");
 
-                    GamePlayWorkflow.SurvivePlayerCount--;
-
                     PhotonNetwork.LocalPlayer.SetCustomProperties(new Hashtable
                     {
                         {"IsDead", true},
@@ -271,24 +268,6 @@ namespace HideAndSkull.Character
         private void SetPlayModePlayer()
         {
             PlayMode = PlayMode.Player;
-            //임시 변수 초기화
-            GameObject gameObject = GameObject.Find("Workflow");
-            if (gameObject)
-            {
-                if (gameObject.TryGetComponent(out GamePlayWorkflow workflow))
-                {
-                    GamePlayWorkflow = workflow;
-                }
-                else if(PhotonNetwork.IsMasterClient)
-                {
-                    GamePlayWorkflow = gameObject.AddComponent<GamePlayWorkflow>();
-                }
-            }
-            else
-            {
-                GameObject workflow = new GameObject("Workflow");
-                GamePlayWorkflow = workflow.AddComponent<GamePlayWorkflow>();
-            }
         }
 
         private void SetPlayerCamera()

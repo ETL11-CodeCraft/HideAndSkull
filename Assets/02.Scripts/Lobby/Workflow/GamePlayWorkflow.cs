@@ -113,7 +113,10 @@ namespace HideAndSkull.Lobby.Workflow
 
         public void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
         {
-
+            if ((bool)changedProps["IsDead"])
+            {
+                SurvivePlayerCount--;
+            }
         }
 
         public void OnMasterClientSwitched(Player newMasterClient)
