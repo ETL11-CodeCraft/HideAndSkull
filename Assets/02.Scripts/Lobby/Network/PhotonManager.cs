@@ -7,6 +7,9 @@ namespace HideAndSkull.Lobby.Network
 {
     public class PhotonManager : MonoBehaviourPunCallbacks
     {
+        const int SERVER_CONNECT_RETRY_COUNT = 1;
+        private int _retryCount;
+
         public static PhotonManager instance
         {
             get
@@ -34,13 +37,15 @@ namespace HideAndSkull.Lobby.Network
                 s_instance = this;
             }
 
+            _retryCount = 0;
+
             ConnectToPhotonServer();
-         
+
             DontDestroyOnLoad(s_instance);
         }
 
         private void ConnectToPhotonServer()
-        { 
+        {
             if (PhotonNetwork.IsConnected == false)
             {
 #if UNITY_EDITOR
@@ -61,7 +66,6 @@ namespace HideAndSkull.Lobby.Network
             base.OnConnectedToMaster();
 
             PhotonNetwork.AutomaticallySyncScene = true;    //현재 속해있는 방의 방장이 씬을 전환하면 따라서 전환하는 옵션
-            //PhotonNetwork.NickName = "";  //닉네임 설정 가능
             Debug.Log($"[{nameof(PhotonManager)}] Connected to master server");
             PhotonNetwork.JoinLobby();
         }
@@ -79,10 +83,15 @@ namespace HideAndSkull.Lobby.Network
 
             Debug.LogWarning($"Disconnected from Photon server. Cause: {cause}");
 
-            UI_ConfirmWindow confirmWindow = UI_Manager.instance.Resolve<UI_ConfirmWindow>();
+            if (_retryCount < SERVER_CONNECT_RETRY_COUNT)
+            {
+                _retryCount++;
 
-            confirmWindow.Show("서버 연결에 실패하였습니다. 재시도하시겠습니까?", ConnectToPhotonServer);
-            return;
+                UI_ConfirmWindow confirmWindow = UI_Manager.instance.Resolve<UI_ConfirmWindow>();
+
+                confirmWindow.Show("서버 연결에 실패하였습니다. 재시도하시겠습니까?", ConnectToPhotonServer);
+                return;
+            }
         }
     }
 }

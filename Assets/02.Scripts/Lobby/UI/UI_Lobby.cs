@@ -39,7 +39,7 @@ namespace HideAndSkull.Lobby.UI
             //코드입력 팝업 띄우기 - 팝업 띄우기 확인 / 코드입력으로 룸 입장하기
             _codeInput.onClick.AddListener(() =>
             {
-                if (PhotonNetwork.IsMasterClient)
+                if (PhotonNetwork.InRoom)
                 {
                     OnLeftRoom();
                 }
@@ -79,7 +79,7 @@ namespace HideAndSkull.Lobby.UI
         /// </summary>
         private void CreateRoomWithRandomCode()
         {
-            if (PhotonNetwork.IsMasterClient)
+            if (PhotonNetwork.InRoom)
             {
                 OnLeftRoom();
             }
