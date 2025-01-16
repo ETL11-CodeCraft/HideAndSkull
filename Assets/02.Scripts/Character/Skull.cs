@@ -1,4 +1,5 @@
-﻿using HideAndSkull.Lobby.UI;
+﻿using ExitGames.Client.Photon;
+using HideAndSkull.Lobby.UI;
 using HideAndSkull.Lobby.Workflow;
 using HideAndSkull.Survivors.UI;
 using Photon.Pun;
@@ -28,12 +29,11 @@ namespace HideAndSkull.Character
     }
 
     [RequireComponent(typeof(PhotonTransformView))]
-    public class Skull : MonoBehaviour, IPunOwnershipCallbacks, IMatchmakingCallbacks
+    public class Skull : MonoBehaviour, IPunOwnershipCallbacks
     {
         public PlayMode PlayMode { get; set; }
         private float Speed => _isRunning ? RUN_SPEED : WALK_SPEED;  //프레임당 이동거리
         public PhotonView PhotonView { get; private set; }
-        public GamePlayWorkflow GamePlayWorkflow { get; set; }
 
 
         //상수
@@ -194,6 +194,17 @@ namespace HideAndSkull.Character
                 _isDead = true;
                 _currentAct = ActFlag.Die;
 
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    UI_ToastPanel uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
+                    uI_ToastPanel.ShowToast($"{PhotonView.Owner.NickName}님이 사망하였습니다.");
+
+                    PhotonNetwork.LocalPlayer.SetCustomProperties(new Hashtable
+                    {
+                        {"IsDead", true},
+                    });
+                }
+
                 _animator.SetTrigger(IsDead);
             }
         }
@@ -215,14 +226,6 @@ namespace HideAndSkull.Character
                     {
                         meshRenderer.enabled = false;
                         _characterCollider.enabled = false;
-                    }
-
-                    if(PhotonNetwork.IsMasterClient)
-                    {
-                        UI_ToastPanel uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
-                        uI_ToastPanel.ShowToast($"{PhotonView.Owner.NickName}님이 사망하였습니다.");
-
-                        GamePlayWorkflow.SurvivePlayerCount--;
                     }
                     break;
             }
@@ -265,24 +268,6 @@ namespace HideAndSkull.Character
         private void SetPlayModePlayer()
         {
             PlayMode = PlayMode.Player;
-            //임시 변수 초기화
-            GameObject gameObject = GameObject.Find("Workflow");
-            if (gameObject)
-            {
-                if (gameObject.TryGetComponent(out GamePlayWorkflow workflow))
-                {
-                    GamePlayWorkflow = workflow;
-                }
-                else if(PhotonNetwork.IsMasterClient)
-                {
-                    GamePlayWorkflow = gameObject.AddComponent<GamePlayWorkflow>();
-                }
-            }
-            else
-            {
-                GameObject workflow = new GameObject("Workflow");
-                GamePlayWorkflow = workflow.AddComponent<GamePlayWorkflow>();
-            }
         }
 
         private void SetPlayerCamera()
@@ -459,36 +444,6 @@ namespace HideAndSkull.Character
         public void OnOwnershipTransferFailed(PhotonView targetView, Player senderOfFailedRequest)
         {
             Debug.Log($"[{nameof(Skull)}] OnOwnershipTransferFailed");
-        }
-
-        public void OnFriendListUpdate(List<FriendInfo> friendList)
-        {
-        }
-
-        public void OnCreatedRoom()
-        {
-        }
-
-        public void OnCreateRoomFailed(short returnCode, string message)
-        {
-        }
-
-        public void OnJoinedRoom()
-        {
-        }
-
-        public void OnJoinRoomFailed(short returnCode, string message)
-        {
-        }
-
-        public void OnJoinRandomFailed(short returnCode, string message)
-        {
-        }
-
-        public void OnLeftRoom()
-        {
-            if (GamePlayWorkflow)
-                GamePlayWorkflow.SurvivePlayerCount--;
         }
         #endregion
     }
