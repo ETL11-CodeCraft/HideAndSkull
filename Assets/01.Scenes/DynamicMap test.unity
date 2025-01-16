@@ -485,9 +485,9 @@ MonoBehaviour:
   - {fileID: 6586172671398840224, guid: 3e4b09c53e31f0443a77847b9f6e9878, type: 3}
   - {fileID: 2237375792056508160, guid: e2690829fdf57ed49b3ef0821d9d65a3, type: 3}
   _weights:
+  - 0.5
   - 0.4
   - 0.1
-  - 0.5
   _objectPrefabs:
   - {fileID: 4586001145939837774, guid: 8390d40eb76c3614b894d6c2efc88ea3, type: 3}
   - {fileID: 167303201072487959, guid: 772e8563c8cab4042a5609b7328ad07f, type: 3}
@@ -499,6 +499,7 @@ MonoBehaviour:
   - {fileID: 2304467521075625767, guid: 8590fa163d05b394d808f1d7d52e7e3f, type: 3}
   - {fileID: 6837391503067049699, guid: db8aff478f0cfac4d97b5d3aba87b800, type: 3}
   - {fileID: 1715073971769927004, guid: 4347fcc4c015e4140a96d7b3e55a7758, type: 3}
+  _minDistance: 20
 --- !u!4 &1764051163
 Transform:
   m_ObjectHideFlags: 0

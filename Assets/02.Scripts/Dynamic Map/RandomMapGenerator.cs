@@ -10,9 +10,8 @@ public class RandomMapGenerator : MonoBehaviour
     private List<Vector3> _floorPositionsList = new List<Vector3>();  //바닥 위치 저장하는 리스트
 
     [SerializeField] private GameObject[] _fencePrefabs;  //울타리 프리팹 배열
-    [SerializeField] private float[] _weights; //가중치 배열 - 울타리 프리팹을 위함 
+    private float[] _weights = { 0.5f, 0.4f, 0.1f}; //가중치 배열 - 울타리 프리팹을 위함 
     [SerializeField] private GameObject[] _objectPrefabs; //오브젝트 프리팹 배열
-
     void Start()
     {
         GenerateFloors();
@@ -136,6 +135,10 @@ public class RandomMapGenerator : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 가중치 배열 크기와 울타리 프리팹의 개수가 같은지 확인하는 함수 
+    /// </summary>
+    /// <returns></returns>
     private bool isValidWeights()
     {
         if(_fencePrefabs.Length == _weights.Length)
@@ -143,6 +146,10 @@ public class RandomMapGenerator : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// 울타리 프리팹중 랜덤으로 하나 가져오는 함수
+    /// </summary>
+    /// <returns></returns>
     private GameObject GetRandomFencePrefab()
     {
         if (isValidWeights())
@@ -167,74 +174,128 @@ public class RandomMapGenerator : MonoBehaviour
         return _fencePrefabs[0];
     }
 
+    /// <summary>
+    /// 랜덤으로 오브젝트를 배치하는 함수
+    /// </summary>
     private void PlaceRandomObject()
     {
-        //오브젝트들이 하나씩 무조건 배치 되어야 함 
-
-        //배치된 위치는 랜덤이되 , 배치된 곳에 배치되면 안됨 (중복 방지)
-
-        //타일의 중앙에만 위치하지 않도록 랜덤한 변위 추가 
         if (_objectPrefabs.Length == 0)
         {
             Debug.Log("No Object prefabs assigned.");
             return;
         }
 
-        HashSet<Vector3> usedPosition = new HashSet<Vector3>();
-
+        HashSet<Vector3> usedPositions = new HashSet<Vector3>();
+        //_floorPositionsList.OrderBy(x=>Random.value).ToList();
+        foreach (Vector3 pos in _floorPositionsList)
+        {
+            Debug.Log(pos);
+        }
         foreach (GameObject obj in _objectPrefabs)
         {
-            int attempts = 0; //무한루프 방지용 시도 횟수 제한 
-            while (attempts < 100)
+            float prefabRadius = GetPrefabRadius(obj);  //프리팹 반경 계산
+
+            bool placed = false; //배치 여부 확인 
+
+            foreach (Vector3 basePosition in _floorPositionsList )
             {
-                Vector3 basePosition = _floorPositionsList[Random.Range(0, _floorPositionsList.Count)];
-
+                // 타일 내부 랜덤 변위
                 Vector3 randomOffset = new Vector3(
-                    Random.Range(-_floorSize, _floorSize),
+                    Random.Range(-_floorSize / 3f, _floorSize / 3f),
                     0,
-                    Random.Range(-_floorSize, _floorSize)
-                    );
-
+                    Random.Range(-_floorSize / 3f, _floorSize / 3f)
+                );
                 Vector3 finalPosition = basePosition + randomOffset;
 
-                if (usedPosition.Contains(finalPosition))
+                // 최소 거리 조건 확인
+                if (isPositionTooClose(finalPosition, usedPositions, prefabRadius))
                 {
-                    attempts++;
-                    continue;
+                    // 오브젝트 배치
+                    Instantiate(obj, finalPosition, Quaternion.identity);
+
+                    // 금지된 위치 추가
+                    AddPositionsToForbidden(finalPosition, prefabRadius, usedPositions);
+
+                    placed = true;
+                    break;
                 }
+            }
 
-                Instantiate(obj, finalPosition, Quaternion.identity);
+            if (!placed)
+            {
+                Debug.LogWarning($"Could not place object {obj.name}. No valid positions available.");
+            }
+        }
+    }
 
-                AddPositionsToForbidden(finalPosition,usedPosition);
-                break;
+    /// <summary>
+    /// 거리가 너무 가까운지 확인하는 함수 
+    /// </summary>
+    /// <param name="position"></param>
+    /// <param name="usedPosition"></param>
+    /// <param name="radius"></param>
+    /// <returns></returns>
+    private bool isPositionTooClose(Vector3 position, HashSet<Vector3> usedPosition, float radius)
+    {
+        foreach (Vector3 used in usedPosition)
+        {
+            if (Vector3.Distance(position, used) < radius)
+            {
+                return false;
+            }
+        }
 
-                if (attempts >= 100)
+        return true;   //원하는 위치가 사용된 위치들에서 해당 반경에 해당이 안될 때 false반환 
+    }
+
+    /// <summary>
+    /// 주변 영영을 배치 금지 위치로 리스트에 추가하는 함수
+    /// </summary>
+    /// <param name="position"></param>
+    /// <param name="radius"></param>
+    /// <param name="forbiddenPositions"></param>
+    private void AddPositionsToForbidden(Vector3 position, float radius, HashSet<Vector3> forbiddenPositions)
+    {
+        forbiddenPositions.Add(position);  //중심 위치를 금지된 위치에 추가 
+
+        // 반경을 기준으로 주변 영역을 금지 위치로 추가
+        float step = radius / 2f; // 금지 영역 간격을 조정
+        for (float x = -radius; x <= radius; x += step)
+        {
+            for (float z = -radius; z <= radius; z += step)
+            {
+                Vector3 offset = new Vector3(x, 0, z);
+                if (offset.magnitude <= radius) // 원 형태의 금지 영역
                 {
-                    Debug.LogWarning("시도횟수가 100회 이상이라 실패헀습니다.");
+                    forbiddenPositions.Add(position + offset);
                 }
             }
         }
     }
 
-    private void AddPositionsToForbidden(Vector3 position, HashSet<Vector3> forbiddenPositions)
+    /// <summary>
+    /// 프리팹의 반경을 반환하는 함수
+    /// </summary>
+    /// <param name="prefab"></param>
+    /// <returns></returns>
+    private float GetPrefabRadius(GameObject prefab)
     {
-        Vector3[] directions =
+        Renderer[] renderers = prefab.GetComponentsInChildren<Renderer>();
+        if (renderers.Length > 0)
         {
-        new Vector3(_floorSize / 2f, 0, 0),  // 오른쪽
-        new Vector3(-_floorSize / 2f, 0, 0), // 왼쪽
-        new Vector3(0, 0, _floorSize / 2f),  // 위쪽
-        new Vector3(0, 0, -_floorSize / 2f), // 아래쪽
-        new Vector3(_floorSize / 2f, 0, _floorSize / 2f),  // 대각선 오른쪽 위
-        new Vector3(-_floorSize / 2f, 0, _floorSize / 2f), // 대각선 왼쪽 위
-        new Vector3(_floorSize / 2f, 0, -_floorSize / 2f), // 대각선 오른쪽 아래
-        new Vector3(-_floorSize / 2f, 0, -_floorSize / 2f) // 대각선 왼쪽 아래
-    };
+            float maxExtent = 0f;
 
-        // 금지된 위치 추가
-        forbiddenPositions.Add(position); // 자신도 금지 영역에 포함
-        foreach (Vector3 dir in directions)
+            foreach (Renderer renderer in renderers)
+            {
+                maxExtent = Mathf.Max(maxExtent, renderer.bounds.extents.x, renderer.bounds.extents.z);
+            }
+            Debug.Log($"{prefab.name} maxExtent : {maxExtent}");
+            return maxExtent;
+        }
+        else
         {
-            forbiddenPositions.Add(position + dir);
+            Debug.LogWarning($"Prefab {prefab.name} does not have any Renderer components in its hierarchy.");
+            return 10f; // 기본값
         }
     }
 }
