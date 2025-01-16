@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Reflection;
 
 namespace HideAndSkull.Lobby.Singleton
@@ -6,7 +6,7 @@ namespace HideAndSkull.Lobby.Singleton
     /// <summary>
     /// Singleton base
     /// </summary>
-    /// <typeparam name="T">½Ì±ÛÅæÀ¸·Î »ç¿ëÇÏ·Á´Â Å¸ÀÔ(»ó¼ÓÅ¬·¡½º)</typeparam>
+    /// <typeparam name="T">ì‹±ê¸€í†¤ìœ¼ë¡œ ì‚¬ìš©í•˜ë ¤ëŠ” íƒ€ì…(ìƒì†í´ë˜ìŠ¤)</typeparam>
     public abstract class Singleton<T>
         where T : Singleton<T>
     {

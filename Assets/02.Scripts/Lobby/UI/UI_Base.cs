@@ -1,4 +1,4 @@
-using HideAndSkull.Lobby.Utilities;
+ï»¿using HideAndSkull.Lobby.Utilities;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -42,7 +42,7 @@ namespace HideAndSkull.Lobby.UI
         public InputAction Drag;
 
 
-        protected override void Awake()  //UI overide ÇØ¾ß ÇÒ ¼öµµ ÀÖÀ¸¹Ç·Î
+        protected override void Awake()  //UI overide í•´ì•¼ í•  ìˆ˜ë„ ìˆìœ¼ë¯€ë¡œ
         {
             base.Awake();
 
@@ -50,7 +50,7 @@ namespace HideAndSkull.Lobby.UI
             _graphicRaycaster = GetComponent<GraphicRaycaster>();
             _eventSystem = EventSystem.current;
             _pointerEventData = new PointerEventData(_eventSystem);
-            _raycastResultBuffer = new List<RaycastResult>(1);  //raycastresultÀÇ ¸Ç À§ÀÇ °ª¸¸ °¡Á®¿Àµµ·Ï Å©±â¸¦ 1·Î ÁöÁ¤
+            _raycastResultBuffer = new List<RaycastResult>(1);  //raycastresultì˜ ë§¨ ìœ„ì˜ ê°’ë§Œ ê°€ì ¸ì˜¤ë„ë¡ í¬ê¸°ë¥¼ 1ë¡œ ì§€ì •
             playerInputActions = new PlayerInputActions();
             manager = UI_Manager.instance;
             manager.Register(this);
@@ -67,7 +67,7 @@ namespace HideAndSkull.Lobby.UI
             }
             else
             {
-                Debug.Log("Canvas°¡ ¾ø½À´Ï´Ù.");
+                Debug.Log("Canvasê°€ ì—†ìŠµë‹ˆë‹¤.");
             }
         }
 
@@ -78,12 +78,12 @@ namespace HideAndSkull.Lobby.UI
         }
 
         /// <summary>
-        /// ÇöÀç Canvas¿¡ Æ¯Á¤ ÄÄÆ÷³ÍÆ®°¡ Á¸ÀçÇÏ´ÂÁö Å½»öÇÏ´Â ÇÔ¼ö
+        /// í˜„ì¬ Canvasì— íŠ¹ì • ì»´í¬ë„ŒíŠ¸ê°€ ì¡´ì¬í•˜ëŠ”ì§€ íƒìƒ‰í•˜ëŠ” í•¨ìˆ˜
         /// </summary>
-        /// <typeparam name="T">Å½»öÇÏ°í ½ÍÀº ÄÄÆ÷³ÍÆ® Å¸ÀÔ</typeparam>
-        /// <param name="pointerPosition">Å½»öÇÏ°í ½ÍÀº À§Ä¡</param>
-        /// <param name="result">Å½»ö °á°ú</param>
-        /// <returns>Å½»ö ¼º°ø ¿©ºÎ</returns>
+        /// <typeparam name="T">íƒìƒ‰í•˜ê³  ì‹¶ì€ ì»´í¬ë„ŒíŠ¸ íƒ€ì…</typeparam>
+        /// <param name="pointerPosition">íƒìƒ‰í•˜ê³  ì‹¶ì€ ìœ„ì¹˜</param>
+        /// <param name="result">íƒìƒ‰ ê²°ê³¼</param>
+        /// <returns>íƒìƒ‰ ì„±ê³µ ì—¬ë¶€</returns>
         public bool TryGraphicRaycast<T>(Vector2 pointerPosition, out T result)
             where T : Component
         {

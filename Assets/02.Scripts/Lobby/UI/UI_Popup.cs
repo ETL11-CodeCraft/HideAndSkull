@@ -1,4 +1,4 @@
-using UnityEngine.InputSystem;
+ï»¿using UnityEngine.InputSystem;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
@@ -26,7 +26,7 @@ namespace HideAndSkull.Lobby.UI
 
             Vector2 mousePosition = Mouse.current.position.ReadValue();
 
-            //ÀÏ´Ü ÀÌ Canvas¿¡¼­ ¹«¾ğ°¡¸¦ Å¬¸¯Çß´ÂÁö È®ÀÎ
+            //ì¼ë‹¨ ì´ Canvasì—ì„œ ë¬´ì–¸ê°€ë¥¼ í´ë¦­í–ˆëŠ”ì§€ í™•ì¸
             if (TryGraphicRaycast(mousePosition, out CanvasRenderer renderer))
             {
                 //Nothing todo
@@ -40,7 +40,7 @@ namespace HideAndSkull.Lobby.UI
                     if (popup == this)
                         continue;
 
-                    //À¯Àú°¡ ´Ù¸¥ ÆË¾÷À» Å¬¸¯. ¼±ÅÃµÈ ÆË¾÷À» ÃÖ»ó´ÜÀ¸·Î º¸³¿
+                    //ìœ ì €ê°€ ë‹¤ë¥¸ íŒì—…ì„ í´ë¦­. ì„ íƒëœ íŒì—…ì„ ìµœìƒë‹¨ìœ¼ë¡œ ë³´ëƒ„
                     if (popup.TryGraphicRaycast(mousePosition, out renderer))
                     {
                         popup.Show();
