@@ -1,4 +1,6 @@
+ï»¿using HideAndSkull.Lobby.UI;
 using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
 
 namespace HideAndSkull.Lobby.Network
@@ -32,6 +34,13 @@ namespace HideAndSkull.Lobby.Network
                 s_instance = this;
             }
 
+            ConnectToPhotonServer();
+         
+            DontDestroyOnLoad(s_instance);
+        }
+
+        private void ConnectToPhotonServer()
+        { 
             if (PhotonNetwork.IsConnected == false)
             {
 #if UNITY_EDITOR
@@ -45,16 +54,14 @@ namespace HideAndSkull.Lobby.Network
                 bool isConnected = PhotonNetwork.ConnectUsingSettings();
                 Debug.Assert(isConnected, $"[{nameof(PhotonManager)}] Failed to connect to photon pun server");
             }
-
-            DontDestroyOnLoad(s_instance);
         }
 
         public override void OnConnectedToMaster()
         {
             base.OnConnectedToMaster();
 
-            PhotonNetwork.AutomaticallySyncScene = true;    //ÇöÀç ¼ÓÇØÀÖ´Â ¹æÀÇ ¹æÀåÀÌ ¾ÀÀ» ÀüÈ¯ÇÏ¸é µû¶ó¼­ ÀüÈ¯ÇÏ´Â ¿É¼Ç
-            //PhotonNetwork.NickName = "";  //´Ğ³×ÀÓ ¼³Á¤ °¡´É
+            PhotonNetwork.AutomaticallySyncScene = true;    //í˜„ì¬ ì†í•´ìˆëŠ” ë°©ì˜ ë°©ì¥ì´ ì”¬ì„ ì „í™˜í•˜ë©´ ë”°ë¼ì„œ ì „í™˜í•˜ëŠ” ì˜µì…˜
+            //PhotonNetwork.NickName = "";  //ë‹‰ë„¤ì„ ì„¤ì • ê°€ëŠ¥
             Debug.Log($"[{nameof(PhotonManager)}] Connected to master server");
             PhotonNetwork.JoinLobby();
         }
@@ -62,7 +69,20 @@ namespace HideAndSkull.Lobby.Network
         public override void OnJoinedLobby()
         {
             base.OnJoinedLobby();
+
             Debug.Log($"[{nameof(PhotonManager)}] Joined lobby");
+        }
+
+        public override void OnDisconnected(DisconnectCause cause)
+        {
+            base.OnDisconnected(cause);
+
+            Debug.LogWarning($"Disconnected from Photon server. Cause: {cause}");
+
+            UI_ConfirmWindow confirmWindow = UI_Manager.instance.Resolve<UI_ConfirmWindow>();
+
+            confirmWindow.Show("ì„œë²„ ì—°ê²°ì— ì‹¤íŒ¨í•˜ì˜€ìŠµë‹ˆë‹¤. ì¬ì‹œë„í•˜ì‹œê² ìŠµë‹ˆê¹Œ?", ConnectToPhotonServer);
+            return;
         }
     }
 }

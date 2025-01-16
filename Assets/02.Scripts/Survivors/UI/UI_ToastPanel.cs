@@ -1,6 +1,6 @@
-using HideAndSkull.Lobby.UI;
+﻿using HideAndSkull.Lobby.UI;
 using HideAndSkull.Lobby.Utilities;
-using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 
 
@@ -10,33 +10,51 @@ namespace HideAndSkull.Survivors.UI
     public class UI_ToastPanel : UI_Screen
     {
         const int MAX_TOAST_COUNT = 5;
-        Queue<UI_ToastMessageBox> _uiToastQueue;
+        UI_ToastMessageBox[] _uiToastPool;
         [Resolve] RectTransform _panel;
         [SerializeField] UI_ToastMessageBox _prefab;
+        PhotonView _photonView;
 
         protected override void Awake()
         {
             base.Awake();
-            _uiToastQueue = new Queue<UI_ToastMessageBox>(MAX_TOAST_COUNT);
+            _uiToastPool = new UI_ToastMessageBox[MAX_TOAST_COUNT];
+            for (int i = 0; i < MAX_TOAST_COUNT; i++)
+            {
+                _uiToastPool[i] = Instantiate(_prefab, _panel);
+                _uiToastPool[i].gameObject.SetActive(false);
+            }
+            _photonView = GetComponent<PhotonView>();
+            _photonView.ViewID = 3;
         }
 
         public void ShowToast(string message)
         {
-            if (_uiToastQueue.Count >= MAX_TOAST_COUNT)
+            _photonView.RPC(nameof(ShowToastRPC), RpcTarget.All, message);
+        }
+
+        [PunRPC]
+        private void ShowToastRPC(string message)
+        {
+            bool isFound = false;
+
+            for (int i = 0; i < _uiToastPool.Length; i++)
             {
-                if (_uiToastQueue.TryPeek(out var peek))
+                if (_uiToastPool[i].gameObject.activeSelf == false)
                 {
-                    peek.CancelToast();
+                    isFound = true;
+                    _uiToastPool[i].Show(message);
+                    _uiToastPool[i].transform.SetParent(_panel);
+                    break;
                 }
             }
 
-            UI_ToastMessageBox uiToast = Instantiate(_prefab, _panel);
-            _uiToastQueue.Enqueue(uiToast);
-            uiToast.Show(message);
-            uiToast.OnHide = () =>
+            if (isFound == false)
             {
-                _uiToastQueue.Dequeue();
-            };
+                _uiToastPool[0].CancelToast();
+                _uiToastPool[0].Show(message);
+                _uiToastPool[0].transform.SetParent(_panel);
+            }
         }
     }
 }

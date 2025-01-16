@@ -1,5 +1,9 @@
-﻿using Photon.Pun;
-using System.Collections;
+﻿using ExitGames.Client.Photon;
+using HideAndSkull.Lobby.UI;
+using HideAndSkull.Lobby.Workflow;
+using HideAndSkull.Survivors.UI;
+using Photon.Pun;
+using Photon.Realtime;
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -25,10 +29,11 @@ namespace HideAndSkull.Character
     }
 
     [RequireComponent(typeof(PhotonTransformView))]
-    public class Skull : MonoBehaviour
+    public class Skull : MonoBehaviour, IPunOwnershipCallbacks
     {
         public PlayMode PlayMode { get; set; }
         private float Speed => _isRunning ? RUN_SPEED : WALK_SPEED;  //프레임당 이동거리
+        public PhotonView PhotonView { get; private set; }
 
 
         //상수
@@ -65,8 +70,7 @@ namespace HideAndSkull.Character
         private Transform _cameraAttachTransform;
         private bool _canAction = true;
         private Vector3 _movement;
-        private PhotonView _photonView;
-        //DEBUG
+        //PlayerInput
         private PlayerInputActions _inputActions;
         private GraphicRaycaster _graphicRaycaster;
         private List<RaycastResult> _results = new List<RaycastResult>(2);
@@ -84,12 +88,21 @@ namespace HideAndSkull.Character
             _characterCollider = GetComponent<CapsuleCollider>();
             _graphicRaycaster = GameObject.Find("Canvas - Buttons").GetComponent<GraphicRaycaster>();
             _pointerEventData = new PointerEventData(null);
-            _photonView = GetComponent<PhotonView>();
+            PhotonView = GetComponent<PhotonView>();
+        }
+
+        private void OnEnable()
+        {
+            PhotonNetwork.AddCallbackTarget(this);
+        }
+        private void OnDisable()
+        {
+            PhotonNetwork.RemoveCallbackTarget(this);
         }
 
         private void Update()
         {
-            if (PlayMode == PlayMode.AI && _photonView.IsMine)
+            if (PlayMode == PlayMode.AI && PhotonNetwork.IsMasterClient)
             {
                 switch (_currentAct)
                 {
@@ -108,7 +121,7 @@ namespace HideAndSkull.Character
                         break;
                 }
             }
-            if (PlayMode == PlayMode.Player && _photonView.IsMine)
+            if (PlayMode == PlayMode.Player && PhotonView.IsMine)
             {
                 if(_canAction)
                 {
@@ -116,11 +129,11 @@ namespace HideAndSkull.Character
                     if(_movement.y > 0)
                     {
                         UpPerform();
-                        _photonView.RPC(nameof(PlayWalkAnimation), RpcTarget.AllViaServer);
+                        PhotonView.RPC(nameof(PlayWalkAnimation), RpcTarget.AllViaServer);
                     }
                     else
                     {
-                        _photonView.RPC(nameof(StopWalkAnimation), RpcTarget.AllViaServer);
+                        PhotonView.RPC(nameof(StopWalkAnimation), RpcTarget.AllViaServer);
                     }
                     if(_movement.x > 0)
                     {
@@ -149,7 +162,7 @@ namespace HideAndSkull.Character
                                     break;
                                 case "Up":
                                     UpPerform();
-                                    _photonView.RPC(nameof(PlayWalkAnimation), RpcTarget.AllViaServer);
+                                    PhotonView.RPC(nameof(PlayWalkAnimation), RpcTarget.AllViaServer);
                                     break;
                                 case "Run":
                                     if (!_isTouchFlagDirty)
@@ -172,6 +185,7 @@ namespace HideAndSkull.Character
             }
         }
 
+        [PunRPC]
         public void Die()
         {
             if(!_isDead)
@@ -179,6 +193,17 @@ namespace HideAndSkull.Character
                 _canAction = false;
                 _isDead = true;
                 _currentAct = ActFlag.Die;
+
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    UI_ToastPanel uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
+                    uI_ToastPanel.ShowToast($"{PhotonView.Owner.NickName}님이 사망하였습니다.");
+
+                    PhotonNetwork.LocalPlayer.SetCustomProperties(new Hashtable
+                    {
+                        {"IsDead", true},
+                    });
+                }
 
                 _animator.SetTrigger(IsDead);
             }
@@ -191,7 +216,10 @@ namespace HideAndSkull.Character
             switch (PlayMode)
             {
                 case PlayMode.AI:
-                    PhotonNetwork.Destroy(_photonView);
+                    if(PhotonNetwork.IsMasterClient)
+                    {
+                        PhotonNetwork.Destroy(gameObject);
+                    }
                     break;
                 case PlayMode.Player:
                     foreach (Renderer meshRenderer in _skinnedMeshRenderers)
@@ -218,10 +246,10 @@ namespace HideAndSkull.Character
         #region Player
         public void InitPlayer()
         {
-            if (!_photonView.IsMine) return;
+            if (!PhotonView.IsMine) return;
 
             SetPlayerCamera();
-            _photonView.RPC(nameof(SetPlayModePlayer), RpcTarget.AllBufferedViaServer);
+            PhotonView.RPC(nameof(SetPlayModePlayer), RpcTarget.AllBufferedViaServer);
 
             //TEST
             _inputActions = new PlayerInputActions();
@@ -284,7 +312,7 @@ namespace HideAndSkull.Character
         {
             if (!_canAction) return;
 
-            _photonView.RPC(nameof(RunPerform_RPC), RpcTarget.AllViaServer);
+            PhotonView.RPC(nameof(RunPerform_RPC), RpcTarget.AllViaServer);
         }
 
         [PunRPC]
@@ -297,7 +325,7 @@ namespace HideAndSkull.Character
         {
             if(!_canAction || _isDead) return;
 
-            _photonView.RPC(nameof(AttackPerform_RPC), RpcTarget.AllViaServer);
+            PhotonView.RPC(nameof(AttackPerform_RPC), RpcTarget.AllViaServer);
         }
 
         [PunRPC]
@@ -342,7 +370,7 @@ namespace HideAndSkull.Character
             
             _isTouching = false;
             _isTouchFlagDirty = false;
-            _photonView.RPC(nameof(StopWalkAnimation), RpcTarget.AllViaServer);
+            PhotonView.RPC(nameof(StopWalkAnimation), RpcTarget.AllViaServer);
         }
 
         #endregion
@@ -350,7 +378,7 @@ namespace HideAndSkull.Character
         #region AI
         public void InitAI()
         {
-            _photonView.RPC(nameof(SetPlayModeAI), RpcTarget.AllBufferedViaServer);
+            PhotonView.RPC(nameof(SetPlayModeAI), RpcTarget.AllBufferedViaServer);
         }
 
         [PunRPC]
@@ -379,7 +407,7 @@ namespace HideAndSkull.Character
                 _currentAct = ActFlag.None;
                 _moveDirection = Vector3.zero;
                 _moveElapsed = 0f;
-                _photonView.RPC(nameof(StopWalkAnimation), RpcTarget.AllViaServer);
+                PhotonView.RPC(nameof(StopWalkAnimation), RpcTarget.AllViaServer);
             }
             else
             {
@@ -391,9 +419,31 @@ namespace HideAndSkull.Character
                 }
                 
                 transform.Translate(Vector3.forward * (Speed * Time.deltaTime));
-                _photonView.RPC(nameof(PlayWalkAnimation), RpcTarget.AllViaServer);
+                PhotonView.RPC(nameof(PlayWalkAnimation), RpcTarget.AllViaServer);
                 _moveElapsed += Time.deltaTime;
             }
+        }
+        #endregion
+
+        #region Interface
+        public void OnOwnershipRequest(PhotonView targetView, Player requestingPlayer)
+        {
+            Debug.Log("OnOwnershipRequest");
+        }
+
+        public void OnOwnershipTransfered(PhotonView targetView, Player previousOwner)
+        {
+            Debug.Log("OnOwnershipTransfered");
+            if (targetView == PhotonView && PhotonView.IsMine)
+            {
+                Debug.Log("OnOwnershipTransfered IsMine");
+                InitPlayer();
+            }
+        }
+
+        public void OnOwnershipTransferFailed(PhotonView targetView, Player senderOfFailedRequest)
+        {
+            Debug.Log($"[{nameof(Skull)}] OnOwnershipTransferFailed");
         }
         #endregion
     }

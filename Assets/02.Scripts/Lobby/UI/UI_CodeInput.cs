@@ -1,4 +1,4 @@
-using HideAndSkull.Lobby.Utilities;
+﻿using HideAndSkull.Lobby.Utilities;
 using Photon.Pun;
 using TMPro;
 using UnityEngine.UI;
