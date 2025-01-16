@@ -7012,7 +7012,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91d103c5cb39a14448b39cbad2172e6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _button: {fileID: 452887746}
+  _testButton: {fileID: 452887746}
 --- !u!114 &1044586952
 MonoBehaviour:
   m_ObjectHideFlags: 0
