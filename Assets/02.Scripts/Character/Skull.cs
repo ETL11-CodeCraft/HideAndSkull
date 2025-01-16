@@ -263,6 +263,24 @@ namespace HideAndSkull.Character
         private void SetPlayModePlayer()
         {
             PlayMode = PlayMode.Player;
+            //임시 변수 초기화
+            GameObject gameObject = GameObject.Find("Workflow");
+            if (gameObject)
+            {
+                if (gameObject.TryGetComponent(out GamePlayWorkflow workflow))
+                {
+                    GamePlayWorkflow = workflow;
+                }
+                else if(PhotonNetwork.IsMasterClient)
+                {
+                    GamePlayWorkflow = gameObject.AddComponent<GamePlayWorkflow>();
+                }
+            }
+            else
+            {
+                GameObject workflow = new GameObject("Workflow");
+                GamePlayWorkflow = workflow.AddComponent<GamePlayWorkflow>();
+            }
         }
 
         private void SetPlayerCamera()

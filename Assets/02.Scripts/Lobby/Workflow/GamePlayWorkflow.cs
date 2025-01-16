@@ -55,7 +55,6 @@ namespace HideAndSkull.Lobby.Workflow
                 GameObject gameObject = PhotonNetwork.Instantiate("Character/Skull", _spawnPoints[i].position, Quaternion.identity);
                 
                 Skull skull = gameObject.GetComponent<Skull>();
-                skull.GamePlayWorkflow = this;
 
                 PhotonView photonView = gameObject.GetComponent<PhotonView>();
                 photonView.TransferOwnership(_playerList[i].ActorNumber);
