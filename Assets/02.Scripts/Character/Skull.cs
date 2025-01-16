@@ -201,6 +201,11 @@ namespace HideAndSkull.Character
                     uI_ToastPanel.ShowToast($"{PhotonView.Owner.NickName}님이 사망하였습니다.");
 
                     GamePlayWorkflow.SurvivePlayerCount--;
+
+                    PhotonNetwork.LocalPlayer.SetCustomProperties(new Hashtable
+                    {
+                        {"IsDead", true},
+                    });
                 }
 
                 _animator.SetTrigger(IsDead);

@@ -1,4 +1,4 @@
-using HideAndSkull.Character;
+ï»¿using HideAndSkull.Character;
 using HideAndSkull.Lobby.UI;
 using HideAndSkull.Survivors.UI;
 using Photon.Pun;
@@ -47,6 +47,7 @@ namespace HideAndSkull.Lobby.Workflow
 
         private void Start()
         {
+            uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
             uI_Survivors = UI_Manager.instance.Resolve<UI_Survivors>();
             _playerList = PhotonNetwork.PlayerList.ToList();
             SurvivePlayerCount = _playerList.Count;
@@ -61,6 +62,11 @@ namespace HideAndSkull.Lobby.Workflow
 
                     PhotonView photonView = gameObject.GetComponent<PhotonView>();
                     photonView.TransferOwnership(_playerList[i].ActorNumber);
+
+                    _playerList[i].CustomProperties = new ExitGames.Client.Photon.Hashtable
+                    {
+                        {"IsDead", false},
+                    };
                 }
 
                 for (int i = _playerList.Count; i < 20; i++)
@@ -75,8 +81,8 @@ namespace HideAndSkull.Lobby.Workflow
         {
             if (PhotonNetwork.IsMasterClient)
             {
-                //TODO :: °á°ú Ã¢ ¶ç¿ì±â
-                //TODO :: ÀÏÁ¤ ½Ã°£ÀÌ Áö³­ÈÄ ¾À º¯°æÇÏ±â (¾À º¯°æÀº MasterClient¸¸)
+                //TODO :: ê²°ê³¼ ì°½ ë„ìš°ê¸°
+                //TODO :: ì¼ì • ì‹œê°„ì´ ì§€ë‚œí›„ ì”¬ ë³€ê²½í•˜ê¸° (ì”¬ ë³€ê²½ì€ MasterClientë§Œ)
             }
         }
 
@@ -87,10 +93,17 @@ namespace HideAndSkull.Lobby.Workflow
 
         public void OnPlayerLeftRoom(Player otherPlayer)
         {
-            _playerList.Remove(otherPlayer);
-            //¸¸¾à otherPlayer°¡ »ì¾ÆÀÖ¾ú´Ù¸é SurvivePlayerCount--;
             if (PhotonNetwork.IsMasterClient)
-                uI_ToastPanel.ShowToast($"{otherPlayer.NickName}´ÔÀÌ Á¢¼ÓÀ» Á¾·áÇÏ¿´½À´Ï´Ù.");
+            {
+                if (!(bool)otherPlayer.CustomProperties["IsDead"])
+                {
+                    SurvivePlayerCount--;
+                }
+                uI_ToastPanel.ShowToast($"{otherPlayer.NickName}ë‹˜ì´ ì ‘ì†ì„ ì¢…ë£Œí•˜ì˜€ìŠµë‹ˆë‹¤.");
+
+            }
+
+            _playerList.Remove(otherPlayer);
         }
 
         public void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
@@ -105,7 +118,7 @@ namespace HideAndSkull.Lobby.Workflow
 
         public void OnMasterClientSwitched(Player newMasterClient)
         {
-            //AI Character ¼ÒÀ¯±Ç ³Ñ±â±â
+            //AI Character ì†Œìœ ê¶Œ ë„˜ê¸°ê¸°
         }
     }
 }
