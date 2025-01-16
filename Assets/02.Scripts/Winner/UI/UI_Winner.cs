@@ -39,6 +39,14 @@ namespace HideAndSkull.Winner.UI
             StartCoroutine(C_CoundownThenHide(5));
         }
 
+        public void SetWinnerInfo(string playerNickname, int killCount)
+        {
+            this.playerNickname = playerNickname;
+            this.killCount = killCount;
+
+            Show();
+        }
+
         IEnumerator C_CoundownThenHide(int seconds)
         {
             while (seconds > 0)
@@ -47,7 +55,7 @@ namespace HideAndSkull.Winner.UI
                 yield return new WaitForSeconds(1);
             }
 
-            Hide();
+            //Hide();
             
         }
     }
