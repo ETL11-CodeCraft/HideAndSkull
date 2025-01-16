@@ -1,19 +1,30 @@
-using HideAndSkull.Lobby.UI;
+﻿using HideAndSkull.Lobby.UI;
 using HideAndSkull.Survivors.UI;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class Survivors : MonoBehaviour
 {
-    [SerializeField] Button _button;
-    int _index;
+    [SerializeField] Button _testButton; // 테스트용 추후삭제
+    int _testIndex;
+
+    UI_Survivors uI_Survivors;
+    UI_ToastPanel uI_ToastPanel;
+
+    private void Awake()
+    {
+        uI_Survivors = UI_Manager.instance.Resolve<UI_Survivors>();
+        uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
+    }
 
     private void Start()
     {
-        _button.onClick.AddListener(() =>
+        _testButton.onClick.AddListener(() =>
         {
-            UI_ToastPanel uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
-            uI_ToastPanel.ShowToast($"�׽�Ʈ {_index++}");
+            uI_ToastPanel.ShowToast($"테스트 {_testIndex++}");
         });
+
+        uI_Survivors.SetSurvivorCount(PhotonNetwork.PlayerList.Length);
     }
 }

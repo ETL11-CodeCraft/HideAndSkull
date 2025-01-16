@@ -1,6 +1,5 @@
-using System;
+Ôªøusing System;
 using System.Collections;
-using System.ComponentModel;
 using TMPro;
 using UnityEngine;
 
@@ -9,6 +8,12 @@ namespace HideAndSkull.Survivors.UI
 
     public class UI_ToastMessageBox : MonoBehaviour
     {
+        public string message
+        {
+            get { return _message.text; }
+            set { _message.text = value; }
+        }
+
         [SerializeField] TMP_Text _message;
         CanvasGroup _canvasGroup;
         public float displayDuration = 2f;
@@ -24,6 +29,7 @@ namespace HideAndSkull.Survivors.UI
 
         public void Show(string message)
         {
+            gameObject.SetActive(true);
             _message.text = message;
 
             if (toastCoroutine != null)
@@ -32,11 +38,12 @@ namespace HideAndSkull.Survivors.UI
             }
 
             toastCoroutine = StartCoroutine(ShowToastCoroutine());
+            
         }
 
         private IEnumerator ShowToastCoroutine()
         {
-            // ∆‰¿ÃµÂ ¿Œ
+            // ÌéòÏù¥Îìú Ïù∏
             float elapsedTime = 0f;
             while (elapsedTime < fadeDuration)
             {
@@ -47,7 +54,7 @@ namespace HideAndSkull.Survivors.UI
 
             yield return new WaitForSeconds(displayDuration);
 
-            // ∆‰¿ÃµÂ æ∆øÙ
+            // ÌéòÏù¥Îìú ÏïÑÏõÉ
             elapsedTime = 0f;
             while (elapsedTime < fadeDuration)
             {
@@ -57,7 +64,8 @@ namespace HideAndSkull.Survivors.UI
             }
 
             _canvasGroup.alpha = 0;
-            Destroy(gameObject);
+            gameObject.SetActive(false);
+            transform.SetParent(null);
             OnHide?.Invoke();
         }
 
@@ -67,7 +75,8 @@ namespace HideAndSkull.Survivors.UI
             {
                 StopCoroutine(toastCoroutine);
             }
-            Destroy(gameObject);
+            gameObject.SetActive(false);
+            transform.SetParent(null);
             OnHide?.Invoke();
         }
     }

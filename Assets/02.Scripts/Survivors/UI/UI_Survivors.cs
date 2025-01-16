@@ -1,5 +1,6 @@
-using HideAndSkull.Lobby.UI;
+Ôªøusing HideAndSkull.Lobby.UI;
 using HideAndSkull.Lobby.Utilities;
+using Photon.Pun;
 using TMPro;
 
 namespace HideAndSkull.Survivors.UI
@@ -9,15 +10,35 @@ namespace HideAndSkull.Survivors.UI
         public int survivorCount
         {
             get { return _survivorCountValue; }
-            set
+            private set
             {
                 _survivorCountValue = value;
-                _survivorCount.text = $"«ˆ¿Á ª˝¡∏«— «√∑π¿ÃæÓ : <color=\"red\">{value}</color>∏Ì";
+                _survivorCount.text = $"ÌòÑÏû¨ ÏÉùÏ°¥Ìïú ÌîåÎ†àÏù¥Ïñ¥ : <color=\"red\">{value}</color>Î™Ö";
             }
         }
 
         int _survivorCountValue;
         [Resolve] TMP_Text _survivorCount;
+        PhotonView _photonView;
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+            _photonView = GetComponent<PhotonView>();
+            _photonView.ViewID = 2;
+        }
+
+        public void SetSurvivorCount(int count)
+        {
+            _photonView.RPC(nameof(SetSurvivorCountRPC), RpcTarget.All, count);
+        }
+
+        [PunRPC]
+        private void SetSurvivorCountRPC(int survivorCount)
+        {
+            this.survivorCount = survivorCount;
+        }
     }
 }
 
