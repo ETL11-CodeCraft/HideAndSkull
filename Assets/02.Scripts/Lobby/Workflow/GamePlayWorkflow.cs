@@ -3,13 +3,13 @@ using HideAndSkull.Lobby.UI;
 using HideAndSkull.Survivors.UI;
 using Photon.Pun;
 using Photon.Realtime;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace HideAndSkull.Lobby.Workflow
 {
-    public class GamePlayWorkflow : MonoBehaviour
+    public class GamePlayWorkflow : MonoBehaviour, IInRoomCallbacks
     {
         public int SurvivePlayerCount 
         {
@@ -20,7 +20,7 @@ namespace HideAndSkull.Lobby.Workflow
 
                 _survivePlayerCount = value;
 
-                if (isChanged)
+                if (isChanged && PhotonNetwork.IsMasterClient)
                     uI_Survivors.SetSurvivorCount(_survivePlayerCount);
 
                 if (_survivePlayerCount == 1)
@@ -31,47 +31,81 @@ namespace HideAndSkull.Lobby.Workflow
 
 
         [SerializeField] Transform[] _spawnPoints;
-        Player[] _playerList;
+        List<Player> _playerList;
         UI_ToastPanel uI_ToastPanel;
         UI_Survivors uI_Survivors;
 
 
-        private void Start()
+        private void OnEnable()
         {
-            if (PhotonNetwork.IsMasterClient)
-            {
-                uI_Survivors = UI_Manager.instance.Resolve<UI_Survivors>();
-                StartCoroutine(C_Workflow());
-            }
+            PhotonNetwork.AddCallbackTarget(this);
+        }
+        private void OnDisable()
+        {
+            PhotonNetwork.RemoveCallbackTarget(this);
         }
 
-        IEnumerator C_Workflow()
+        private void Start()
         {
-            _playerList = PhotonNetwork.PlayerList;
-            SurvivePlayerCount = _playerList.Length;
-            for (int i=0; i< _playerList.Length; i++)
-            {
-                GameObject gameObject = PhotonNetwork.Instantiate("Character/Skull", _spawnPoints[i].position, Quaternion.identity);
-                
-                Skull skull = gameObject.GetComponent<Skull>();
+            uI_Survivors = UI_Manager.instance.Resolve<UI_Survivors>();
+            _playerList = PhotonNetwork.PlayerList.ToList();
+            SurvivePlayerCount = _playerList.Count;
 
-                PhotonView photonView = gameObject.GetComponent<PhotonView>();
-                photonView.TransferOwnership(_playerList[i].ActorNumber);
-            }
-            for (int i = _playerList.Length; i < 20; i++)
+            if (PhotonNetwork.IsMasterClient)
             {
-                Skull AISkull = PhotonNetwork.Instantiate("Character/Skull", _spawnPoints[i].position, Quaternion.identity).GetComponent<Skull>();
-                AISkull.InitAI();
+                for (int i = 0; i < _playerList.Count; i++)
+                {
+                    GameObject gameObject = PhotonNetwork.Instantiate("Character/Skull", _spawnPoints[i].position, Quaternion.identity);
+
+                    Skull skull = gameObject.GetComponent<Skull>();
+
+                    PhotonView photonView = gameObject.GetComponent<PhotonView>();
+                    photonView.TransferOwnership(_playerList[i].ActorNumber);
+                }
+
+                for (int i = _playerList.Count; i < 20; i++)
+                {
+                    Skull AISkull = PhotonNetwork.Instantiate("Character/Skull", _spawnPoints[i].position, Quaternion.identity).GetComponent<Skull>();
+                    AISkull.InitAI();
+                }
             }
-            yield return null;
         }
 
         private void ShowWinner()
         {
             if (PhotonNetwork.IsMasterClient)
             {
-                //SceneManager.LoadScene(0);
+                //TODO :: 결과 창 띄우기
+                //TODO :: 일정 시간이 지난후 씬 변경하기 (씬 변경은 MasterClient만)
             }
+        }
+
+        public void OnPlayerEnteredRoom(Player newPlayer)
+        {
+            
+        }
+
+        public void OnPlayerLeftRoom(Player otherPlayer)
+        {
+            _playerList.Remove(otherPlayer);
+            //만약 otherPlayer가 살아있었다면 SurvivePlayerCount--;
+            if (PhotonNetwork.IsMasterClient)
+                uI_ToastPanel.ShowToast($"{otherPlayer.NickName}님이 접속을 종료하였습니다.");
+        }
+
+        public void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
+        {
+
+        }
+
+        public void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+        {
+
+        }
+
+        public void OnMasterClientSwitched(Player newMasterClient)
+        {
+            //AI Character 소유권 넘기기
         }
     }
 }
