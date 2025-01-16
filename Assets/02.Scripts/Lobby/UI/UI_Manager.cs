@@ -1,4 +1,4 @@
-using HideAndSkull.Lobby.Singleton;
+ï»¿using HideAndSkull.Lobby.Singleton;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,8 +9,8 @@ namespace HideAndSkull.Lobby.UI
     {
         public UI_Manager()
         {
-            _uis = new Dictionary<Type, UI_Base>(EXPECTED_MAX_UI_COUNT_IN_SCENE);   //Reserve ¼ö : ÇÑ Àå¸é¿¡¼­ »ç¿ëÇÒ ¼ö ÀÖ´Â ÃÖ´ë UI °³¼ö
-            _popupStack = new List<UI_Popup>(EXPECTED_MAX_POPUP_COUNT_IN_SCENE);  //Reserve ¼ö : ÇÑ Àå¸é¿¡¼­ µ¿½Ã¿¡ ¶ç¿ï ¼ö ÀÖ´Â ÃÖ´ë Popup °³¼ö
+            _uis = new Dictionary<Type, UI_Base>(EXPECTED_MAX_UI_COUNT_IN_SCENE);   //Reserve ìˆ˜ : í•œ ì¥ë©´ì—ì„œ ì‚¬ìš©í•  ìˆ˜ ìˆëŠ” ìµœëŒ€ UI ê°œìˆ˜
+            _popupStack = new List<UI_Popup>(EXPECTED_MAX_POPUP_COUNT_IN_SCENE);  //Reserve ìˆ˜ : í•œ ì¥ë©´ì—ì„œ ë™ì‹œì— ë„ìš¸ ìˆ˜ ìˆëŠ” ìµœëŒ€ Popup ê°œìˆ˜
         }
 
 
@@ -18,9 +18,9 @@ namespace HideAndSkull.Lobby.UI
 
         const int EXPECTED_MAX_UI_COUNT_IN_SCENE = 30;
         const int EXPECTED_MAX_POPUP_COUNT_IN_SCENE = 10;
-        Dictionary<Type, UI_Base> _uis; //ÇöÀç Àå¸é¿¡¼­ ¿­¸± ¼ö ÀÖ´Â UI ¸ñ·Ï
-        UI_Screen _screen;  //ÇöÀç Àå¸éÀÇ ½ºÅ©¸°À» Â÷ÁöÇÏ´Â UI
-        List<UI_Popup> _popupStack;    //ÇöÀç È°¼ºÈ­ µÇ¾îÀÖ´Â ÆË¾÷µéÀ» ¼øÂ÷ÀûÀ¸·Î °ü¸®ÇÏ´Â ½ºÅÃ
+        Dictionary<Type, UI_Base> _uis; //í˜„ì¬ ì¥ë©´ì—ì„œ ì—´ë¦´ ìˆ˜ ìˆëŠ” UI ëª©ë¡
+        UI_Screen _screen;  //í˜„ì¬ ì¥ë©´ì˜ ìŠ¤í¬ë¦°ì„ ì°¨ì§€í•˜ëŠ” UI
+        List<UI_Popup> _popupStack;    //í˜„ì¬ í™œì„±í™” ë˜ì–´ìˆëŠ” íŒì—…ë“¤ì„ ìˆœì°¨ì ìœ¼ë¡œ ê´€ë¦¬í•˜ëŠ” ìŠ¤íƒ
 
         public void Register(UI_Base ui)
         {
@@ -59,7 +59,7 @@ namespace HideAndSkull.Lobby.UI
 
         public void SetScreen(UI_Screen screen)
         {
-            //ÀÌ¹Ì È°¼ºÈ­µÈ ½ºÅ©¸° UI°¡ ÀÖÀ¸¸é ²û
+            //ì´ë¯¸ í™œì„±í™”ëœ ìŠ¤í¬ë¦° UIê°€ ìˆìœ¼ë©´ ë”
             if (_screen != null)
             {
                 _screen.InputActionsEnabled = false;
@@ -75,7 +75,7 @@ namespace HideAndSkull.Lobby.UI
         {
             int popupIndex = _popupStack.FindLastIndex(ui => ui == popup);
 
-            //ÀÌ¹Ì ÀÌ ÆË¾÷ÀÌ È°¼ºÈ­µÇ¾îÀÖ´Ù¸é, Á¦°ÅÇÏ°í °¡Àå µÚ·Î º¸³»¾ßÇÔ
+            //ì´ë¯¸ ì´ íŒì—…ì´ í™œì„±í™”ë˜ì–´ìˆë‹¤ë©´, ì œê±°í•˜ê³  ê°€ì¥ ë’¤ë¡œ ë³´ë‚´ì•¼í•¨
             if (popupIndex > 0)
             {
                 _popupStack.RemoveAt(popupIndex);
@@ -105,12 +105,12 @@ namespace HideAndSkull.Lobby.UI
             if (popupIndex < 0)
                 throw new Exception($"Failed to remove popup. {popup.name}");
 
-            //»©·Á´Â°Ô ¸¶Áö¸·ÀÌ¾úÀ¸¸é ÀÌÀü ²¨¸¦ È°¼ºÈ­
+            //ë¹¼ë ¤ëŠ”ê²Œ ë§ˆì§€ë§‰ì´ì—ˆìœ¼ë©´ ì´ì „ êº¼ë¥¼ í™œì„±í™”
             if (popupIndex == _popupStack.Count - 1)
             {
                 _popupStack[popupIndex].InputActionsEnabled = false;
 
-                //ÀÌÀü ÆË¾÷ÀÌ Á¸ÀçÇÑ´Ù¸é
+                //ì´ì „ íŒì—…ì´ ì¡´ì¬í•œë‹¤ë©´
                 if (popupIndex > 0)
                     _popupStack[popupIndex - 1].InputActionsEnabled = true;
             }

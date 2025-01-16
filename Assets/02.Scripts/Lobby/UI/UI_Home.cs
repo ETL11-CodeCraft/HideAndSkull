@@ -1,4 +1,4 @@
-using HideAndSkull.Lobby.Utilities;
+ï»¿using HideAndSkull.Lobby.Utilities;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
@@ -9,15 +9,17 @@ using UnityEngine.UI;
 
 namespace HideAndSkull.Lobby.UI
 {
-    //Todo : ¼­¹ö Á¢¼Ó½Ã 3ÃÊ°£ "¼­¹ö Á¢¼ÓµÇ¾ú½À´Ï´Ù." ¸Ş¼¼Áö Ãâ·Â (È®ÀÎ)
-    //Todo : "Á¢¼ÓÇÏ±â" ¹öÆ° Å¬¸¯½Ã ´Ğ³×ÀÓ ÀÎÇ²ÇÊµå¸¦ ÇÃ·¹ÀÌ¾îÀÇ ´Ğ³×ÀÓÀ¸·Î ¼³Á¤ÇÏ°í ·Îºñ·Î ÀÌµ¿ (È®ÀÎ)
-    //Todo : "³ª°¡±â" ¹öÆ° Å¬¸¯½Ã ¾Û Á¾·á (È®ÀÎ)
+    //Todo : ì„œë²„ ì ‘ì†ì‹œ 3ì´ˆê°„ "ì„œë²„ ì ‘ì†ë˜ì—ˆìŠµë‹ˆë‹¤." ë©”ì„¸ì§€ ì¶œë ¥ (í™•ì¸)
+    //Todo : "ì ‘ì†í•˜ê¸°" ë²„íŠ¼ í´ë¦­ì‹œ ë‹‰ë„¤ì„ ì¸í’‹í•„ë“œë¥¼ í”Œë ˆì´ì–´ì˜ ë‹‰ë„¤ì„ìœ¼ë¡œ ì„¤ì •í•˜ê³  ë¡œë¹„ë¡œ ì´ë™ (í™•ì¸)
+    //Todo : "ë‚˜ê°€ê¸°" ë²„íŠ¼ í´ë¦­ì‹œ ì•± ì¢…ë£Œ (í™•ì¸)
     public class UI_Home : UI_Screen, ILobbyCallbacks
     {
         [Resolve] TMP_InputField _nickName;
         [Resolve] Button _connect;
         [Resolve] Button _exit;
         [Resolve] TMP_Text _serverConnect;
+
+        const int PLAYER_NICKNAME_MAX_LENGTH = 11;
 
 
         protected override void Start()
@@ -39,7 +41,7 @@ namespace HideAndSkull.Lobby.UI
             PhotonNetwork.AddCallbackTarget(this);
         }
 
-        //NickName È®ÀÎ ÈÄ ÀÔ·ÂµÈ ±ÛÀÚ°¡ ÀÖÀ¸¸é ·Îºñ·Î ÀÌµ¿
+        //NickName í™•ì¸ í›„ ì…ë ¥ëœ ê¸€ìê°€ ìˆìœ¼ë©´ ë¡œë¹„ë¡œ ì´ë™
         private void Connect()
         {
             string nickName = _nickName.text.Trim();
@@ -48,12 +50,17 @@ namespace HideAndSkull.Lobby.UI
             {
                 UI_ConfirmWindow confirmWindow = UI_Manager.instance.Resolve<UI_ConfirmWindow>();
 
-                confirmWindow.Show("´Ğ³×ÀÓÀº °ø¹éÀ¸·Î ÀÌ·ç¾îÁú ¼ö ¾ø½À´Ï´Ù.\n¼ıÀÚ³ª ¿µ¾î, ÇÑ±ÛÀ» ÀÌ¿ëÇØ ÀÔ·ÂÇØÁÖ¼¼¿ä.");
+                confirmWindow.Show("ë‹‰ë„¤ì„ì€ ê³µë°±ìœ¼ë¡œ ì´ë£¨ì–´ì§ˆ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.\nìˆ«ìë‚˜ ì˜ì–´, í•œê¸€ì„ ì´ìš©í•´ ì…ë ¥í•´ì£¼ì„¸ìš”.");
                 return;
             }
 
+            if(nickName.Length > 11)
+            {
+                nickName = nickName.Substring(0, PLAYER_NICKNAME_MAX_LENGTH);
+            }
+
             PhotonNetwork.LocalPlayer.NickName = nickName;
-            Debug.Log(PhotonNetwork.LocalPlayer.NickName + " ´Ğ³×ÀÓÀÌ µî·ÏµÇ¾ú½À´Ï´Ù.");
+            Debug.Log(PhotonNetwork.LocalPlayer.NickName + " ë‹‰ë„¤ì„ì´ ë“±ë¡ë˜ì—ˆìŠµë‹ˆë‹¤.");
 
             UI_Manager.instance.Resolve<UI_Lobby>()
                                .Show();
@@ -65,7 +72,7 @@ namespace HideAndSkull.Lobby.UI
         }
 
         /// <summary>
-        /// ¼­¹ö Á¢¼Ó ÈÄ 3ÃÊ°£ ¼­¹ö Á¢¼Ó ¸Ş¼¼Áö Ãâ·Â
+        /// ì„œë²„ ì ‘ì† í›„ 3ì´ˆê°„ ì„œë²„ ì ‘ì† ë©”ì„¸ì§€ ì¶œë ¥
         /// </summary>
         /// <returns></returns>
         public IEnumerator C_ServerConnectText()
