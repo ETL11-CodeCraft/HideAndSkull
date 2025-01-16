@@ -34,6 +34,7 @@ namespace HideAndSkull.Lobby.Workflow
         List<Player> _playerList;
         UI_ToastPanel uI_ToastPanel;
         UI_Survivors uI_Survivors;
+        UI_Dead uI_Dead;
 
 
         private void OnEnable()
@@ -49,6 +50,9 @@ namespace HideAndSkull.Lobby.Workflow
         {
             uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
             uI_Survivors = UI_Manager.instance.Resolve<UI_Survivors>();
+            uI_Dead = UI_Manager.instance.Resolve<UI_Dead>();
+            uI_Dead.Hide();
+
             _playerList = PhotonNetwork.PlayerList.ToList();
             SurvivePlayerCount = _playerList.Count;
 
@@ -116,12 +120,17 @@ namespace HideAndSkull.Lobby.Workflow
             if ((bool)changedProps["IsDead"])
             {
                 SurvivePlayerCount--;
+                if(targetPlayer == PhotonNetwork.LocalPlayer)
+                {
+                    uI_Dead.Show();
+                }
             }
         }
 
         public void OnMasterClientSwitched(Player newMasterClient)
         {
             //AI Character 소유권 넘기기
+            
         }
     }
 }
