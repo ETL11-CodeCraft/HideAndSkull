@@ -219,7 +219,7 @@ namespace HideAndSkull.Character
                     }
 
                     UI_ToastPanel uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
-                    uI_ToastPanel.ShowToast($"{PhotonNetwork.NickName}님이 사망하였습니다.");
+                    uI_ToastPanel.ShowToast($"{PhotonView.Owner.NickName}님이 사망하였습니다.");
 
                     GamePlayWorkflow.SurvivePlayerCount--;
                     break;
