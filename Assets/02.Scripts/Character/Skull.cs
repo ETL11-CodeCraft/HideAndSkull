@@ -3,7 +3,6 @@ using HideAndSkull.Lobby.Workflow;
 using HideAndSkull.Survivors.UI;
 using Photon.Pun;
 using Photon.Realtime;
-using System.Collections;
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -71,7 +70,7 @@ namespace HideAndSkull.Character
         private Transform _cameraAttachTransform;
         private bool _canAction = true;
         private Vector3 _movement;
-        //DEBUG
+        //PlayerInput
         private PlayerInputActions _inputActions;
         private GraphicRaycaster _graphicRaycaster;
         private List<RaycastResult> _results = new List<RaycastResult>(2);
@@ -103,7 +102,7 @@ namespace HideAndSkull.Character
 
         private void Update()
         {
-            if (PlayMode == PlayMode.AI && PhotonView.IsMine)
+            if (PlayMode == PlayMode.AI && PhotonNetwork.IsMasterClient)
             {
                 switch (_currentAct)
                 {
@@ -218,10 +217,13 @@ namespace HideAndSkull.Character
                         _characterCollider.enabled = false;
                     }
 
-                    UI_ToastPanel uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
-                    uI_ToastPanel.ShowToast($"{PhotonView.Owner.NickName}님이 사망하였습니다.");
+                    if(PhotonNetwork.IsMasterClient)
+                    {
+                        UI_ToastPanel uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
+                        uI_ToastPanel.ShowToast($"{PhotonView.Owner.NickName}님이 사망하였습니다.");
 
-                    GamePlayWorkflow.SurvivePlayerCount--;
+                        GamePlayWorkflow.SurvivePlayerCount--;
+                    }
                     break;
             }
         }

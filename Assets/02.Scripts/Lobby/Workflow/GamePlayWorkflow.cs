@@ -1,7 +1,8 @@
 using HideAndSkull.Character;
+using HideAndSkull.Lobby.UI;
+using HideAndSkull.Survivors.UI;
 using Photon.Pun;
 using Photon.Realtime;
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -15,33 +16,31 @@ namespace HideAndSkull.Lobby.Workflow
             get => _survivePlayerCount;
             set
             {
-                bool isChanged = false;
-                if(_survivePlayerCount != value)
-                    isChanged = true;
+                bool isChanged = _survivePlayerCount != value ? true : false;
 
                 _survivePlayerCount = value;
 
                 if (isChanged)
-                    OnChangedSurvivePlayerCount?.Invoke();
+                    uI_Survivors.SetSurvivorCount(_survivePlayerCount);
 
-                if(_survivePlayerCount == 1)
-                {
+                if (_survivePlayerCount == 1)
                     ShowWinner();
-                }
             }
         }
         private int _survivePlayerCount;
-        public Action OnChangedSurvivePlayerCount;
 
 
         [SerializeField] Transform[] _spawnPoints;
         Player[] _playerList;
+        UI_ToastPanel uI_ToastPanel;
+        UI_Survivors uI_Survivors;
 
 
         private void Start()
         {
-            if(PhotonNetwork.IsMasterClient)
+            if (PhotonNetwork.IsMasterClient)
             {
+                uI_Survivors = UI_Manager.instance.Resolve<UI_Survivors>();
                 StartCoroutine(C_Workflow());
             }
         }
