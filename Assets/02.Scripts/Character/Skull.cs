@@ -1,4 +1,8 @@
-﻿using Photon.Pun;
+﻿using HideAndSkull.Lobby.UI;
+using HideAndSkull.Lobby.Workflow;
+using HideAndSkull.Survivors.UI;
+using Photon.Pun;
+using Photon.Realtime;
 using System.Collections;
 ﻿using System.Collections.Generic;
 using UnityEngine;
@@ -25,11 +29,12 @@ namespace HideAndSkull.Character
     }
 
     [RequireComponent(typeof(PhotonTransformView))]
-    public class Skull : MonoBehaviour
+    public class Skull : MonoBehaviour, IPunOwnershipCallbacks, IMatchmakingCallbacks
     {
         public PlayMode PlayMode { get; set; }
         private float Speed => _isRunning ? RUN_SPEED : WALK_SPEED;  //프레임당 이동거리
         public PhotonView PhotonView { get; private set; }
+        public GamePlayWorkflow GamePlayWorkflow { get; set; }
 
 
         //상수
@@ -85,6 +90,15 @@ namespace HideAndSkull.Character
             _graphicRaycaster = GameObject.Find("Canvas - Buttons").GetComponent<GraphicRaycaster>();
             _pointerEventData = new PointerEventData(null);
             PhotonView = GetComponent<PhotonView>();
+        }
+
+        private void OnEnable()
+        {
+            PhotonNetwork.AddCallbackTarget(this);
+        }
+        private void OnDisable()
+        {
+            PhotonNetwork.RemoveCallbackTarget(this);
         }
 
         private void Update()
@@ -203,6 +217,11 @@ namespace HideAndSkull.Character
                         meshRenderer.enabled = false;
                         _characterCollider.enabled = false;
                     }
+
+                    UI_ToastPanel uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
+                    uI_ToastPanel.ShowToast($"{PhotonNetwork.NickName}님이 사망하였습니다.");
+
+                    GamePlayWorkflow.SurvivePlayerCount--;
                     break;
             }
         }
@@ -398,6 +417,58 @@ namespace HideAndSkull.Character
                 PhotonView.RPC(nameof(PlayWalkAnimation), RpcTarget.AllViaServer);
                 _moveElapsed += Time.deltaTime;
             }
+        }
+        #endregion
+
+        #region Interface
+        public void OnOwnershipRequest(PhotonView targetView, Player requestingPlayer)
+        {
+            Debug.Log("OnOwnershipRequest");
+        }
+
+        public void OnOwnershipTransfered(PhotonView targetView, Player previousOwner)
+        {
+            Debug.Log("OnOwnershipTransfered");
+            if (targetView == PhotonView && PhotonView.IsMine)
+            {
+                Debug.Log("OnOwnershipTransfered IsMine");
+                InitPlayer();
+            }
+        }
+
+        public void OnOwnershipTransferFailed(PhotonView targetView, Player senderOfFailedRequest)
+        {
+            Debug.Log($"[{nameof(Skull)}] OnOwnershipTransferFailed");
+        }
+
+        public void OnFriendListUpdate(List<FriendInfo> friendList)
+        {
+        }
+
+        public void OnCreatedRoom()
+        {
+        }
+
+        public void OnCreateRoomFailed(short returnCode, string message)
+        {
+        }
+
+        public void OnJoinedRoom()
+        {
+        }
+
+        public void OnJoinRoomFailed(short returnCode, string message)
+        {
+        }
+
+        public void OnJoinRandomFailed(short returnCode, string message)
+        {
+        }
+
+        public void OnLeftRoom()
+        {
+            if (GamePlayWorkflow)
+                GamePlayWorkflow.SurvivePlayerCount--;
         }
         #endregion
     }

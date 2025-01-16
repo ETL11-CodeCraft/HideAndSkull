@@ -1,43 +1,79 @@
 using HideAndSkull.Character;
 using Photon.Pun;
+using Photon.Realtime;
+using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace HideAndSkull.Lobby.Workflow
 {
     public class GamePlayWorkflow : MonoBehaviour
     {
+        public int SurvivePlayerCount 
+        {
+            get => _survivePlayerCount;
+            set
+            {
+                bool isChanged = false;
+                if(_survivePlayerCount != value)
+                    isChanged = true;
+
+                _survivePlayerCount = value;
+
+                if (isChanged)
+                    OnChangedSurvivePlayerCount?.Invoke();
+
+                if(_survivePlayerCount == 1)
+                {
+                    ShowWinner();
+                }
+            }
+        }
+        private int _survivePlayerCount;
+        public Action OnChangedSurvivePlayerCount;
+
+
         [SerializeField] Transform[] _spawnPoints;
-        static int spawnedCnt = 0;
+        Player[] _playerList;
+
 
         private void Start()
         {
-            StartCoroutine(C_Workflow());
+            if(PhotonNetwork.IsMasterClient)
+            {
+                StartCoroutine(C_Workflow());
+            }
         }
 
         IEnumerator C_Workflow()
         {
-            SpawnCharacter(_spawnPoints[spawnedCnt++].position);
-            if(PhotonNetwork.IsMasterClient)
+            _playerList = PhotonNetwork.PlayerList;
+            SurvivePlayerCount = _playerList.Length;
+            for (int i=0; i< _playerList.Length; i++)
             {
-                for(int i= PhotonNetwork.PlayerList.Length; i < 20; i++)
-                {
-                    SpawnAI(_spawnPoints[spawnedCnt++].position);
-                }
+                GameObject gameObject = PhotonNetwork.Instantiate("Character/Skull", _spawnPoints[i].position, Quaternion.identity);
+                
+                Skull skull = gameObject.GetComponent<Skull>();
+                skull.GamePlayWorkflow = this;
+
+                PhotonView photonView = gameObject.GetComponent<PhotonView>();
+                photonView.TransferOwnership(_playerList[i].ActorNumber);
+            }
+            for (int i = _playerList.Length; i < 20; i++)
+            {
+                Skull AISkull = PhotonNetwork.Instantiate("Character/Skull", _spawnPoints[i].position, Quaternion.identity).GetComponent<Skull>();
+                AISkull.InitAI();
             }
             yield return null;
         }
 
-        private void SpawnCharacter(Vector3 transform)
+        private void ShowWinner()
         {
-            Skull playerSkull = PhotonNetwork.Instantiate("Character/Skull", transform, Quaternion.identity).GetComponent<Skull>();
-            playerSkull.InitPlayer();
-        }
-
-        private void SpawnAI(Vector3 transform)
-        {
-            Skull AISkull = PhotonNetwork.Instantiate("Character/Skull", transform, Quaternion.identity).GetComponent<Skull>();
-            AISkull.InitAI();
+            if (PhotonNetwork.IsMasterClient)
+            {
+                //SceneManager.LoadScene(0);
+            }
         }
     }
 }
