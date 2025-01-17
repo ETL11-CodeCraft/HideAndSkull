@@ -9,6 +9,8 @@ namespace HideAndSkull.Lobby.Workflow
     {
         private void Start()
         {
+            PhotonNetwork.AutomaticallySyncScene = false;
+
             StartCoroutine(C_Workflow());
         }
 
@@ -19,8 +21,22 @@ namespace HideAndSkull.Lobby.Workflow
             //Photon server에 접속완료 될 때까지 대기
             yield return new WaitUntil(() => PhotonNetwork.IsConnected);
 
-            uiManager.Resolve<UI_Home>()
-                     .Show();
+            if (PhotonNetwork.InRoom)
+            {
+                uiManager.Resolve<UI_Home>()
+                    .Show();
+
+                uiManager.Resolve<UI_Lobby>()
+                    .Show();
+
+                uiManager.Resolve<UI_Room>()
+                    .Show();
+            }
+            else
+            {
+                uiManager.Resolve<UI_Home>()
+                         .Show();
+            }
         }
     }
 }

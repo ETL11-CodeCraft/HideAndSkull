@@ -24,7 +24,18 @@ namespace HideAndSkull.Lobby.UI
 
         public void Register(UI_Base ui)
         {
-            if (_uis.TryAdd(ui.GetType(), ui))
+            if (_uis.ContainsKey(ui.GetType()))
+            {
+                Debug.LogWarning($"UI {ui.GetType()} is already registered. Replacing the old instance.");
+                _uis[ui.GetType()] = ui; // 기존 UI를 새 UI로 교체
+
+                if (ui is UI_Popup)
+                {
+                    ui.onShow += () => Push((UI_Popup)ui);
+                    ui.onHide += () => Pop((UI_Popup)ui);
+                }
+            }
+            else if (_uis.TryAdd(ui.GetType(), ui))
             {
                 Debug.Log($"Registered UI {ui.GetType()}");
 
@@ -44,7 +55,9 @@ namespace HideAndSkull.Lobby.UI
             where T : UI_Base
         {
             if (_uis.TryGetValue(typeof(T), out UI_Base result))
+            {
                 return (T)result;
+            }
             else
             {
                 string path = $"UI/Canvas - {typeof(T).Name.Substring(3)}";
@@ -116,6 +129,16 @@ namespace HideAndSkull.Lobby.UI
             }
 
             Debug.Log($"Popped {popup.name}");
+        }
+
+        public void Unresister<T>(T uiType)
+            where T : UI_Base
+        {
+            if (_uis.ContainsValue(uiType))
+            {
+                _uis.Remove(typeof(T));
+                return;
+            }
         }
     }
 }
