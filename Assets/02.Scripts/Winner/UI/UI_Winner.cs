@@ -1,8 +1,10 @@
 using HideAndSkull.Lobby.UI;
 using HideAndSkull.Lobby.Utilities;
+using Photon.Pun;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace HideAndSkull.Winner.UI
 {
@@ -54,7 +56,11 @@ namespace HideAndSkull.Winner.UI
                 yield return new WaitForSeconds(1);
             }
 
-            //Hide();
+            Hide();
+
+            PhotonNetwork.AutomaticallySyncScene = false;
+
+            SceneManager.LoadScene(0);
         }
     }
 }
