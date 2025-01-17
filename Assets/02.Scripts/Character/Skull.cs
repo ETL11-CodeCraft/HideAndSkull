@@ -1,9 +1,9 @@
-﻿using HideAndSkull.Lobby.UI;
+﻿using ExitGames.Client.Photon;
+using HideAndSkull.Lobby.UI;
 using HideAndSkull.Lobby.Workflow;
 using HideAndSkull.Survivors.UI;
 using Photon.Pun;
 using Photon.Realtime;
-using System.Collections;
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -29,12 +29,11 @@ namespace HideAndSkull.Character
     }
 
     [RequireComponent(typeof(PhotonTransformView))]
-    public class Skull : MonoBehaviour, IPunOwnershipCallbacks, IMatchmakingCallbacks
+    public class Skull : MonoBehaviour, IPunOwnershipCallbacks
     {
         public PlayMode PlayMode { get; set; }
         private float Speed => _isRunning ? RUN_SPEED : WALK_SPEED;  //프레임당 이동거리
         public PhotonView PhotonView { get; private set; }
-        public GamePlayWorkflow GamePlayWorkflow { get; set; }
 
 
         //상수
@@ -71,7 +70,7 @@ namespace HideAndSkull.Character
         private Transform _cameraAttachTransform;
         private bool _canAction = true;
         private Vector3 _movement;
-        //DEBUG
+        //PlayerInput
         private PlayerInputActions _inputActions;
         private GraphicRaycaster _graphicRaycaster;
         private List<RaycastResult> _results = new List<RaycastResult>(2);
@@ -103,7 +102,7 @@ namespace HideAndSkull.Character
 
         private void Update()
         {
-            if (PlayMode == PlayMode.AI && PhotonView.IsMine)
+            if (PlayMode == PlayMode.AI && PhotonNetwork.IsMasterClient)
             {
                 switch (_currentAct)
                 {
@@ -195,6 +194,17 @@ namespace HideAndSkull.Character
                 _isDead = true;
                 _currentAct = ActFlag.Die;
 
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    UI_ToastPanel uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
+                    uI_ToastPanel.ShowToast($"{PhotonView.Owner.NickName}님이 사망하였습니다.");
+
+                    PhotonNetwork.LocalPlayer.SetCustomProperties(new Hashtable
+                    {
+                        {"IsDead", true},
+                    });
+                }
+
                 _animator.SetTrigger(IsDead);
             }
         }
@@ -217,11 +227,6 @@ namespace HideAndSkull.Character
                         meshRenderer.enabled = false;
                         _characterCollider.enabled = false;
                     }
-
-                    UI_ToastPanel uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
-                    uI_ToastPanel.ShowToast($"{PhotonNetwork.NickName}님이 사망하였습니다.");
-
-                    GamePlayWorkflow.SurvivePlayerCount--;
                     break;
             }
         }
@@ -439,36 +444,6 @@ namespace HideAndSkull.Character
         public void OnOwnershipTransferFailed(PhotonView targetView, Player senderOfFailedRequest)
         {
             Debug.Log($"[{nameof(Skull)}] OnOwnershipTransferFailed");
-        }
-
-        public void OnFriendListUpdate(List<FriendInfo> friendList)
-        {
-        }
-
-        public void OnCreatedRoom()
-        {
-        }
-
-        public void OnCreateRoomFailed(short returnCode, string message)
-        {
-        }
-
-        public void OnJoinedRoom()
-        {
-        }
-
-        public void OnJoinRoomFailed(short returnCode, string message)
-        {
-        }
-
-        public void OnJoinRandomFailed(short returnCode, string message)
-        {
-        }
-
-        public void OnLeftRoom()
-        {
-            if (GamePlayWorkflow)
-                GamePlayWorkflow.SurvivePlayerCount--;
         }
         #endregion
     }
