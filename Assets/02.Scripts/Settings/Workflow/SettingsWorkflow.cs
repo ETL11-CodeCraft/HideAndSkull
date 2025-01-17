@@ -8,14 +8,43 @@ namespace HideAndSkull.Lobby.Workflow
     public class SettingsWorkflow : MonoBehaviour
     {
         [SerializeField] Button _settings;
+        [SerializeField] RectTransform _default;
+        [SerializeField] RectTransform _reversed;
+
+        UI_Settings uiSettings;
 
         private void Start()
         {
+            uiSettings = UI_Manager.instance.Resolve<UI_Settings>();
+            uiSettings.GetComponent<Canvas>().enabled = false;
+
             _settings.onClick.AddListener(() =>
             {
-                UI_Settings uiSettings = UI_Manager.instance.Resolve<UI_Settings>();
                 uiSettings.Show();
             });
+
+            uiSettings.onHide += SwitchButtonsReplacement;
+
+            SwitchButtonsReplacement();
+        }
+
+        private void SwitchButtonsReplacement()
+        {
+            if (PlayerPrefs.GetInt(SettingsParameter.IS_REVERSED_BUTTON) == 0)
+            {
+                _default.gameObject.SetActive(true);
+                _reversed.gameObject.SetActive(false);
+            }
+            else
+            {
+                _default.gameObject.SetActive(false);
+                _reversed.gameObject.SetActive(true);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            uiSettings.onHide -= SwitchButtonsReplacement;
         }
     }
 }
