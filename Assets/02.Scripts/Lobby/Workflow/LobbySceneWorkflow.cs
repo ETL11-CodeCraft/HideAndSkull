@@ -9,6 +9,8 @@ namespace HideAndSkull.Lobby.Workflow
     {
         private void Start()
         {
+            PhotonNetwork.AutomaticallySyncScene = false;
+
             StartCoroutine(C_Workflow());
         }
 
@@ -21,6 +23,12 @@ namespace HideAndSkull.Lobby.Workflow
 
             if (PhotonNetwork.InRoom)
             {
+                uiManager.Resolve<UI_Home>()
+                    .Show();
+
+                uiManager.Resolve<UI_Lobby>()
+                    .Show();
+
                 uiManager.Resolve<UI_Room>()
                     .Show();
             }

@@ -48,6 +48,8 @@ namespace HideAndSkull.Lobby.Workflow
 
         private void Start()
         {
+            PhotonNetwork.AutomaticallySyncScene = false;
+
             uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
             uI_Survivors = UI_Manager.instance.Resolve<UI_Survivors>();
             uI_Dead = UI_Manager.instance.Resolve<UI_Dead>();

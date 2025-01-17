@@ -83,14 +83,17 @@ namespace HideAndSkull.Lobby.Network
 
             Debug.LogWarning($"Disconnected from Photon server. Cause: {cause}");
 
-            if (_retryCount < SERVER_CONNECT_RETRY_COUNT)
+            if (Application.isPlaying)
             {
-                _retryCount++;
+                if (_retryCount < SERVER_CONNECT_RETRY_COUNT)
+                {
+                    _retryCount++;
 
-                UI_ConfirmWindow confirmWindow = UI_Manager.instance.Resolve<UI_ConfirmWindow>();
+                    UI_ConfirmWindow confirmWindow = UI_Manager.instance.Resolve<UI_ConfirmWindow>();
 
-                confirmWindow.Show("서버 연결에 실패하였습니다. 재시도하시겠습니까?", ConnectToPhotonServer);
-                return;
+                    confirmWindow.Show("서버 연결에 실패하였습니다. 재시도하시겠습니까?", ConnectToPhotonServer);
+                    return;
+                }
             }
         }
     }

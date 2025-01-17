@@ -12,7 +12,7 @@ namespace HideAndSkull.Lobby.UI
     //Todo : 서버 접속시 3초간 "서버 접속되었습니다." 메세지 출력 (확인)
     //Todo : "접속하기" 버튼 클릭시 닉네임 인풋필드를 플레이어의 닉네임으로 설정하고 로비로 이동 (확인)
     //Todo : "나가기" 버튼 클릭시 앱 종료 (확인)
-    public class UI_Home : UI_Screen, ILobbyCallbacks
+    public class UI_Home : UI_Screen
     {
         [Resolve] TMP_InputField _nickName;
         [Resolve] Button _connect;
@@ -29,6 +29,16 @@ namespace HideAndSkull.Lobby.UI
             _serverConnect.gameObject.SetActive(false);
             _connect.onClick.AddListener(Connect);
             _exit.onClick.AddListener(Application.Quit);
+        }
+
+        public override void Show()
+        {
+            base.Show();
+
+            if(PhotonNetwork.IsConnected)
+            {
+                StartCoroutine(C_ServerConnectText());
+            }
         }
 
         private void OnEnable()
@@ -66,11 +76,6 @@ namespace HideAndSkull.Lobby.UI
                                .Show();
         }
 
-        public void OnJoinedLobby()
-        {
-            StartCoroutine(C_ServerConnectText());
-        }
-
         /// <summary>
         /// 서버 접속 후 3초간 서버 접속 메세지 출력
         /// </summary>
@@ -82,18 +87,6 @@ namespace HideAndSkull.Lobby.UI
             yield return new WaitForSeconds(3);
 
             _serverConnect.gameObject.SetActive(false);
-        }
-
-        public void OnLeftLobby()
-        {
-        }
-
-        public void OnRoomListUpdate(List<RoomInfo> roomList)
-        {
-        }
-
-        public void OnLobbyStatisticsUpdate(List<TypedLobbyInfo> lobbyStatistics)
-        {
         }
     }
 }

@@ -77,12 +77,19 @@ namespace HideAndSkull.Lobby.UI
 
                 PhotonNetwork.CurrentRoom.IsOpen = false;
 
+                PhotonNetwork.AutomaticallySyncScene = true;
+
                 SceneManager.LoadScene(1);
             });
 
             _exitRoom.onClick.AddListener(() =>
             {
                 PhotonNetwork.LeaveRoom();
+
+                PhotonNetwork.JoinLobby();
+
+                UI_Manager.instance.Resolve<UI_Lobby>()
+                                   .Show();
             });
         }
 

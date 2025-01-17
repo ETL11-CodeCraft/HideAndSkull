@@ -34,6 +34,7 @@ namespace HideAndSkull.Lobby.UI
             {
                 //Random한 코드 생성. 기존의 방들과 코드가 겹치면 안되며, 코드로 방에 접근할 수 있어야 함.
                 CreateRoomWithRandomCode();
+                Invoke("CanvasShow", 0.1f);
             });
 
             //코드입력 팝업 띄우기 - 팝업 띄우기 확인 / 코드입력으로 룸 입장하기
@@ -52,15 +53,24 @@ namespace HideAndSkull.Lobby.UI
             _quickEnterRoom.onClick.AddListener(() =>
             {
                 PhotonNetwork.JoinRandomRoom();
+                //Invoke("CanvasShow", 0.1f);
             });
 
             // 홈으로 돌아가기
-            _backHome.onClick.AddListener(OnLeftLobby);
+            _backHome.onClick.AddListener(() =>
+            {
+                UI_Manager.instance.Resolve<UI_Home>()
+                               .Show();
+            }
+            );
         }
 
         public override void Show()
         {
             base.Show();
+
+            PhotonNetwork.JoinLobby();
+
             Debug.Log(PhotonNetwork.LocalPlayer.NickName + "님이 로비에 입장하였습니다.");
         }
 
@@ -145,10 +155,16 @@ namespace HideAndSkull.Lobby.UI
         {
         }
 
-        public void OnJoinedRoom()
+        public void CanvasShow()
         {
             UI_Manager.instance.Resolve<UI_Room>()
                                .Show();
+        }
+        public void OnJoinedRoom()
+        {
+            Invoke("CanvasShow", 0.1f);
+
+            Debug.Log("Join Room");
         }
 
         public void OnJoinRandomFailed(short returnCode, string message)
@@ -166,16 +182,11 @@ namespace HideAndSkull.Lobby.UI
 
         public void OnLeftLobby()
         {
-            UI_Manager.instance.Resolve<UI_Home>()
-                               .Show();
-
-            Hide();
         }
 
         public void OnLeftRoom()
         {
-            //Tode : Hide Room UI
-            Show();
+            PhotonNetwork.JoinLobby();
         }
 
         public void OnLobbyStatisticsUpdate(List<TypedLobbyInfo> lobbyStatistics)
