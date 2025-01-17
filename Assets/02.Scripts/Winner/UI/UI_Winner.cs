@@ -4,10 +4,10 @@ using Photon.Pun;
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace HideAndSkull.Winner.UI
 {
+    [RequireComponent(typeof(PhotonView))]
     public class UI_Winner : UI_Base
     {
         public string playerNickname
@@ -29,15 +29,33 @@ namespace HideAndSkull.Winner.UI
         [Resolve] TMP_Text _playerNickname;
         [Resolve] TMP_Text _killCount;
         [Resolve] TMP_Text _infoMessage;
+        PhotonView _photonView;
 
         private int _killCountValue;
 
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+            _photonView = GetComponent<PhotonView>();
+        }
 
         public override void Show()
         {
             base.Show();
 
             StartCoroutine(C_CoundownThenHide(5));
+        }
+
+        private void OnEnable()
+        {
+            PhotonNetwork.AddCallbackTarget(this);
+        }
+
+        private void OnDisable()
+        {
+            PhotonNetwork.RemoveCallbackTarget(this);
         }
 
         public void SetWinnerInfo(string playerNickname, int killCount)
@@ -58,9 +76,13 @@ namespace HideAndSkull.Winner.UI
 
             Hide();
 
-            PhotonNetwork.AutomaticallySyncScene = false;
+            PhotonNetwork.AutomaticallySyncScene = true;
 
-            SceneManager.LoadScene(0);
+            if (PhotonNetwork.IsMasterClient)
+            {
+
+                PhotonNetwork.LoadLevel(0);
+            }
         }
     }
 }

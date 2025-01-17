@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace HideAndSkull.Lobby.UI
@@ -80,7 +79,7 @@ namespace HideAndSkull.Lobby.UI
 
                 PhotonNetwork.AutomaticallySyncScene = true;
 
-                SceneManager.LoadScene(1);
+                PhotonNetwork.LoadLevel(1);
             });
 
             _exitRoom.onClick.AddListener(() =>

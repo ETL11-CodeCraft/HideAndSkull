@@ -42,6 +42,7 @@ namespace HideAndSkull.Lobby.UI
                 if (PhotonNetwork.InRoom)
                 {
                     OnLeftRoom();
+                    OnJoinedLobby();
                 }
 
                 UI_CodeInput codeInputPopup = UI_Manager.instance.Resolve<UI_CodeInput>();
@@ -90,6 +91,7 @@ namespace HideAndSkull.Lobby.UI
             if (PhotonNetwork.InRoom)
             {
                 OnLeftRoom();
+                OnJoinedLobby();
             }
 
             string randomRoomCode = GenerateRandomRoomCode(ROOM_CODE_LENGTH);
