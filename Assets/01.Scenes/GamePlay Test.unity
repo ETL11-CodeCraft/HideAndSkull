@@ -6303,7 +6303,7 @@ GameObject:
   - component: {fileID: 912060015}
   - component: {fileID: 912060014}
   m_Layer: 5
-  m_Name: Canvas - GamePlayButtons
+  m_Name: Canvas - Buttons
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
