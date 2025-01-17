@@ -3,7 +3,6 @@ using HideAndSkull.Lobby.Utilities;
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace HideAndSkull.Winner.UI
 {
@@ -21,7 +20,7 @@ namespace HideAndSkull.Winner.UI
             set
             {
                 _killCountValue = value;
-                _killCount.text = $"Ã³Ä¡ : {value}¸í";
+                _killCount.text = $"ì²˜ì¹˜ : {value}ëª…";
             }
         }
 
@@ -51,12 +50,11 @@ namespace HideAndSkull.Winner.UI
         {
             while (seconds > 0)
             {
-                _infoMessage.text = $"{seconds--}ÃÊ ÈÄ ·ëÀ¸·Î µ¹¾Æ°©´Ï´Ù.";
+                _infoMessage.text = $"{seconds--}ì´ˆ í›„ ë£¸ìœ¼ë¡œ ëŒì•„ê°‘ë‹ˆë‹¤.";
                 yield return new WaitForSeconds(1);
             }
 
             //Hide();
-            
         }
     }
 }
