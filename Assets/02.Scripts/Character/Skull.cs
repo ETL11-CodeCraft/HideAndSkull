@@ -70,6 +70,7 @@ namespace HideAndSkull.Character
         private Transform _cameraAttachTransform;
         private bool _canAction = true;
         private Vector3 _movement;
+        public Hashtable PlayerCustomProperty = new Hashtable { { "IsDead", false }, { "KillCount", 0 } };
         //PlayerInput
         private PlayerInputActions _inputActions;
         private GraphicRaycaster _graphicRaycaster;
@@ -84,6 +85,7 @@ namespace HideAndSkull.Character
         {
             _animator = GetComponent<Animator>();
             _swordCollider.enabled = false;
+            _swordCollider.GetComponent<Sword>().Owner = this;
             _skinnedMeshRenderers = GetComponentsInChildren<Renderer>();
             _characterCollider = GetComponent<CapsuleCollider>();
             _graphicRaycaster = GameObject.Find("Canvas - Buttons").GetComponent<GraphicRaycaster>();
@@ -194,15 +196,14 @@ namespace HideAndSkull.Character
                 _isDead = true;
                 _currentAct = ActFlag.Die;
 
-                if (PhotonNetwork.IsMasterClient)
+                if (PhotonNetwork.IsMasterClient && PlayMode == PlayMode.Player)
                 {
                     UI_ToastPanel uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
                     uI_ToastPanel.ShowToast($"{PhotonView.Owner.NickName}님이 사망하였습니다.");
 
-                    PhotonNetwork.LocalPlayer.SetCustomProperties(new Hashtable
-                    {
-                        {"IsDead", true},
-                    });
+                    PlayerCustomProperty["IsDead"] = true;
+
+                    PhotonView.Owner.SetCustomProperties(PlayerCustomProperty);
                 }
 
                 _animator.SetTrigger(IsDead);
@@ -250,6 +251,7 @@ namespace HideAndSkull.Character
 
             SetPlayerCamera();
             PhotonView.RPC(nameof(SetPlayModePlayer), RpcTarget.AllBufferedViaServer);
+            PhotonNetwork.LocalPlayer.SetCustomProperties(PlayerCustomProperty);
 
             //TEST
             _inputActions = new PlayerInputActions();

@@ -1,10 +1,8 @@
 using HideAndSkull.Lobby.UI;
 using HideAndSkull.Lobby.Utilities;
-using Photon.Pun;
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace HideAndSkull.Winner.UI
 {
@@ -22,7 +20,7 @@ namespace HideAndSkull.Winner.UI
             set
             {
                 _killCountValue = value;
-                _killCount.text = $"Ã³Ä¡ : {value}¸í";
+                _killCount.text = $"ì²˜ì¹˜ : {value}ëª…";
             }
         }
 
@@ -40,19 +38,23 @@ namespace HideAndSkull.Winner.UI
             StartCoroutine(C_CoundownThenHide(5));
         }
 
+        public void SetWinnerInfo(string playerNickname, int killCount)
+        {
+            this.playerNickname = playerNickname;
+            this.killCount = killCount;
+
+            Show();
+        }
+
         IEnumerator C_CoundownThenHide(int seconds)
         {
             while (seconds > 0)
             {
-                _infoMessage.text = $"{seconds--}ÃÊ ÈÄ ·ëÀ¸·Î µ¹¾Æ°©´Ï´Ù.";
+                _infoMessage.text = $"{seconds--}ì´ˆ í›„ ë£¸ìœ¼ë¡œ ëŒì•„ê°‘ë‹ˆë‹¤.";
                 yield return new WaitForSeconds(1);
             }
 
-            Hide();
-
-            PhotonNetwork.AutomaticallySyncScene = true;
-
-            SceneManager.LoadScene(0);
+            //Hide();
         }
     }
 }

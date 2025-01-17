@@ -1,6 +1,7 @@
 ﻿using HideAndSkull.Character;
 using HideAndSkull.Lobby.UI;
 using HideAndSkull.Survivors.UI;
+using HideAndSkull.Winner.UI;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
@@ -68,11 +69,6 @@ namespace HideAndSkull.Lobby.Workflow
 
                     PhotonView photonView = gameObject.GetComponent<PhotonView>();
                     photonView.TransferOwnership(_playerList[i].ActorNumber);
-
-                    _playerList[i].CustomProperties = new ExitGames.Client.Photon.Hashtable
-                    {
-                        {"IsDead", false},
-                    };
                 }
 
                 for (int i = _playerList.Count; i < 20; i++)
@@ -85,11 +81,19 @@ namespace HideAndSkull.Lobby.Workflow
 
         private void ShowWinner()
         {
-            if (PhotonNetwork.IsMasterClient)
+            Player winner = null;
+            foreach(Player player in PhotonNetwork.PlayerList)
             {
-                //TODO :: 결과 창 띄우기
-                //TODO :: 일정 시간이 지난후 씬 변경하기 (씬 변경은 MasterClient만)
+                if ((bool)player.CustomProperties["IsDead"] == false)
+                {
+                    winner = player;
+                    break;
+                }
             }
+
+            if (winner == null) return;
+
+            UI_Manager.instance.Resolve<UI_Winner>().SetWinnerInfo(winner.NickName, (int)winner.CustomProperties["KillCount"]);
         }
 
         public void OnPlayerEnteredRoom(Player newPlayer)
@@ -106,7 +110,6 @@ namespace HideAndSkull.Lobby.Workflow
                     SurvivePlayerCount--;
                 }
                 uI_ToastPanel.ShowToast($"{otherPlayer.NickName}님이 접속을 종료하였습니다.");
-
             }
 
             _playerList.Remove(otherPlayer);
