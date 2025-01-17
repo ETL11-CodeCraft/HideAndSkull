@@ -3,7 +3,6 @@ using HideAndSkull.Lobby.Utilities;
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace HideAndSkull.Winner.UI
 {
@@ -48,7 +47,6 @@ namespace HideAndSkull.Winner.UI
             }
 
             Hide();
-            
         }
     }
 }
