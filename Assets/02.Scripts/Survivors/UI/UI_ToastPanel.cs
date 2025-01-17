@@ -30,7 +30,7 @@ namespace HideAndSkull.Survivors.UI
 
         public void ShowToast(string message)
         {
-            _photonView.RPC(nameof(ShowToastRPC), RpcTarget.All, message);
+            _photonView.RPC(nameof(ShowToastRPC), RpcTarget.AllViaServer, message);
         }
 
         [PunRPC]
