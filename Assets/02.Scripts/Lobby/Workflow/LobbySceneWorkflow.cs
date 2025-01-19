@@ -9,8 +9,6 @@ namespace HideAndSkull.Lobby.Workflow
     {
         private void Start()
         {
-            PhotonNetwork.AutomaticallySyncScene = false;
-
             StartCoroutine(C_Workflow());
         }
 

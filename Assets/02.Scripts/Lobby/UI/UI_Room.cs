@@ -77,8 +77,6 @@ namespace HideAndSkull.Lobby.UI
 
                 PhotonNetwork.CurrentRoom.IsOpen = false;
 
-                PhotonNetwork.AutomaticallySyncScene = true;
-
                 PhotonNetwork.LoadLevel(1);
             });
 

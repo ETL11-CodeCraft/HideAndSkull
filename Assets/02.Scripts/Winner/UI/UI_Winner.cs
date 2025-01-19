@@ -76,8 +76,6 @@ namespace HideAndSkull.Winner.UI
 
             Hide();
 
-            PhotonNetwork.AutomaticallySyncScene = true;
-
             if (PhotonNetwork.IsMasterClient)
             {
 
