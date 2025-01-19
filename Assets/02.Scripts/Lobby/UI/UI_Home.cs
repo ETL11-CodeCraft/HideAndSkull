@@ -48,7 +48,7 @@ namespace HideAndSkull.Lobby.UI
 
         private void OnDisable()
         {
-            PhotonNetwork.AddCallbackTarget(this);
+            PhotonNetwork.RemoveCallbackTarget(this);
         }
 
         //NickName 확인 후 입력된 글자가 있으면 로비로 이동

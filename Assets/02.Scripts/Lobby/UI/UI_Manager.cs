@@ -130,15 +130,5 @@ namespace HideAndSkull.Lobby.UI
 
             Debug.Log($"Popped {popup.name}");
         }
-
-        public void Unresister<T>(T uiType)
-            where T : UI_Base
-        {
-            if (_uis.ContainsValue(uiType))
-            {
-                _uis.Remove(typeof(T));
-                return;
-            }
-        }
     }
 }

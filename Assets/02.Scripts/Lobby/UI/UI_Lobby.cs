@@ -80,7 +80,7 @@ namespace HideAndSkull.Lobby.UI
 
         private void OnDisable()
         {
-            PhotonNetwork.AddCallbackTarget(this);
+            PhotonNetwork.RemoveCallbackTarget(this);
         }
 
         /// <summary>
@@ -183,7 +183,6 @@ namespace HideAndSkull.Lobby.UI
 
         public void OnLeftRoom()
         {
-            PhotonNetwork.JoinLobby();
         }
 
         public void OnLobbyStatisticsUpdate(List<TypedLobbyInfo> lobbyStatistics)
