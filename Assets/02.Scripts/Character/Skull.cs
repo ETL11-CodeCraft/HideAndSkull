@@ -8,6 +8,7 @@ using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -256,6 +257,10 @@ namespace HideAndSkull.Character
             //TEST
             _inputActions = new PlayerInputActions();
             _inputActions.Enable();
+            SceneManager.sceneUnloaded += (currentScene) =>
+            {
+                _inputActions.Disable();
+            };
             //PC용 Binding
             _inputActions.Player.Move.performed += PressMoveButton;
             _inputActions.Player.Move.canceled += PressMoveButton;

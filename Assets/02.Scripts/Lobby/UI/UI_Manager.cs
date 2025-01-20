@@ -56,18 +56,17 @@ namespace HideAndSkull.Lobby.UI
         {
             if (_uis.TryGetValue(typeof(T), out UI_Base result))
             {
-                return (T)result;
+                if(result != null)
+                    return (T)result;
             }
-            else
-            {
-                string path = $"UI/Canvas - {typeof(T).Name.Substring(3)}";
-                UI_Base prefab = Resources.Load<UI_Base>(path);
 
-                if (prefab == null)
-                    throw new Exception($"Failed to resolve ui {typeof(T)}. Not exist");
+            string path = $"UI/Canvas - {typeof(T).Name.Substring(3)}";
+            UI_Base prefab = Resources.Load<UI_Base>(path);
 
-                return (T)GameObject.Instantiate(prefab);
-            }
+            if (prefab == null)
+                throw new Exception($"Failed to resolve ui {typeof(T)}. Not exist");
+
+            return (T)GameObject.Instantiate(prefab);
         }
 
         public void SetScreen(UI_Screen screen)
