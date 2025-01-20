@@ -484,10 +484,6 @@ MonoBehaviour:
   - {fileID: 3881439745163469784, guid: a3d54310eb9ea494a94f6e2838a930b5, type: 3}
   - {fileID: 6586172671398840224, guid: 3e4b09c53e31f0443a77847b9f6e9878, type: 3}
   - {fileID: 2237375792056508160, guid: e2690829fdf57ed49b3ef0821d9d65a3, type: 3}
-  _weights:
-  - 0.5
-  - 0.4
-  - 0.1
   _objectPrefabs:
   - {fileID: 4586001145939837774, guid: 8390d40eb76c3614b894d6c2efc88ea3, type: 3}
   - {fileID: 167303201072487959, guid: 772e8563c8cab4042a5609b7328ad07f, type: 3}
@@ -497,9 +493,13 @@ MonoBehaviour:
   - {fileID: 3211372960159394131, guid: 34d36a0a658d8ac479a56be51a258d04, type: 3}
   - {fileID: 2833441710711650722, guid: 535a5d0fff3b54b4bab9048a929e70bd, type: 3}
   - {fileID: 2304467521075625767, guid: 8590fa163d05b394d808f1d7d52e7e3f, type: 3}
-  - {fileID: 6837391503067049699, guid: db8aff478f0cfac4d97b5d3aba87b800, type: 3}
+  - {fileID: 5229048177433209570, guid: 86b992efe55e66243a84f44babd9dbf0, type: 3}
   - {fileID: 1715073971769927004, guid: 4347fcc4c015e4140a96d7b3e55a7758, type: 3}
-  _minDistance: 20
+  - {fileID: 6837391503067049699, guid: db8aff478f0cfac4d97b5d3aba87b800, type: 3}
+  - {fileID: 286848914527882123, guid: cd98b36a9462c3740b8c45be8084548e, type: 3}
+  - {fileID: 8833196652310444467, guid: 1243376077a40d3488b03a148dea88dd, type: 3}
+  - {fileID: 7450156540671448598, guid: e1d9d9d2c38b0f242adb3162c906a58b, type: 3}
+  - {fileID: 3278398134451849774, guid: 717f44a841c183141b635f8799ebe957, type: 3}
 --- !u!4 &1764051163
 Transform:
   m_ObjectHideFlags: 0

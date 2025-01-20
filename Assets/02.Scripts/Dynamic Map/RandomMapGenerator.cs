@@ -1,31 +1,32 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 public class RandomMapGenerator : MonoBehaviour
 {
     [SerializeField] private GameObject _floorPrefab; 
-    private int _floorCount = 7;  //»ı¼ºÇÒ ¹Ù´ÚÀÇ °³¼ö
-    private float _floorSize = 14f;  //¹Ù´Ú Å©±â
-    private List<Vector3> _floorPositionsList = new List<Vector3>();  //¹Ù´Ú À§Ä¡ ÀúÀåÇÏ´Â ¸®½ºÆ®
+    private int _floorCount = 7;  //ìƒì„±í•  ë°”ë‹¥ì˜ ê°œìˆ˜
+    private float _floorSize = 14f;  //ë°”ë‹¥ í¬ê¸°
+    private List<Vector3> _floorPositionsList = new List<Vector3>();  //ë°”ë‹¥ ìœ„ì¹˜ ì €ì¥í•˜ëŠ” ë¦¬ìŠ¤íŠ¸
 
-    [SerializeField] private GameObject[] _fencePrefabs;  //¿ïÅ¸¸® ÇÁ¸®ÆÕ ¹è¿­
-    private float[] _weights = { 0.5f, 0.4f, 0.1f}; //°¡ÁßÄ¡ ¹è¿­ - ¿ïÅ¸¸® ÇÁ¸®ÆÕÀ» À§ÇÔ 
-    [SerializeField] private GameObject[] _objectPrefabs; //¿ÀºêÁ§Æ® ÇÁ¸®ÆÕ ¹è¿­
+    [SerializeField] private GameObject[] _fencePrefabs;  //ìš¸íƒ€ë¦¬ í”„ë¦¬íŒ¹ ë°°ì—´
+    private float[] _weights = { 0.5f, 0.4f, 0.1f}; //ê°€ì¤‘ì¹˜ ë°°ì—´ - ìš¸íƒ€ë¦¬ í”„ë¦¬íŒ¹ì„ ìœ„í•¨ 
+    [SerializeField] private GameObject[] _objectPrefabs; //ì˜¤ë¸Œì íŠ¸ í”„ë¦¬íŒ¹ ë°°ì—´
+    private float _minDistance = 3.8f;
     void Start()
     {
         GenerateFloors();
 
-        PlaceRandomObject();
+        PlaceObjectRandomly(_floorPositionsList, _objectPrefabs, _minDistance);
 
     }
 
     /// <summary>
-    /// ¹Ù´Ú »ı¼º ÇÔ¼ö
+    /// ë°”ë‹¥ ìƒì„± í•¨ìˆ˜
     /// </summary>
     private void GenerateFloors()
     {
-        Vector3 currentPos = Vector3.zero;  //Ã¹ ¹øÂ° ¹Ù´Ú (0,0,0)¿¡ »ı¼º 
+        Vector3 currentPos = Vector3.zero;  //ì²« ë²ˆì§¸ ë°”ë‹¥ (0,0,0)ì— ìƒì„± 
         _floorPositionsList.Add(currentPos);
 
         for (int i = 0; i < _floorCount; i++)
@@ -48,7 +49,7 @@ public class RandomMapGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// ¹Ù´Ú ¹èÄ¡ ÇÔ¼ö
+    /// ë°”ë‹¥ ë°°ì¹˜ í•¨ìˆ˜
     /// </summary>
     /// <param name="position"></param>
     private void PlaceFloor(Vector3 position)
@@ -66,12 +67,12 @@ public class RandomMapGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// ·£´ı À§Ä¡ °ªÀ» ¹İÈ¯ÇØÁÖ´Â ÇÔ¼ö
+    /// ëœë¤ ìœ„ì¹˜ ê°’ì„ ë°˜í™˜í•´ì£¼ëŠ” í•¨ìˆ˜
     /// </summary>
     /// <returns></returns>
     private Vector3 GetRandomPosition()
     {
-        Vector3 newPos;  //¹èÄ¡ÇÒ À§Ä¡
+        Vector3 newPos;  //ë°°ì¹˜í•  ìœ„ì¹˜
 
         if (_floorPositionsList.Count == 0)
         {
@@ -80,21 +81,21 @@ public class RandomMapGenerator : MonoBehaviour
 
         Vector3[] directions =
         {
-            new Vector3(_floorSize,0,0), //¿À¸¥ÂÊ
-            new Vector3(-_floorSize,0,0), //¿ŞÂÊ
-            new Vector3(0,0,_floorSize), //À§ÂÊ
-            new Vector3(0,0,-_floorSize)  //¾Æ·¡ÂÊ
+            new Vector3(_floorSize,0,0), //ì˜¤ë¥¸ìª½
+            new Vector3(-_floorSize,0,0), //ì™¼ìª½
+            new Vector3(0,0,_floorSize), //ìœ„ìª½
+            new Vector3(0,0,-_floorSize)  //ì•„ë˜ìª½
         };
 
         do
         {
-            // ±âÁ¸ ¹Ù´Ú Áß ÇÏ³ª¸¦ ·£´ıÀ¸·Î »ı¼º
+            // ê¸°ì¡´ ë°”ë‹¥ ì¤‘ í•˜ë‚˜ë¥¼ ëœë¤ìœ¼ë¡œ ìƒì„±
             Vector3 basePos = _floorPositionsList[Random.Range(0, _floorPositionsList.Count)];
 
-            // »óÇÏÁÂ¿ì Áß ·£´ı ¹æÇâ ¼±ÅÃ
+            // ìƒí•˜ì¢Œìš° ì¤‘ ëœë¤ ë°©í–¥ ì„ íƒ
             Vector3 randomDir = directions[Random.Range(0, directions.Length)];
 
-            //»õ·Î¿î À§Ä¡ °è»ê
+            //ìƒˆë¡œìš´ ìœ„ì¹˜ ê³„ì‚°
             newPos = basePos + randomDir;
         }
         while (_floorPositionsList.Contains(newPos));
@@ -104,7 +105,7 @@ public class RandomMapGenerator : MonoBehaviour
 
 
     /// <summary>
-    /// ÇöÀç ¹Ù´ÚÀÌ °¡ÀåÀÚ¸®ÀÎÁö È®ÀÎÇÏ°í, ¸®½ºÆ®·Î ¹İÈ¯ÇÏ´Â ÇÔ¼ö
+    /// í˜„ì¬ ë°”ë‹¥ì´ ê°€ì¥ìë¦¬ì¸ì§€ í™•ì¸í•˜ê³ , ë¦¬ìŠ¤íŠ¸ë¡œ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜
     /// </summary>
     /// <param name="Position"></param>
     /// <returns></returns>
@@ -112,13 +113,13 @@ public class RandomMapGenerator : MonoBehaviour
     {
         Vector3[] directions =
         {
-            new Vector3(_floorSize,0,0),  //¿À¸¥ÂÊ
-            new Vector3(-_floorSize,0,0), //¿ŞÂÊ
-            new Vector3(0,0,_floorSize),  //À§ÂÊ
-            new Vector3(0,0,-_floorSize)  //¾Æ·¡ÂÊ
+            new Vector3(_floorSize,0,0),  //ì˜¤ë¥¸ìª½
+            new Vector3(-_floorSize,0,0), //ì™¼ìª½
+            new Vector3(0,0,_floorSize),  //ìœ„ìª½
+            new Vector3(0,0,-_floorSize)  //ì•„ë˜ìª½
         };
 
-        //°¢ ¹æÇâ¿¡ ¹Ù´ÚÀÌ ÀÖ´ÂÁö È®ÀÎ
+        //ê° ë°©í–¥ì— ë°”ë‹¥ì´ ìˆëŠ”ì§€ í™•ì¸
         foreach (Vector3 direction in directions)
         {
             Vector3 neighborPos = Position + direction;
@@ -136,7 +137,7 @@ public class RandomMapGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// °¡ÁßÄ¡ ¹è¿­ Å©±â¿Í ¿ïÅ¸¸® ÇÁ¸®ÆÕÀÇ °³¼ö°¡ °°ÀºÁö È®ÀÎÇÏ´Â ÇÔ¼ö 
+    /// ê°€ì¤‘ì¹˜ ë°°ì—´ í¬ê¸°ì™€ ìš¸íƒ€ë¦¬ í”„ë¦¬íŒ¹ì˜ ê°œìˆ˜ê°€ ê°™ì€ì§€ í™•ì¸í•˜ëŠ” í•¨ìˆ˜ 
     /// </summary>
     /// <returns></returns>
     private bool isValidWeights()
@@ -147,16 +148,16 @@ public class RandomMapGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// ¿ïÅ¸¸® ÇÁ¸®ÆÕÁß ·£´ıÀ¸·Î ÇÏ³ª °¡Á®¿À´Â ÇÔ¼ö
+    /// ìš¸íƒ€ë¦¬ í”„ë¦¬íŒ¹ì¤‘ ëœë¤ìœ¼ë¡œ í•˜ë‚˜ ê°€ì ¸ì˜¤ëŠ” í•¨ìˆ˜
     /// </summary>
     /// <returns></returns>
     private GameObject GetRandomFencePrefab()
     {
         if (isValidWeights())
         {
-            float totalWeight = _weights.Sum();  //°¡ÁßÄ¡ ÇÕ °è»ê 
+            float totalWeight = _weights.Sum();  //ê°€ì¤‘ì¹˜ í•© ê³„ì‚° 
 
-            float randomNum = Random.Range(0, totalWeight);  // 0~totalWeight »çÀÌÀÇ ·£´ı °ª »ı¼º 
+            float randomNum = Random.Range(0, totalWeight);  // 0~totalWeight ì‚¬ì´ì˜ ëœë¤ ê°’ ìƒì„± 
 
             float cumulativeWeight = 0f;
             for (int i = 0; i < _fencePrefabs.Length; i++)
@@ -168,134 +169,130 @@ public class RandomMapGenerator : MonoBehaviour
         }
         else
         {
-            Debug.Log("°¡ÁßÄ¡ °ª°ú ÇÁ¸®ÆÕÀÇ °³¼ö°¡ ¸ÂÁö ¾Ê½À´Ï´Ù.");
+            Debug.Log("ê°€ì¤‘ì¹˜ ê°’ê³¼ í”„ë¦¬íŒ¹ì˜ ê°œìˆ˜ê°€ ë§ì§€ ì•ŠìŠµë‹ˆë‹¤.");
         }
 
         return _fencePrefabs[0];
     }
 
     /// <summary>
-    /// ·£´ıÀ¸·Î ¿ÀºêÁ§Æ®¸¦ ¹èÄ¡ÇÏ´Â ÇÔ¼ö
+    /// ëœë¤ ì˜¤ë¸Œì íŠ¸ ë°°ì¹˜ í•¨ìˆ˜
     /// </summary>
-    private void PlaceRandomObject()
+    /// <param name="tileCenters">íƒ€ì¼ì˜ ì¤‘ì‹¬ì </param>
+    /// <param name="objcetPrefab">ì˜¤ë¸Œì íŠ¸ í”„ë¦¬íŒ¹ ë°°ì—´</param>
+    /// <param name="minDistance">ìµœì†Œê±°ë¦¬</param>
+    private void PlaceObjectRandomly(List<Vector3> tileCenters, GameObject[] objcetPrefab, float minDistance)
     {
-        if (_objectPrefabs.Length == 0)
+        int randomPositionPerTile = 3;
+
+        //1. ëœë¤ í¬ì§€ì…˜ ë¦¬ìŠ¤íŠ¸ ìƒì„± 
+        List<Vector3> randomPositions = GenerateRandomPositionList(tileCenters,  randomPositionPerTile);
+
+        //2. ë¦¬ìŠ¤íŠ¸ ë¬´ì‘ìœ„ ì •ë ¬ 
+        randomPositions.OrderBy(x => Random.value).ToList();
+
+        //3. ë°°ì¹˜ëœ ìœ„ì¹˜ ì €ì¥ 
+        HashSet<Vector3> usedPositions = new HashSet<Vector3> ();
+
+        //4. ëœë¤ ìœ„ì¹˜ì—ì„œ ì˜¤ë¸Œì íŠ¸ ìƒì„± 
+        PlacedObjectsFromRandomPosition(randomPositions, _objectPrefabs, usedPositions, minDistance);
+    }
+
+
+    /// <summary>
+    /// ëœë¤ í¬ì§€ì…˜ ë¦¬ìŠ¤íŠ¸ë¥¼ ìƒì„±í•˜ì—¬ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜
+    /// </summary>
+    /// <param name="tileCenters"></param>
+    /// <param name="countPerTile"></param>
+    /// <returns></returns>
+    private List<Vector3> GenerateRandomPositionList(List<Vector3> tileCenters, int countPerTile) 
+    {
+        List<Vector3> allPosition = new List<Vector3>();
+
+        foreach (Vector3 center in tileCenters)
         {
-            Debug.Log("No Object prefabs assigned.");
-            return;
+            List<Vector3> randomPositions = GenerateRandomPositions(center, countPerTile);
+            allPosition.AddRange(randomPositions);
         }
 
-        HashSet<Vector3> usedPositions = new HashSet<Vector3>();
-        //_floorPositionsList.OrderBy(x=>Random.value).ToList();
-        foreach (Vector3 pos in _floorPositionsList)
-        {
-            Debug.Log(pos);
-        }
-        foreach (GameObject obj in _objectPrefabs)
-        {
-            float prefabRadius = GetPrefabRadius(obj);  //ÇÁ¸®ÆÕ ¹İ°æ °è»ê
+        return allPosition;
+    }
 
-            bool placed = false; //¹èÄ¡ ¿©ºÎ È®ÀÎ 
+    /// <summary>
+    /// ê° íƒ€ì¼ë³„ë¡œ ëœë¤ ìœ„ì¹˜ë¥¼ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜ 
+    /// </summary>
+    /// <param name="center"></param>
+    /// <param name="count"></param>
+    /// <returns></returns>
+    private List<Vector3> GenerateRandomPositions(Vector3 center, int count)
+    {
+        List<Vector3> positions = new List<Vector3>();
 
-            foreach (Vector3 basePosition in _floorPositionsList )
+        for (int i = 0; i < count; i++)
+        {
+            //ëœë¤í•œ ì˜¤í”„ì…‹ ìƒì„± 
+            float offsetX = Random.Range(-_floorSize / 3f, _floorSize / 3f);
+            float offsetZ = Random.Range(-_floorSize / 3f, _floorSize / 3f);
+
+            //ì¤‘ì‹¬ì—ì„œ ì•½ê°„ ë–¨ì–´ì§„ ìœ„ì¹˜ ê³„ì‚° 
+            Vector3 randomPos = center + new Vector3(offsetX, 0, offsetZ);
+
+            //íƒ€ì¼ ì¤‘ì‹¬ê³¼ ë™ì¼í•œ ìœ„ì¹˜ëŠ” ì œì™¸ 
+            if (randomPos != center)
             {
-                // Å¸ÀÏ ³»ºÎ ·£´ı º¯À§
-                Vector3 randomOffset = new Vector3(
-                    Random.Range(-_floorSize / 3f, _floorSize / 3f),
-                    0,
-                    Random.Range(-_floorSize / 3f, _floorSize / 3f)
-                );
-                Vector3 finalPosition = basePosition + randomOffset;
-
-                // ÃÖ¼Ò °Å¸® Á¶°Ç È®ÀÎ
-                if (isPositionTooClose(finalPosition, usedPositions, prefabRadius))
-                {
-                    // ¿ÀºêÁ§Æ® ¹èÄ¡
-                    Instantiate(obj, finalPosition, Quaternion.identity);
-
-                    // ±İÁöµÈ À§Ä¡ Ãß°¡
-                    AddPositionsToForbidden(finalPosition, prefabRadius, usedPositions);
-
-                    placed = true;
-                    break;
-                }
+                positions.Add(randomPos);
             }
+        }
 
-            if (!placed)
+        return positions;
+    }
+
+    /// <summary>
+    /// ëœë¤í•œ ìœ„ì¹˜ì— ì˜¤ë¸Œì íŠ¸ë¥¼ ë°°ì¹˜í•˜ëŠ” í•¨ìˆ˜ 
+    /// </summary>
+    /// <param name="randomPositions"></param>
+    /// <param name="objectPrefabs"></param>
+    /// <param name="usedPositions"></param>
+    /// <param name="minDistance"></param>
+    private void PlacedObjectsFromRandomPosition(List<Vector3> randomPositions, GameObject[] objectPrefabs, HashSet<Vector3> usedPositions, float minDistance)
+    {
+        foreach (GameObject prefab in objectPrefabs)
+        {
+            foreach (Vector3 position in randomPositions)
             {
-                Debug.LogWarning($"Could not place object {obj.name}. No valid positions available.");
+                // ìµœì†Œ ê±°ë¦¬ ì¡°ê±´ í™•ì¸ 
+                if (isPositionTooClose(position, usedPositions, minDistance))
+                {
+                    Debug.Log($"{position}: ì´ ìœ„ì¹˜ëŠ” ë„ˆë¬´ ê°€ê¹ìŠµë‹ˆë‹¤.");
+                    continue;
+                }
+
+                //ì˜¤ë¸Œì íŠ¸ ë°°ì¹˜ 
+                Instantiate(prefab, position, Quaternion.identity);
+
+                //ê¸ˆì§€ëœ ìœ„ì¹˜ ì¶”ê°€
+                usedPositions.Add(position);
+                break;
             }
         }
     }
 
     /// <summary>
-    /// °Å¸®°¡ ³Ê¹« °¡±î¿îÁö È®ÀÎÇÏ´Â ÇÔ¼ö 
+    /// ë„ˆë¬´ ê·¼ì ‘í•œ ê±°ë¦¬ì— ìˆëŠ”ì§€ í™•ì¸í•˜ëŠ” í•¨ìˆ˜
     /// </summary>
     /// <param name="position"></param>
-    /// <param name="usedPosition"></param>
-    /// <param name="radius"></param>
+    /// <param name="usedPositions"></param>
+    /// <param name="minDistance"></param>
     /// <returns></returns>
-    private bool isPositionTooClose(Vector3 position, HashSet<Vector3> usedPosition, float radius)
+    private bool isPositionTooClose(Vector3 position, HashSet<Vector3> usedPositions, float minDistance)
     {
-        foreach (Vector3 used in usedPosition)
+        foreach (Vector3 used in usedPositions)
         {
-            if (Vector3.Distance(position, used) < radius)
+            if (Vector3.Distance(position, used) < minDistance)
             {
-                return false;
+                return true;
             }
         }
-
-        return true;   //¿øÇÏ´Â À§Ä¡°¡ »ç¿ëµÈ À§Ä¡µé¿¡¼­ ÇØ´ç ¹İ°æ¿¡ ÇØ´çÀÌ ¾ÈµÉ ¶§ false¹İÈ¯ 
-    }
-
-    /// <summary>
-    /// ÁÖº¯ ¿µ¿µÀ» ¹èÄ¡ ±İÁö À§Ä¡·Î ¸®½ºÆ®¿¡ Ãß°¡ÇÏ´Â ÇÔ¼ö
-    /// </summary>
-    /// <param name="position"></param>
-    /// <param name="radius"></param>
-    /// <param name="forbiddenPositions"></param>
-    private void AddPositionsToForbidden(Vector3 position, float radius, HashSet<Vector3> forbiddenPositions)
-    {
-        forbiddenPositions.Add(position);  //Áß½É À§Ä¡¸¦ ±İÁöµÈ À§Ä¡¿¡ Ãß°¡ 
-
-        // ¹İ°æÀ» ±âÁØÀ¸·Î ÁÖº¯ ¿µ¿ªÀ» ±İÁö À§Ä¡·Î Ãß°¡
-        float step = radius / 2f; // ±İÁö ¿µ¿ª °£°İÀ» Á¶Á¤
-        for (float x = -radius; x <= radius; x += step)
-        {
-            for (float z = -radius; z <= radius; z += step)
-            {
-                Vector3 offset = new Vector3(x, 0, z);
-                if (offset.magnitude <= radius) // ¿ø ÇüÅÂÀÇ ±İÁö ¿µ¿ª
-                {
-                    forbiddenPositions.Add(position + offset);
-                }
-            }
-        }
-    }
-
-    /// <summary>
-    /// ÇÁ¸®ÆÕÀÇ ¹İ°æÀ» ¹İÈ¯ÇÏ´Â ÇÔ¼ö
-    /// </summary>
-    /// <param name="prefab"></param>
-    /// <returns></returns>
-    private float GetPrefabRadius(GameObject prefab)
-    {
-        Renderer[] renderers = prefab.GetComponentsInChildren<Renderer>();
-        if (renderers.Length > 0)
-        {
-            float maxExtent = 0f;
-
-            foreach (Renderer renderer in renderers)
-            {
-                maxExtent = Mathf.Max(maxExtent, renderer.bounds.extents.x, renderer.bounds.extents.z);
-            }
-            Debug.Log($"{prefab.name} maxExtent : {maxExtent}");
-            return maxExtent;
-        }
-        else
-        {
-            Debug.LogWarning($"Prefab {prefab.name} does not have any Renderer components in its hierarchy.");
-            return 10f; // ±âº»°ª
-        }
+        return false;
     }
 }
