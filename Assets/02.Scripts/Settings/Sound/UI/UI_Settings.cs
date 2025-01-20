@@ -18,6 +18,12 @@ namespace HideAndSkull.Settings.UI
         [Resolve] Button _exitGame;
         [Resolve] Button _close;
 
+        protected override void Start()
+        {
+            _cameraSensibility.maxValue = 110;
+            _cameraSensibility.minValue = 10;
+        }
+
         public override void Show()
         {
             base.Show();
