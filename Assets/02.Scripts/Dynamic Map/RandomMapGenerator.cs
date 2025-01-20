@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using HideAndSkull.Lobby.Workflow;
+using Photon.Pun;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -18,16 +19,24 @@ public class RandomMapGenerator : MonoBehaviour
     private List<Vector3> randomPositions;
     private HashSet<Vector3> usedPositions;
 
+    private GamePlayWorkflow _workflow; //플레이어들의 위치를 정해주기 위해 받은 참조
+
     PhotonView _photonView;
 
     private void Awake()
     {
         _photonView = GetComponent<PhotonView>();
+        _workflow = FindAnyObjectByType<GamePlayWorkflow>();
     }
     void Start()
     {
         GenerateFloors();
         PlaceObjectRandomly(_objectPrefabs, _minDistance);
+
+        if(PhotonNetwork.IsMasterClient)
+        {
+            _workflow.CachedCharacterPosition(GenerateRandomPositionList(_floorPositionsList, GamePlayWorkflow.MAX_CHARACTER_COUNT / _floorCount + 1));
+        }
     }
 
     /// <summary>
