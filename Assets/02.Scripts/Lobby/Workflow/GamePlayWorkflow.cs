@@ -2,7 +2,6 @@
 using HideAndSkull.Lobby.UI;
 using HideAndSkull.Survivors.UI;
 using HideAndSkull.Winner.UI;
-using NUnit.Framework;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
