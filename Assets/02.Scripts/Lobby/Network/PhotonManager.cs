@@ -39,6 +39,11 @@ namespace HideAndSkull.Lobby.Network
 
             _retryCount = 0;
 
+            //프레임 동기화 문제 해결
+            //빌드 환경 통일화
+            Application.targetFrameRate = 60;
+            QualitySettings.vSyncCount = 1;
+
             ConnectToPhotonServer();
 
             DontDestroyOnLoad(s_instance);
