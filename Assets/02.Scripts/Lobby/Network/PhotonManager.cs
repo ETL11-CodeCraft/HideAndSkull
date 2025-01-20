@@ -9,6 +9,7 @@ namespace HideAndSkull.Lobby.Network
     {
         const int SERVER_CONNECT_RETRY_COUNT = 1;
         private int _retryCount;
+        private bool _isQuitting;
 
         public static PhotonManager instance
         {
@@ -37,6 +38,7 @@ namespace HideAndSkull.Lobby.Network
                 s_instance = this;
             }
 
+            _isQuitting = false;
             _retryCount = 0;
 
             //프레임 동기화 문제 해결
@@ -47,6 +49,21 @@ namespace HideAndSkull.Lobby.Network
             ConnectToPhotonServer();
 
             DontDestroyOnLoad(s_instance);
+        }
+
+        private void OnEnable()
+        {
+            Application.quitting += OnApplicationQuitting;
+        }
+
+        private void OnDisable()
+        {
+            Application.quitting -= OnApplicationQuitting;
+        }
+
+        private void OnApplicationQuitting()
+        {
+            _isQuitting = true;
         }
 
         private void ConnectToPhotonServer()
@@ -88,7 +105,7 @@ namespace HideAndSkull.Lobby.Network
 
             Debug.LogWarning($"Disconnected from Photon server. Cause: {cause}");
 
-            if (Application.isPlaying)
+            if (_isQuitting == false)
             {
                 if (_retryCount < SERVER_CONNECT_RETRY_COUNT)
                 {
