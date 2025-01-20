@@ -51,6 +51,9 @@ MonoBehaviour:
   - SetSurvivorCountRPC
   - ShowToastRPC
   - Die
+  - PlaceFence
+  - PlaceFloor
+  - PlacedObjectsFromRandomPosition
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

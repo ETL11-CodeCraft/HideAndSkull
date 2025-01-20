@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Photon.Pun;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -10,15 +11,23 @@ public class RandomMapGenerator : MonoBehaviour
     private List<Vector3> _floorPositionsList = new List<Vector3>();  //바닥 위치 저장하는 리스트
 
     [SerializeField] private GameObject[] _fencePrefabs;  //울타리 프리팹 배열
-    private float[] _weights = { 0.5f, 0.4f, 0.1f}; //가중치 배열 - 울타리 프리팹을 위함 
     [SerializeField] private GameObject[] _objectPrefabs; //오브젝트 프리팹 배열
+    private float[] _weights = { 0.5f, 0.4f, 0.1f}; //가중치 배열 - 울타리 프리팹을 위함 
     private float _minDistance = 3.8f;
+
+    private List<Vector3> randomPositions;
+    private HashSet<Vector3> usedPositions;
+
+    PhotonView _photonView;
+
+    private void Awake()
+    {
+        _photonView = GetComponent<PhotonView>();
+    }
     void Start()
     {
         GenerateFloors();
-
-        PlaceObjectRandomly(_floorPositionsList, _objectPrefabs, _minDistance);
-
+        PlaceObjectRandomly(_objectPrefabs, _minDistance);
     }
 
     /// <summary>
@@ -33,18 +42,22 @@ public class RandomMapGenerator : MonoBehaviour
         {
             if (i == 0)
             {
-                PlaceFloor(currentPos);
+                if (PhotonNetwork.IsMasterClient)
+                    _photonView.RPC("PlaceFloor", RpcTarget.All, currentPos);
             }
             else
             {
                 currentPos = GetRandomPosition();
-                PlaceFloor(currentPos);
+
+                if (PhotonNetwork.IsMasterClient)
+                    _photonView.RPC("PlaceFloor", RpcTarget.All, currentPos);
             }
         }
 
         foreach (Vector3 floor in _floorPositionsList)
         {
-            PlaceFence(floor);
+            if (PhotonNetwork.IsMasterClient)
+                _photonView.RPC("PlaceFence", RpcTarget.All, floor);
         }
     }
 
@@ -52,6 +65,7 @@ public class RandomMapGenerator : MonoBehaviour
     /// 바닥 배치 함수
     /// </summary>
     /// <param name="position"></param>
+    [PunRPC]
     private void PlaceFloor(Vector3 position)
     {
         if (!_floorPrefab)
@@ -60,10 +74,9 @@ public class RandomMapGenerator : MonoBehaviour
             return;
         }
 
-        Instantiate(_floorPrefab, position, Quaternion.identity);
+        PhotonNetwork.Instantiate("Map/Floor 1", position, Quaternion.identity);
 
         _floorPositionsList.Add(position);
-
     }
 
     /// <summary>
@@ -109,6 +122,7 @@ public class RandomMapGenerator : MonoBehaviour
     /// </summary>
     /// <param name="Position"></param>
     /// <returns></returns>
+    [PunRPC]
     private void PlaceFence(Vector3 Position)
     {
         Vector3[] directions =
@@ -129,9 +143,9 @@ public class RandomMapGenerator : MonoBehaviour
             {
                 Vector3 FencePos = Position + direction / 2;
                 if (direction.x != 0)
-                    Instantiate(FencePrefab, FencePos, Quaternion.Euler(0,90,0));
+                    PhotonNetwork.Instantiate("Map/" + FencePrefab.name, FencePos, Quaternion.Euler(0,90,0));
                 else if (direction.z != 0)
-                    Instantiate(FencePrefab, FencePos, Quaternion.identity);
+                    PhotonNetwork.Instantiate("Map/" + FencePrefab.name, FencePos, Quaternion.identity);
             }
         }
     }
@@ -171,7 +185,6 @@ public class RandomMapGenerator : MonoBehaviour
         {
             Debug.Log("가중치 값과 프리팹의 개수가 맞지 않습니다.");
         }
-
         return _fencePrefabs[0];
     }
 
@@ -181,21 +194,22 @@ public class RandomMapGenerator : MonoBehaviour
     /// <param name="tileCenters">타일의 중심점</param>
     /// <param name="objcetPrefab">오브젝트 프리팹 배열</param>
     /// <param name="minDistance">최소거리</param>
-    private void PlaceObjectRandomly(List<Vector3> tileCenters, GameObject[] objcetPrefab, float minDistance)
+    private void PlaceObjectRandomly( GameObject[] objcetPrefab, float minDistance)
     {
         int randomPositionPerTile = 3;
 
         //1. 랜덤 포지션 리스트 생성 
-        List<Vector3> randomPositions = GenerateRandomPositionList(tileCenters,  randomPositionPerTile);
+        randomPositions = GenerateRandomPositionList(_floorPositionsList, randomPositionPerTile);
 
         //2. 리스트 무작위 정렬 
         randomPositions.OrderBy(x => Random.value).ToList();
 
         //3. 배치된 위치 저장 
-        HashSet<Vector3> usedPositions = new HashSet<Vector3> ();
+        usedPositions = new HashSet<Vector3> ();
 
         //4. 랜덤 위치에서 오브젝트 생성 
-        PlacedObjectsFromRandomPosition(randomPositions, _objectPrefabs, usedPositions, minDistance);
+        if (PhotonNetwork.IsMasterClient)
+            _photonView.RPC("PlacedObjectsFromRandomPosition", RpcTarget.All, minDistance);
     }
 
 
@@ -254,9 +268,10 @@ public class RandomMapGenerator : MonoBehaviour
     /// <param name="objectPrefabs"></param>
     /// <param name="usedPositions"></param>
     /// <param name="minDistance"></param>
-    private void PlacedObjectsFromRandomPosition(List<Vector3> randomPositions, GameObject[] objectPrefabs, HashSet<Vector3> usedPositions, float minDistance)
+    [PunRPC]
+    private void PlacedObjectsFromRandomPosition(float minDistance)
     {
-        foreach (GameObject prefab in objectPrefabs)
+        foreach (GameObject prefab in _objectPrefabs)
         {
             foreach (Vector3 position in randomPositions)
             {
@@ -268,7 +283,7 @@ public class RandomMapGenerator : MonoBehaviour
                 }
 
                 //오브젝트 배치 
-                Instantiate(prefab, position, Quaternion.identity);
+                PhotonNetwork.Instantiate("Map/" + prefab.name, position, Quaternion.identity);
 
                 //금지된 위치 추가
                 usedPositions.Add(position);
