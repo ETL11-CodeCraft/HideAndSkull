@@ -51,14 +51,16 @@ namespace HideAndSkull.Lobby.Network
             DontDestroyOnLoad(s_instance);
         }
 
-        private void OnEnable()
+        public override void OnEnable()
         {
             Application.quitting += OnApplicationQuitting;
+            PhotonNetwork.AddCallbackTarget(this);
         }
 
-        private void OnDisable()
+        public override void OnDisable()
         {
             Application.quitting -= OnApplicationQuitting;
+            PhotonNetwork.RemoveCallbackTarget(this);
         }
 
         private void OnApplicationQuitting()
