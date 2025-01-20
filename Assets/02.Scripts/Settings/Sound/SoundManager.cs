@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -53,17 +52,6 @@ namespace HideAndSkull.Settings.Sound
             _sfxSource.volume = PlayerPrefs.GetFloat(SoundParameter.SFX_VOLUME, 0.75f);
 
             PlayBGM("Home");
-
-            StartCoroutine(C_TestSFXPlay());
-        }
-
-        IEnumerator C_TestSFXPlay()
-        {
-            while(true)
-            {
-                yield return new WaitForSeconds(1f);
-                PlaySFX("ClickUI");
-            }
         }
 
         void InitializeAudioClips()
