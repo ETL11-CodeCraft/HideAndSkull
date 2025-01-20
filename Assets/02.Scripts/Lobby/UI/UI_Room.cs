@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace HideAndSkull.Lobby.UI
@@ -33,6 +32,7 @@ namespace HideAndSkull.Lobby.UI
 
         const int CHAT_LIST_LIMIT_MAX = 12;
         const int PLAYER_LIST_LIMIT_MAX = 8;
+        const int GAMEPLAY_PLAYER_COUNT_MIN = 2;
 
 
         protected override void Awake()
@@ -67,7 +67,7 @@ namespace HideAndSkull.Lobby.UI
             //방장 한 명만 룸에 있을 때, 게임 시작하기 버튼을 누르면 ConfirmWindow를 사용하여 게임 시작할 수 없음을 표기
             _gameStart.onClick.AddListener(() =>
             {
-                if (PhotonNetwork.CurrentRoom.PlayerCount < 2)
+                if (PhotonNetwork.CurrentRoom.PlayerCount < GAMEPLAY_PLAYER_COUNT_MIN)
                 {
                     UI_ConfirmWindow confirmWindow = UI_Manager.instance.Resolve<UI_ConfirmWindow>();
 
@@ -77,12 +77,17 @@ namespace HideAndSkull.Lobby.UI
 
                 PhotonNetwork.CurrentRoom.IsOpen = false;
 
-                SceneManager.LoadScene(1);
+                PhotonNetwork.LoadLevel(1);
             });
 
             _exitRoom.onClick.AddListener(() =>
             {
                 PhotonNetwork.LeaveRoom();
+
+                PhotonNetwork.JoinLobby();
+
+                UI_Manager.instance.Resolve<UI_Lobby>()
+                                   .Show();
             });
         }
 

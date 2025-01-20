@@ -39,9 +39,10 @@ namespace HideAndSkull.Lobby.UI
             //코드입력 팝업 띄우기 - 팝업 띄우기 확인 / 코드입력으로 룸 입장하기
             _codeInput.onClick.AddListener(() =>
             {
-                if (PhotonNetwork.IsMasterClient)
+                if (PhotonNetwork.InRoom)
                 {
-                    OnLeftRoom();
+                    PhotonNetwork.LeaveRoom();
+                    PhotonNetwork.JoinLobby();
                 }
 
                 UI_CodeInput codeInputPopup = UI_Manager.instance.Resolve<UI_CodeInput>();
@@ -55,12 +56,20 @@ namespace HideAndSkull.Lobby.UI
             });
 
             // 홈으로 돌아가기
-            _backHome.onClick.AddListener(OnLeftLobby);
+            _backHome.onClick.AddListener(() =>
+            {
+                UI_Manager.instance.Resolve<UI_Home>()
+                               .Show();
+            }
+            );
         }
 
         public override void Show()
         {
             base.Show();
+
+            PhotonNetwork.JoinLobby();
+
             Debug.Log(PhotonNetwork.LocalPlayer.NickName + "님이 로비에 입장하였습니다.");
         }
 
@@ -71,7 +80,7 @@ namespace HideAndSkull.Lobby.UI
 
         private void OnDisable()
         {
-            PhotonNetwork.AddCallbackTarget(this);
+            PhotonNetwork.RemoveCallbackTarget(this);
         }
 
         /// <summary>
@@ -79,9 +88,10 @@ namespace HideAndSkull.Lobby.UI
         /// </summary>
         private void CreateRoomWithRandomCode()
         {
-            if (PhotonNetwork.IsMasterClient)
+            if (PhotonNetwork.InRoom)
             {
-                OnLeftRoom();
+                PhotonNetwork.LeaveRoom();
+                PhotonNetwork.JoinLobby();
             }
 
             string randomRoomCode = GenerateRandomRoomCode(ROOM_CODE_LENGTH);
@@ -143,12 +153,15 @@ namespace HideAndSkull.Lobby.UI
 
         public void OnJoinedLobby()
         {
+            Debug.Log("로비에 입장하였습니다.");
         }
 
         public void OnJoinedRoom()
         {
             UI_Manager.instance.Resolve<UI_Room>()
                                .Show();
+
+            Debug.Log("룸에 입장하였습니다.");
         }
 
         public void OnJoinRandomFailed(short returnCode, string message)
@@ -166,16 +179,10 @@ namespace HideAndSkull.Lobby.UI
 
         public void OnLeftLobby()
         {
-            UI_Manager.instance.Resolve<UI_Home>()
-                               .Show();
-
-            Hide();
         }
 
         public void OnLeftRoom()
         {
-            //Tode : Hide Room UI
-            Show();
         }
 
         public void OnLobbyStatisticsUpdate(List<TypedLobbyInfo> lobbyStatistics)
