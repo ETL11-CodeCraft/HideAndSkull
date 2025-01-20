@@ -248,6 +248,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -3085371908524373733, guid: 962160a2ce2dcf44894062413edafc54, type: 3}
+      propertyPath: sceneViewId
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 5186705560546273703, guid: 962160a2ce2dcf44894062413edafc54, type: 3}
       propertyPath: m_Name
       value: Floor 1
@@ -460,6 +464,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1764051163}
   - component: {fileID: 1764051162}
+  - component: {fileID: 1764051164}
   m_Layer: 0
   m_Name: RandomMapGenerator
   m_TagString: Untagged
@@ -515,6 +520,28 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1764051164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1764051161}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 4
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1001 &4748365422759734736
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -523,6 +550,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -2706473947479548598, guid: e2690829fdf57ed49b3ef0821d9d65a3, type: 3}
+      propertyPath: sceneViewId
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2237375792056508160, guid: e2690829fdf57ed49b3ef0821d9d65a3, type: 3}
       propertyPath: m_Name
       value: Fence3
@@ -591,6 +622,10 @@ PrefabInstance:
     - target: {fileID: 3881439745163469784, guid: a3d54310eb9ea494a94f6e2838a930b5, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5861641295722778927, guid: a3d54310eb9ea494a94f6e2838a930b5, type: 3}
+      propertyPath: sceneViewId
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6997734138052963814, guid: a3d54310eb9ea494a94f6e2838a930b5, type: 3}
       propertyPath: m_LocalPosition.x
