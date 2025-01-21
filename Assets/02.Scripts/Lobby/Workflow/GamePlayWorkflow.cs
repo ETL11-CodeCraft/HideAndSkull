@@ -65,9 +65,9 @@ namespace HideAndSkull.Lobby.Workflow
                 for (int i = 0; i < _playerList.Count; i++)
                 {
                     GameObject characterObject = PhotonNetwork.Instantiate("Character/Skull", Vector3.forward * i, Quaternion.identity);
+                    characterObject.GetComponent<Rigidbody>().isKinematic = true;
 
                     Skull skull = characterObject.GetComponent<Skull>();
-
 
                     _characters.Add(characterObject);
                 }
@@ -76,6 +76,8 @@ namespace HideAndSkull.Lobby.Workflow
                 {
                     GameObject characterObject = PhotonNetwork.Instantiate("Character/Skull", Vector3.forward * i, Quaternion.identity);
                     Skull AISkull = characterObject.GetComponent<Skull>();
+                    characterObject.GetComponent<Rigidbody>().isKinematic = true;
+
                     AISkull.InitAI();
 
                     _characters.Add(characterObject);
@@ -126,7 +128,7 @@ namespace HideAndSkull.Lobby.Workflow
                     continue;
                 }
 
-                _characters[cnt].transform.position = spawnPoint;
+                _characters[cnt].transform.position = spawnPoint + Vector3.up;
                 _usedPositions.Add(spawnPoint);
 
                 if(cnt >= 0 && cnt < _playerList.Count)
@@ -134,6 +136,8 @@ namespace HideAndSkull.Lobby.Workflow
                     PhotonView photonView = _characters[cnt].GetComponent<PhotonView>();
                     photonView.TransferOwnership(_playerList[cnt].ActorNumber);
                 }
+
+                _characters[cnt].GetComponent<Rigidbody>().isKinematic = false;
 
                 if (cnt++ == MAX_CHARACTER_COUNT - 1)
                     break;
