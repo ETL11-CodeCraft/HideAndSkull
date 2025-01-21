@@ -13,7 +13,7 @@ namespace HideAndSkull.Survivors.UI
             private set
             {
                 _survivorCountValue = value;
-                _survivorCount.text = $"현재 생존한 플레이어 : <color=\"red\">{value}</color>명";
+                _survivorCount.text = $"생존 플레이어 : <color=\"red\">{value}</color>명";
             }
         }
 

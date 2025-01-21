@@ -22,7 +22,7 @@ namespace HideAndSkull.Winner.UI
             set
             {
                 _killCountValue = value;
-                _killCount.text = $"처치 : {value}명";
+                _killCount.text = $"Kill : {value}명";
             }
         }
 
