@@ -15,7 +15,7 @@ public class RandomMapGenerator : MonoBehaviour
     [SerializeField] private GameObject[] _fencePrefabs;  //울타리 프리팹 배열
     [SerializeField] private GameObject[] _objectPrefabs; //오브젝트 프리팹 배열
     private float[] _weights = { 0.5f, 0.4f, 0.1f }; //가중치 배열 - 울타리 프리팹을 위함 
-    private float _minDistance = 3.8f;
+    public const float MIN_DISTANCE = 3.8f;
 
     private List<Vector3> randomPositions;
     private HashSet<Vector3> usedPositions;
@@ -34,8 +34,8 @@ public class RandomMapGenerator : MonoBehaviour
         if (PhotonNetwork.IsMasterClient && SceneManager.GetActiveScene().buildIndex.Equals(1))
         {
             GenerateFloors();
-            PlaceObjectRandomly(_objectPrefabs, _minDistance);
-            _workflow.CachedCharacterPosition(GenerateRandomPositionList(_floorPositionsList, GamePlayWorkflow.MAX_CHARACTER_COUNT / _floorCount + 1));
+            PlaceObjectRandomly(_objectPrefabs, MIN_DISTANCE);
+            _workflow.CachedCharacterPosition(GenerateRandomPositionList(_floorPositionsList, 10), usedPositions);
         }
     }
 
@@ -302,7 +302,7 @@ public class RandomMapGenerator : MonoBehaviour
     /// <param name="usedPositions"></param>
     /// <param name="minDistance"></param>
     /// <returns></returns>
-    private bool isPositionTooClose(Vector3 position, HashSet<Vector3> usedPositions, float minDistance)
+    public static bool isPositionTooClose(Vector3 position, HashSet<Vector3> usedPositions, float minDistance)
     {
         foreach (Vector3 used in usedPositions)
         {
