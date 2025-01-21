@@ -53,7 +53,7 @@ namespace HideAndSkull.Character
 
         //AI, Player 공통
         private bool _isRunning;
-        private bool _isDead;
+        public bool isDead;
         private ActFlag _currentAct;
         private Animator _animator;
         private Renderer[] _skinnedMeshRenderers = new Renderer[4];
@@ -196,10 +196,10 @@ namespace HideAndSkull.Character
         [PunRPC]
         public void Die()
         {
-            if(!_isDead)
+            if(!isDead)
             {
                 _canAction = false;
-                _isDead = true;
+                isDead = true;
                 _currentAct = ActFlag.Die;
 
                 if (PhotonNetwork.IsMasterClient && PlayMode == PlayMode.Player)
@@ -338,7 +338,7 @@ namespace HideAndSkull.Character
 
         private void AttackPerform()
         {
-            if(!_canAction || _isDead) return;
+            if(!_canAction || isDead) return;
 
             PhotonView.RPC(nameof(AttackPerform_RPC), RpcTarget.AllViaServer);
         }
