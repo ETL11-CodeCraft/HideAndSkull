@@ -75,6 +75,8 @@ namespace HideAndSkull.Lobby.UI
                     return;
                 }
 
+                InputActionsEnabled = false;
+
                 PhotonNetwork.CurrentRoom.IsOpen = false;
 
                 PhotonNetwork.LoadLevel(1);
