@@ -31,7 +31,7 @@ public class RandomMapGenerator : MonoBehaviour
     }
     void Start()
     {
-        if (PhotonNetwork.IsMasterClient && SceneManager.GetActiveScene().name.Equals("GamePlay Test"))
+        if (PhotonNetwork.IsMasterClient && SceneManager.GetActiveScene().buildIndex.Equals(1))
         {
             GenerateFloors();
             PlaceObjectRandomly(_objectPrefabs, _minDistance);
