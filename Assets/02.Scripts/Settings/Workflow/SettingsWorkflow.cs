@@ -23,7 +23,7 @@ namespace HideAndSkull.Lobby.Workflow
                 uiSettings.Show();
             });
 
-            uiSettings.onHide += SwitchButtonsReplacement;
+            uiSettings.onHide.AddListener(SwitchButtonsReplacement);
 
             SwitchButtonsReplacement();
         }
@@ -44,7 +44,7 @@ namespace HideAndSkull.Lobby.Workflow
 
         private void OnDestroy()
         {
-            uiSettings.onHide -= SwitchButtonsReplacement;
+            uiSettings.onHide.RemoveListener(SwitchButtonsReplacement);
         }
     }
 }

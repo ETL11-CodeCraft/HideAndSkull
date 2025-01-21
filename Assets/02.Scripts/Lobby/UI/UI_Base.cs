@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -37,8 +38,8 @@ namespace HideAndSkull.Lobby.UI
         PointerEventData _pointerEventData;
         List<RaycastResult> _raycastResultBuffer;
 
-        public event Action onShow;
-        public event Action onHide;
+        public UnityEvent onShow;
+        public UnityEvent onHide;
         public InputAction Drag;
 
 
@@ -99,6 +100,13 @@ namespace HideAndSkull.Lobby.UI
 
             result = default;
             return false;
+        }
+
+        protected virtual void OnDestroy()
+        {
+            onShow.RemoveAllListeners();
+            onHide.RemoveAllListeners();
+            manager.Unregister(this);
         }
     }
 }
