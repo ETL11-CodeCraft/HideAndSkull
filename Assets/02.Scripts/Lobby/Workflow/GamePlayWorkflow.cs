@@ -38,6 +38,7 @@ namespace HideAndSkull.Lobby.Workflow
         UI_Survivors uI_Survivors;
         List<GameObject> _characters = new List<GameObject>(MAX_CHARACTER_COUNT);
         List<Vector3> _spawnPoints;
+        HashSet<Vector3> _usedPositions;
         bool isCharacterSpawned = false;
         bool isSpawnPointsCached = false;
 
@@ -63,18 +64,17 @@ namespace HideAndSkull.Lobby.Workflow
             {
                 for (int i = 0; i < _playerList.Count; i++)
                 {
-                    GameObject characterObject = PhotonNetwork.Instantiate("Character/Skull", Vector3.zero, Quaternion.identity);
+                    GameObject characterObject = PhotonNetwork.Instantiate("Character/Skull", Vector3.forward * i, Quaternion.identity);
 
                     Skull skull = characterObject.GetComponent<Skull>();
-                    PhotonView photonView = characterObject.GetComponent<PhotonView>();
-                    photonView.TransferOwnership(_playerList[i].ActorNumber);
+
 
                     _characters.Add(characterObject);
                 }
 
                 for (int i = _playerList.Count; i < MAX_CHARACTER_COUNT; i++)
                 {
-                    GameObject characterObject = PhotonNetwork.Instantiate("Character/Skull", Vector3.zero, Quaternion.identity);
+                    GameObject characterObject = PhotonNetwork.Instantiate("Character/Skull", Vector3.forward * i, Quaternion.identity);
                     Skull AISkull = characterObject.GetComponent<Skull>();
                     AISkull.InitAI();
 
@@ -86,17 +86,12 @@ namespace HideAndSkull.Lobby.Workflow
                 }
                 else
                 {
-                    int cnt = 0;
-                    foreach (GameObject character in _characters)
-                    {
-                        character.transform.position = _spawnPoints[cnt++];
-                    }
+                    SetCharacterPosition();
                 }
-                
             }
         }
 
-        public void CachedCharacterPosition(List<Vector3> spawnPoints)
+        public void CachedCharacterPosition(List<Vector3> spawnPoints, HashSet<Vector3> usedPositions)
         {
             int n = spawnPoints.Count;
             while (n > 1)
@@ -109,18 +104,43 @@ namespace HideAndSkull.Lobby.Workflow
             }
 
             _spawnPoints = spawnPoints;
+            _usedPositions = usedPositions;
 
             if (!isCharacterSpawned)
             {
                 isSpawnPointsCached = true;
-                return;
+            }
+            else
+            {
+                SetCharacterPosition();
+            }
+        }
+
+        private void SetCharacterPosition()
+        {
+            int cnt = 0;
+            foreach (Vector3 spawnPoint in _spawnPoints)
+            {
+                if (RandomMapGenerator.isPositionTooClose(spawnPoint, _usedPositions, 1.5f))
+                {
+                    continue;
+                }
+
+                _characters[cnt].transform.position = spawnPoint;
+                _usedPositions.Add(spawnPoint);
+
+                if(cnt >= 0 && cnt < _playerList.Count)
+                {
+                    PhotonView photonView = _characters[cnt].GetComponent<PhotonView>();
+                    photonView.TransferOwnership(_playerList[cnt].ActorNumber);
+                }
+
+                if (cnt++ == MAX_CHARACTER_COUNT - 1)
+                    break;
             }
 
-            int cnt = 0;
-            foreach(GameObject character in _characters)
-            {
-                character.transform.position = spawnPoints[cnt++];
-            }
+            if (cnt != MAX_CHARACTER_COUNT)
+                throw new System.Exception("스폰할 공간이 없음");
         }
 
         private void ShowWinner()
