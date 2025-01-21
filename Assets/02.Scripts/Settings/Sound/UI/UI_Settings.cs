@@ -43,7 +43,6 @@ namespace HideAndSkull.Settings.UI
             });
 
             // 종료 버튼
-            _exitGame.onClick.RemoveAllListeners();
             _exitGame.onClick.AddListener(() =>
             {
 #if UNITY_EDITOR
@@ -54,11 +53,26 @@ namespace HideAndSkull.Settings.UI
             });
             
             // 닫기 버튼
-            _close.onClick.RemoveAllListeners();
             _close.onClick.AddListener(() =>
             {
                 Hide();
             });
+        }
+
+        public override void Hide()
+        {
+            base.Hide();
+
+            _exitGame.onClick.RemoveAllListeners();
+            _close.onClick.RemoveAllListeners();
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            _exitGame.onClick.RemoveAllListeners();
+            _close.onClick.RemoveAllListeners();
         }
     }
 }
