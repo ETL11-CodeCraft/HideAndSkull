@@ -1,6 +1,6 @@
 ﻿using ExitGames.Client.Photon;
 using HideAndSkull.Lobby.UI;
-using HideAndSkull.Lobby.Workflow;
+using HideAndSkull.Settings.UI;
 using HideAndSkull.Survivors.UI;
 using Photon.Pun;
 using Photon.Realtime;
@@ -53,7 +53,7 @@ namespace HideAndSkull.Character
 
         //AI, Player 공통
         private bool _isRunning;
-        private bool _isDead;
+        public bool isDead;
         private ActFlag _currentAct;
         private Animator _animator;
         private Renderer[] _skinnedMeshRenderers = new Renderer[4];
@@ -71,6 +71,7 @@ namespace HideAndSkull.Character
         private Transform _cameraAttachTransform;
         private bool _canAction = true;
         private Vector3 _movement;
+        private float _rotateSpeed = ROTATE_SPEED;
         public Hashtable PlayerCustomProperty = new Hashtable { { "IsDead", false }, { "KillCount", 0 } };
         //PlayerInput
         private PlayerInputActions _inputActions;
@@ -126,7 +127,11 @@ namespace HideAndSkull.Character
             }
             if (PlayMode == PlayMode.Player && PhotonView.IsMine)
             {
-                if(_canAction)
+                //카메라 감도 설정
+                _rotateSpeed = PlayerPrefs.GetFloat(SettingsParameter.CAMERA_SENSIBILITY);
+
+
+                if (_canAction)
                 {
                     //PC 바인딩 실행
                     if(_movement.y > 0)
@@ -191,10 +196,10 @@ namespace HideAndSkull.Character
         [PunRPC]
         public void Die()
         {
-            if(!_isDead)
+            if(!isDead)
             {
                 _canAction = false;
-                _isDead = true;
+                isDead = true;
                 _currentAct = ActFlag.Die;
 
                 if (PhotonNetwork.IsMasterClient && PlayMode == PlayMode.Player)
@@ -269,6 +274,9 @@ namespace HideAndSkull.Character
             //Mobile용 Binding
             _inputActions.UI.Point.performed += OnTouchScreen;
             _inputActions.UI.Click.canceled += OnReleaseScreen;
+
+            //감도 초기화
+            PlayerPrefs.SetFloat(SettingsParameter.CAMERA_SENSIBILITY, ROTATE_SPEED);
         }
 
         [PunRPC]
@@ -296,12 +304,12 @@ namespace HideAndSkull.Character
 
         private void RightPerform()
         {
-            _cameraAttachTransform.Rotate(Vector3.up * (ROTATE_SPEED * Time.deltaTime));
+            _cameraAttachTransform.Rotate(Vector3.up * (_rotateSpeed * Time.deltaTime));
         }
 
         private void LeftPerform()
         {
-            _cameraAttachTransform.Rotate(Vector3.down * (ROTATE_SPEED * Time.deltaTime));
+            _cameraAttachTransform.Rotate(Vector3.down * (_rotateSpeed * Time.deltaTime));
         }
 
         private void UpPerform()
@@ -330,7 +338,7 @@ namespace HideAndSkull.Character
 
         private void AttackPerform()
         {
-            if(!_canAction || _isDead) return;
+            if(!_canAction || isDead) return;
 
             PhotonView.RPC(nameof(AttackPerform_RPC), RpcTarget.AllViaServer);
         }

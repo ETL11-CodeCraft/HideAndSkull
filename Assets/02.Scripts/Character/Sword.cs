@@ -1,6 +1,5 @@
 ﻿using Photon.Pun;
 using UnityEngine;
-using static UnityEngine.UI.GridLayoutGroup;
 
 namespace HideAndSkull.Character
 {
@@ -18,7 +17,7 @@ namespace HideAndSkull.Character
                     //MasterClient에서 맞았다고 판단되면 모든 플레이어에게 해당 character가 죽었다고 호출함
                     skull.PhotonView.RPC(nameof(skull.Die), RpcTarget.AllViaServer);
 
-                    if(skull.PlayMode == PlayMode.Player)
+                    if(skull.PlayMode == PlayMode.Player && skull.isDead == false)
                     {
                         int killcount = (int)Owner.PlayerCustomProperty["KillCount"];
                         Owner.PlayerCustomProperty["KillCount"] = killcount + 1;
