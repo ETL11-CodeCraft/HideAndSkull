@@ -9,6 +9,9 @@ namespace HideAndSkull.Lobby.Workflow
     {
         private void Start()
         {
+            if (PhotonNetwork.IsMasterClient)
+                PhotonNetwork.DestroyAll();
+
             StartCoroutine(C_Workflow());
         }
 

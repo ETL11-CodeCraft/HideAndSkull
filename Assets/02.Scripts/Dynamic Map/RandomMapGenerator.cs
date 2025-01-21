@@ -3,6 +3,7 @@ using Photon.Pun;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class RandomMapGenerator : MonoBehaviour
 {
@@ -30,7 +31,7 @@ public class RandomMapGenerator : MonoBehaviour
     }
     void Start()
     {
-        if (PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.IsMasterClient && SceneManager.GetActiveScene().name.Equals("GamePlay Test"))
         {
             GenerateFloors();
             PlaceObjectRandomly(_objectPrefabs, _minDistance);
