@@ -27,13 +27,14 @@ namespace HideAndSkull.Lobby.UI
             if (_uis.ContainsKey(ui.GetType()))
             {
                 Debug.LogWarning($"UI {ui.GetType()} is already registered. Replacing the old instance.");
-                _uis[ui.GetType()] = ui; // 기존 UI를 새 UI로 교체
 
                 if (ui is UI_Popup)
                 {
-                    ui.onShow += () => Push((UI_Popup)ui);
-                    ui.onHide += () => Pop((UI_Popup)ui);
+                    ui.onShow.AddListener(() => Push((UI_Popup)ui));
+                    ui.onHide.AddListener(() => Pop((UI_Popup)ui));
                 }
+
+                _uis[ui.GetType()] = ui; // 기존 UI를 새 UI로 교체
             }
             else if (_uis.TryAdd(ui.GetType(), ui))
             {
@@ -41,13 +42,22 @@ namespace HideAndSkull.Lobby.UI
 
                 if (ui is UI_Popup)
                 {
-                    ui.onShow += () => Push((UI_Popup)ui);
-                    ui.onHide += () => Pop((UI_Popup)ui);
+                    ui.onShow.AddListener(() => Push((UI_Popup)ui));
+                    ui.onHide.AddListener(() => Pop((UI_Popup)ui));
                 }
             }
             else
             {
                 throw new Exception($"Failed to register ui {ui.GetType()}. already exist");
+            }
+        }
+
+        public void Unregister(UI_Base ui)
+        {
+            _uis.Remove(ui.GetType());
+            if (ui is UI_Popup)
+            {
+                _popupStack.Remove((UI_Popup)ui);
             }
         }
 
@@ -88,14 +98,14 @@ namespace HideAndSkull.Lobby.UI
             int popupIndex = _popupStack.FindLastIndex(ui => ui == popup);
 
             //이미 이 팝업이 활성화되어있다면, 제거하고 가장 뒤로 보내야함
-            if (popupIndex > 0)
+            if (popupIndex >= 0)
             {
                 _popupStack.RemoveAt(popupIndex);
             }
 
             int sortingOrder = 1;
 
-            if (_popupStack.Count > 0)
+            if (_popupStack.Count > 1)
             {
                 UI_Popup prevPopup = _popupStack[^1];
                 prevPopup.InputActionsEnabled = false;
@@ -110,8 +120,6 @@ namespace HideAndSkull.Lobby.UI
 
         public void Pop(UI_Popup popup)
         {
-            UI_Popup latest = _popupStack[^1];
-
             int popupIndex = _popupStack.FindLastIndex(ui => ui == popup);
 
             if (popupIndex < 0)
