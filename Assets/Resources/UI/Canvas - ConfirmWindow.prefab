@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uD655\uC778\n"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 90daa115cea5f8645b1a209f7d6b70f8, type: 2}
-  m_sharedMaterial: {fileID: -659807555113726302, guid: 90daa115cea5f8645b1a209f7d6b70f8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: e157a66fa603f014cbae2c48dd29981e, type: 2}
+  m_sharedMaterial: {fileID: 865189214481810344, guid: e157a66fa603f014cbae2c48dd29981e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -448,8 +448,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Message
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 90daa115cea5f8645b1a209f7d6b70f8, type: 2}
-  m_sharedMaterial: {fileID: -659807555113726302, guid: 90daa115cea5f8645b1a209f7d6b70f8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: e157a66fa603f014cbae2c48dd29981e, type: 2}
+  m_sharedMaterial: {fileID: 865189214481810344, guid: e157a66fa603f014cbae2c48dd29981e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
