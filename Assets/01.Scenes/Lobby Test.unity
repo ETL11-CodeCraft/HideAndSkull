@@ -626,17 +626,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bgmClipList:
   - name: Home
-    clip: {fileID: 8300000, guid: fc5cba17973f40845b31e057a2725d6d, type: 3}
+    clip: {fileID: 8300000, guid: 3e85a5f1083d7fc45bc5b9371a337859, type: 3}
   - name: Lobby
-    clip: {fileID: 8300000, guid: fc5cba17973f40845b31e057a2725d6d, type: 3}
+    clip: {fileID: 8300000, guid: 3e85a5f1083d7fc45bc5b9371a337859, type: 3}
   - name: Room
-    clip: {fileID: 8300000, guid: fc5cba17973f40845b31e057a2725d6d, type: 3}
+    clip: {fileID: 8300000, guid: 91cbc5bf303fc194abf96dad56023f63, type: 3}
   - name: GamePlay
-    clip: {fileID: 8300000, guid: fc5cba17973f40845b31e057a2725d6d, type: 3}
+    clip: {fileID: 8300000, guid: f3f73f9fc22139d47aeee0de4bbb2e8f, type: 3}
   - name: Result
-    clip: {fileID: 8300000, guid: fc5cba17973f40845b31e057a2725d6d, type: 3}
+    clip: {fileID: 8300000, guid: 4a825eb62ea22a749bd6abbe0404604e, type: 3}
   sfxClipList:
   - name: ClickUI
+    clip: {fileID: 8300000, guid: 2e76fd66aa8789f49baf92ddf8c3d79c, type: 3}
+  - name: Attack
+    clip: {fileID: 8300000, guid: 2e76fd66aa8789f49baf92ddf8c3d79c, type: 3}
+  - name: Damage
+    clip: {fileID: 8300000, guid: 2e76fd66aa8789f49baf92ddf8c3d79c, type: 3}
+  - name: Die
     clip: {fileID: 8300000, guid: 2e76fd66aa8789f49baf92ddf8c3d79c, type: 3}
 --- !u!82 &2026659552
 AudioSource:
@@ -869,7 +875,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1777105012450144862, guid: ce8541601ef9a4a4fb6d29a20ee6981d, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 22490
+      value: 42240
       objectReference: {fileID: 0}
     - target: {fileID: 2069203234371081125, guid: ce8541601ef9a4a4fb6d29a20ee6981d, type: 3}
       propertyPath: m_AnchorMax.y

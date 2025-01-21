@@ -1,5 +1,6 @@
 ﻿using HideAndSkull.Character;
 using HideAndSkull.Lobby.UI;
+using HideAndSkull.Settings.Sound;
 using HideAndSkull.Survivors.UI;
 using HideAndSkull.Winner.UI;
 using Photon.Pun;
@@ -54,6 +55,8 @@ namespace HideAndSkull.Lobby.Workflow
 
         private void Start()
         {
+            SoundManager.instance.PlayBGM("GamePlay");
+
             uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
             uI_Survivors = UI_Manager.instance.Resolve<UI_Survivors>();
 
@@ -160,6 +163,8 @@ namespace HideAndSkull.Lobby.Workflow
             }
 
             if (winner == null) return;
+
+            SoundManager.instance.PlayBGM("Result");
 
             UI_Manager.instance.Resolve<UI_Winner>().SetWinnerInfo(winner.NickName, (int)winner.CustomProperties["KillCount"]);
         }

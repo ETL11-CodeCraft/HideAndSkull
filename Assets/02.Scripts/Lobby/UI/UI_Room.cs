@@ -1,5 +1,6 @@
 ﻿using ExitGames.Client.Photon;
 using HideAndSkull.Lobby.Utilities;
+using HideAndSkull.Settings.Sound;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
@@ -84,6 +85,8 @@ namespace HideAndSkull.Lobby.UI
 
             _exitRoom.onClick.AddListener(() =>
             {
+                SoundManager.instance.PlayBGM("Home");
+
                 PhotonNetwork.LeaveRoom();
 
                 PhotonNetwork.JoinLobby();
@@ -96,6 +99,8 @@ namespace HideAndSkull.Lobby.UI
         public override void Show()
         {
             base.Show();
+
+            SoundManager.instance.PlayBGM("Room");
 
             //마스터 클라이언트가 Room을 Show했을 때 룸의 오픈상태를 true로 전환한다.
             if (PhotonNetwork.IsMasterClient)
