@@ -198,8 +198,10 @@ namespace HideAndSkull.Lobby.Workflow
 
         public void OnMasterClientSwitched(Player newMasterClient)
         {
-            //AI Character 소유권 넘기기
-            
+            if(newMasterClient == PhotonNetwork.LocalPlayer)
+            {
+                PhotonNetwork.LoadLevel(0);
+            }
         }
     }
 }
