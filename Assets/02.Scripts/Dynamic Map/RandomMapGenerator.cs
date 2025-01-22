@@ -45,7 +45,6 @@ public class RandomMapGenerator : MonoBehaviour
     private void GenerateFloors()
     {
         Vector3 currentPos = Vector3.zero;  //첫 번째 바닥 (0,0,0)에 생성 
-        _floorPositionsList.Add(currentPos);
 
         for (int i = 0; i < _floorCount; i++)
         {
@@ -127,7 +126,6 @@ public class RandomMapGenerator : MonoBehaviour
     /// </summary>
     /// <param name="Position"></param>
     /// <returns></returns>
-    [PunRPC]
     private void PlaceFence(Vector3 Position)
     {
         Vector3[] directions =
