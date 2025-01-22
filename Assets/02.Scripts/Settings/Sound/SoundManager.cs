@@ -42,16 +42,11 @@ namespace HideAndSkull.Settings.Sound
             {
                 Destroy(gameObject);
             }
-        }
 
-        private void Start()
-        {
             _bgmSource = GetComponents<AudioSource>()[0];
             _sfxSource = GetComponents<AudioSource>()[1];
             _bgmSource.volume = PlayerPrefs.GetFloat(SoundParameter.BGM_VOLUME, 0.75f);
             _sfxSource.volume = PlayerPrefs.GetFloat(SoundParameter.SFX_VOLUME, 0.75f);
-
-            PlayBGM("Home");
         }
 
         void InitializeAudioClips()

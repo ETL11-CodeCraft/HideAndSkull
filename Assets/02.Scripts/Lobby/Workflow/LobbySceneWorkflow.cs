@@ -1,4 +1,5 @@
 ﻿using HideAndSkull.Lobby.UI;
+using HideAndSkull.Settings.Sound;
 using Photon.Pun;
 using System.Collections;
 using UnityEngine;
@@ -9,6 +10,8 @@ namespace HideAndSkull.Lobby.Workflow
     {
         private void Start()
         {
+            SoundManager.instance.PlayBGM("Home");
+
             if (PhotonNetwork.IsMasterClient)
                 PhotonNetwork.DestroyAll();
 
