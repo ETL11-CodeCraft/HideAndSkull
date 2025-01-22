@@ -450,13 +450,11 @@ namespace HideAndSkull.Character
             if (stream.IsWriting)
             {
                 stream.SendNext(_isMoving);
-                stream.SendNext(_isRunning);
             }
             //수신
             else
             {
                 _isMoving = (bool)stream.ReceiveNext();
-                _isRunning = (bool)stream.ReceiveNext();
             }
         }
 
