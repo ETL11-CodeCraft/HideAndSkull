@@ -257,6 +257,9 @@ namespace HideAndSkull.Lobby.UI
 
         private void MessageSend()
         {
+            if (_chatInput.text.Length == 0)
+                return;
+
             _photonView.RPC("ChatRPC", RpcTarget.All, PhotonNetwork.NickName + " : " + _chatInput.text);
             _chatInput.text = "";
         }
