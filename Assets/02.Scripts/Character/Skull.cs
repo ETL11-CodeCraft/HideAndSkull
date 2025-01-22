@@ -30,7 +30,7 @@ namespace HideAndSkull.Character
     }
 
     [RequireComponent(typeof(PhotonTransformView))]
-    public class Skull : MonoBehaviour, IPunOwnershipCallbacks
+    public class Skull : MonoBehaviour, IPunOwnershipCallbacks, IPunObservable, IOnEventCallback
     {
         public PlayMode PlayMode { get; set; }
         private float Speed => _isRunning ? RUN_SPEED : WALK_SPEED;  //프레임당 이동거리
@@ -53,6 +53,7 @@ namespace HideAndSkull.Character
 
         //AI, Player 공통
         private bool _isRunning;
+        private bool _isMoving;
         public bool isDead;
         private ActFlag _currentAct;
         private Animator _animator;
@@ -133,64 +134,72 @@ namespace HideAndSkull.Character
 
                 if (_canAction)
                 {
-                    //PC 바인딩 실행
-                    if(_movement.y > 0)
+                    if(Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
                     {
-                        UpPerform();
-                        PhotonView.RPC(nameof(PlayWalkAnimation), RpcTarget.AllViaServer);
-                    }
-                    else
-                    {
-                        PhotonView.RPC(nameof(StopWalkAnimation), RpcTarget.AllViaServer);
-                    }
-                    if(_movement.x > 0)
-                    {
-                        RightPerform();
-                    }
-                    if(_movement.x < 0)
-                    {
-                        LeftPerform();
-                    }
-                    //Mobile 바인딩 실행
-                    if (_isTouching)
-                    {
-                        _pointerEventData.position = _touchPosition;
-                        _results.Clear();
-                        _graphicRaycaster.Raycast(_pointerEventData, _results);
-
-                        if (_results.Count > 0)
+                        //PC 바인딩 실행
+                        if (_movement.y > 0)
                         {
-                            switch (_results[0].gameObject.name)
+                            UpPerform();
+                            _isMoving = true;
+                        }
+                        else
+                        {
+                            _isMoving = false;
+                        }
+                        if (_movement.x > 0)
+                        {
+                            RightPerform();
+                        }
+                        if (_movement.x < 0)
+                        {
+                            LeftPerform();
+                        }
+                    }
+                    else if(Application.platform == RuntimePlatform.Android)
+                    {
+                        //Mobile 바인딩 실행
+                        if (_isTouching)
+                        {
+                            _pointerEventData.position = _touchPosition;
+                            _results.Clear();
+                            _graphicRaycaster.Raycast(_pointerEventData, _results);
+
+                            if (_results.Count > 0)
                             {
-                                case "Right":
-                                    RightPerform();
-                                    break;
-                                case "Left":
-                                    LeftPerform();
-                                    break;
-                                case "Up":
-                                    UpPerform();
-                                    PhotonView.RPC(nameof(PlayWalkAnimation), RpcTarget.AllViaServer);
-                                    break;
-                                case "Run":
-                                    if (!_isTouchFlagDirty)
-                                    {
-                                        _isTouchFlagDirty = true;
-                                        RunPerform();
-                                    }
-                                    break;
-                                case "Attack":
-                                    if (!_isTouchFlagDirty)
-                                    {
-                                        _isTouchFlagDirty = true;
-                                        AttackPerform();
-                                    }
-                                    break;
+                                switch (_results[0].gameObject.name)
+                                {
+                                    case "Right":
+                                        RightPerform();
+                                        break;
+                                    case "Left":
+                                        LeftPerform();
+                                        break;
+                                    case "Up":
+                                        UpPerform();
+                                        _isMoving = true;
+                                        break;
+                                    case "Run":
+                                        if (!_isTouchFlagDirty)
+                                        {
+                                            _isTouchFlagDirty = true;
+                                            RunPerform();
+                                        }
+                                        break;
+                                    case "Attack":
+                                        if (!_isTouchFlagDirty)
+                                        {
+                                            _isTouchFlagDirty = true;
+                                            AttackPerform();
+                                        }
+                                        break;
+                                }
                             }
                         }
                     }
                 }
             }
+
+            _animator.SetBool(IsWalk, _isMoving);
         }
 
         [PunRPC]
@@ -238,25 +247,17 @@ namespace HideAndSkull.Character
             }
         }
 
-        [PunRPC]
-        private void PlayWalkAnimation()
-        {
-            _animator.SetBool(IsWalk, true);
-        }
-
-        [PunRPC]
-        private void StopWalkAnimation()
-        {
-            _animator.SetBool(IsWalk, false);
-        }
-
         #region Player
         public void InitPlayer()
         {
             if (!PhotonView.IsMine) return;
 
+            PhotonNetwork.RaiseEvent(Lobby.Network.PhotonEventCode.SYNC_PLAYMODE,
+                new object[] { PlayMode.Player, PhotonView.ViewID },
+                new RaiseEventOptions { Receivers = ReceiverGroup.All },
+                SendOptions.SendReliable);
+
             SetPlayerCamera();
-            PhotonView.RPC(nameof(SetPlayModePlayer), RpcTarget.AllBufferedViaServer);
             PhotonNetwork.LocalPlayer.SetCustomProperties(PlayerCustomProperty);
 
             //TEST
@@ -277,12 +278,6 @@ namespace HideAndSkull.Character
 
             //감도 초기화
             PlayerPrefs.SetFloat(SettingsParameter.CAMERA_SENSIBILITY, ROTATE_SPEED);
-        }
-
-        [PunRPC]
-        private void SetPlayModePlayer()
-        {
-            PlayMode = PlayMode.Player;
         }
 
         private void SetPlayerCamera()
@@ -327,12 +322,6 @@ namespace HideAndSkull.Character
         {
             if (!_canAction) return;
 
-            PhotonView.RPC(nameof(RunPerform_RPC), RpcTarget.AllViaServer);
-        }
-
-        [PunRPC]
-        public void RunPerform_RPC()
-        {
             _isRunning = !_isRunning;
         }
 
@@ -385,7 +374,7 @@ namespace HideAndSkull.Character
             
             _isTouching = false;
             _isTouchFlagDirty = false;
-            PhotonView.RPC(nameof(StopWalkAnimation), RpcTarget.AllViaServer);
+            _isMoving = false;
         }
 
         #endregion
@@ -393,14 +382,12 @@ namespace HideAndSkull.Character
         #region AI
         public void InitAI()
         {
-            PhotonView.RPC(nameof(SetPlayModeAI), RpcTarget.AllBufferedViaServer);
+            PhotonNetwork.RaiseEvent(Lobby.Network.PhotonEventCode.SYNC_PLAYMODE,
+                new object[] { PlayMode.AI, PhotonView.ViewID },
+                new RaiseEventOptions { Receivers = ReceiverGroup.All },
+                SendOptions.SendReliable);
         }
 
-        [PunRPC]
-        private void SetPlayModeAI()
-        {
-            PlayMode = PlayMode.AI;
-        }
 
         private void Idle()
         {
@@ -422,7 +409,7 @@ namespace HideAndSkull.Character
                 _currentAct = ActFlag.None;
                 _moveDirection = Vector3.zero;
                 _moveElapsed = 0f;
-                PhotonView.RPC(nameof(StopWalkAnimation), RpcTarget.AllViaServer);
+                _isMoving = false;
             }
             else
             {
@@ -434,7 +421,7 @@ namespace HideAndSkull.Character
                 }
                 
                 transform.Translate(Vector3.forward * (Speed * Time.deltaTime));
-                PhotonView.RPC(nameof(PlayWalkAnimation), RpcTarget.AllViaServer);
+                _isMoving = true;
                 _moveElapsed += Time.deltaTime;
             }
         }
@@ -443,22 +430,46 @@ namespace HideAndSkull.Character
         #region Interface
         public void OnOwnershipRequest(PhotonView targetView, Player requestingPlayer)
         {
-            Debug.Log("OnOwnershipRequest");
         }
 
         public void OnOwnershipTransfered(PhotonView targetView, Player previousOwner)
         {
-            Debug.Log("OnOwnershipTransfered");
             if (targetView == PhotonView && PhotonView.IsMine)
             {
-                Debug.Log("OnOwnershipTransfered IsMine");
                 InitPlayer();
             }
         }
 
         public void OnOwnershipTransferFailed(PhotonView targetView, Player senderOfFailedRequest)
         {
-            Debug.Log($"[{nameof(Skull)}] OnOwnershipTransferFailed");
+        }
+
+        public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+        {
+            //송신
+            if (stream.IsWriting)
+            {
+                stream.SendNext(_isMoving);
+                stream.SendNext(_isRunning);
+            }
+            //수신
+            else
+            {
+                _isMoving = (bool)stream.ReceiveNext();
+                _isRunning = (bool)stream.ReceiveNext();
+            }
+        }
+
+        public void OnEvent(EventData photonEvent)
+        {
+            byte eventCode = photonEvent.Code;
+
+            if(eventCode == Lobby.Network.PhotonEventCode.SYNC_PLAYMODE)
+            {
+                object[] data = (object[])photonEvent.CustomData;
+                if (PhotonView.ViewID == (int)data[1])
+                    PlayMode = (PlayMode)data[0];
+            }
         }
         #endregion
     }
