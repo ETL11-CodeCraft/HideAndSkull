@@ -107,6 +107,7 @@ namespace HideAndSkull.Lobby.UI
             onShow.RemoveAllListeners();
             onHide.RemoveAllListeners();
             manager.Unregister(this);
+            InputActionsEnabled = false;
         }
     }
 }
