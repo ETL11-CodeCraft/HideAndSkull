@@ -1,5 +1,4 @@
 ﻿using HideAndSkull.Lobby.Utilities;
-using HideAndSkull.Settings.Sound;
 using Photon.Pun;
 using System.Collections;
 using TMPro;
@@ -33,8 +32,6 @@ namespace HideAndSkull.Lobby.UI
         public override void Show()
         {
             base.Show();
-
-            SoundManager.instance.PlayBGM("Home");
 
             if(PhotonNetwork.IsConnected)
             {
