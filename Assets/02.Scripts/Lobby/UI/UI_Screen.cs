@@ -8,5 +8,12 @@ namespace HideAndSkull.Lobby.UI
 
             manager.SetScreen(this);
         }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            InputActionsEnabled = false;
+        }
     }
 }
