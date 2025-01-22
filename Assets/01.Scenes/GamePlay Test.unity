@@ -1398,7 +1398,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1e8edd6f3d8dc248a64fe44a36719c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _spawnPoints: []
 --- !u!4 &1106352147
 Transform:
   m_ObjectHideFlags: 0
@@ -1948,6 +1947,14 @@ PrefabInstance:
     - target: {fileID: 4526173331766775676, guid: c22b570fbe0c3c54f95e843f2af13046, type: 3}
       propertyPath: m_Name
       value: Attack
+      objectReference: {fileID: 0}
+    - target: {fileID: 5044493210874006444, guid: c22b570fbe0c3c54f95e843f2af13046, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5044493210874006444, guid: c22b570fbe0c3c54f95e843f2af13046, type: 3}
+      propertyPath: m_RaycastTargetCache
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8809720587747463954, guid: c22b570fbe0c3c54f95e843f2af13046, type: 3}
       propertyPath: m_Pivot.x
