@@ -181,7 +181,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -471, y: 16}
+  m_AnchoredPosition: {x: -471, y: 9}
   m_SizeDelta: {x: 63.9569, y: 60.01}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7028645823469253567
@@ -366,8 +366,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uC0DD\uC874 \uD50C\uB808\uC774\uC5B4 : <color=\"red\">7</color>\uBA85"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 90daa115cea5f8645b1a209f7d6b70f8, type: 2}
-  m_sharedMaterial: {fileID: -659807555113726302, guid: 90daa115cea5f8645b1a209f7d6b70f8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: e157a66fa603f014cbae2c48dd29981e, type: 2}
+  m_sharedMaterial: {fileID: 865189214481810344, guid: e157a66fa603f014cbae2c48dd29981e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

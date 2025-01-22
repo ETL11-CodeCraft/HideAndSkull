@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6997734138052963814}
   - component: {fileID: 5861641295722778927}
+  - component: {fileID: 4840922764908416036}
   m_Layer: 0
   m_Name: Fence1
   m_TagString: Untagged
@@ -57,6 +58,27 @@ MonoBehaviour:
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!65 &4840922764908416036
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3881439745163469784}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 14.583021, y: 2.8014069, z: 0.60412234}
+  m_Center: {x: 0, y: 1.3769376, z: -0.0060114563}
 --- !u!1001 &1238674379045432963
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -65,14 +87,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6997734138052963814}
     m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: 585929e52dbc6de459ee54d999d621b6, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1.25
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 585929e52dbc6de459ee54d999d621b6, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1.25
-      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 585929e52dbc6de459ee54d999d621b6, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
