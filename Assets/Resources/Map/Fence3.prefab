@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3402283143659161509}
   - component: {fileID: -2706473947479548598}
+  - component: {fileID: 7533154175767681213}
   m_Layer: 0
   m_Name: Fence3
   m_TagString: Untagged
@@ -57,6 +58,27 @@ MonoBehaviour:
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!65 &7533154175767681213
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2237375792056508160}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 14.639933, y: 2.9016101, z: 0.5927994}
+  m_Center: {x: -0.011738777, y: 1.3733844, z: -0.00007893145}
 --- !u!1001 &3585755014138660142
 PrefabInstance:
   m_ObjectHideFlags: 0
