@@ -1,5 +1,6 @@
 using HideAndSkull.Lobby.UI;
 using HideAndSkull.Lobby.Utilities;
+using HideAndSkull.Settings.Sound;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -19,7 +20,11 @@ namespace HideAndSkull.Lobby.UI
 
             _message.text = message;
             _confirm.onClick.RemoveAllListeners();
-            _confirm.onClick.AddListener(Hide);
+            _confirm.onClick.AddListener(() =>
+           {
+               SoundManager.instance.PlayButtonSound();
+               Hide();
+           });
 
             if (onConfirmed != null)
                 _confirm.onClick.AddListener(onConfirmed);

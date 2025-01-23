@@ -68,6 +68,8 @@ namespace HideAndSkull.Lobby.UI
             //방장 한 명만 룸에 있을 때, 게임 시작하기 버튼을 누르면 ConfirmWindow를 사용하여 게임 시작할 수 없음을 표기
             _gameStart.onClick.AddListener(() =>
             {
+                SoundManager.instance.PlayButtonSound();
+
                 if (PhotonNetwork.CurrentRoom.PlayerCount < GAMEPLAY_PLAYER_COUNT_MIN)
                 {
                     UI_ConfirmWindow confirmWindow = UI_Manager.instance.Resolve<UI_ConfirmWindow>();
@@ -77,18 +79,15 @@ namespace HideAndSkull.Lobby.UI
                 }
 
                 PhotonNetwork.CurrentRoom.IsOpen = false;
-
                 PhotonNetwork.LoadLevel(1);
             });
 
             _exitRoom.onClick.AddListener(() =>
             {
+                SoundManager.instance.PlayButtonSound();
                 SoundManager.instance.PlayBGM("Home");
-
                 PhotonNetwork.LeaveRoom();
-
                 PhotonNetwork.JoinLobby();
-
                 UI_Manager.instance.Resolve<UI_Lobby>()
                                    .Show();
             });

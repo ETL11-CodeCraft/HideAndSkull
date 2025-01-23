@@ -1,4 +1,5 @@
 ﻿using HideAndSkull.Lobby.Utilities;
+using HideAndSkull.Settings.Sound;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
@@ -32,6 +33,7 @@ namespace HideAndSkull.Lobby.UI
             //최대 인원 8명, 랜덤한 6자리의 코드를 가진 방 생성
             _createRoom.onClick.AddListener(() =>
             {
+                SoundManager.instance.PlayButtonSound();
                 //Random한 코드 생성. 기존의 방들과 코드가 겹치면 안되며, 코드로 방에 접근할 수 있어야 함.
                 CreateRoomWithRandomCode();
             });
@@ -45,6 +47,7 @@ namespace HideAndSkull.Lobby.UI
                     PhotonNetwork.JoinLobby();
                 }
 
+                SoundManager.instance.PlayButtonSound();
                 UI_CodeInput codeInputPopup = UI_Manager.instance.Resolve<UI_CodeInput>();
                 codeInputPopup.Show();
             });
@@ -52,12 +55,14 @@ namespace HideAndSkull.Lobby.UI
             //입장할 수 있는 방 검사 후 있으면 입장, 없으면 새로운 방 생성
             _quickEnterRoom.onClick.AddListener(() =>
             {
+                SoundManager.instance.PlayButtonSound();
                 PhotonNetwork.JoinRandomRoom();
             });
 
             // 홈으로 돌아가기
             _backHome.onClick.AddListener(() =>
             {
+                SoundManager.instance.PlayButtonSound();
                 UI_Manager.instance.Resolve<UI_Home>()
                                .Show();
             }
