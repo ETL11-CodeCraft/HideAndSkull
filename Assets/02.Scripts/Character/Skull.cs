@@ -210,18 +210,9 @@ namespace HideAndSkull.Character
                 _canAction = false;
                 isDead = true;
                 _currentAct = ActFlag.Die;
-
-                if (PhotonNetwork.IsMasterClient && PlayMode == PlayMode.Player)
-                {
-                    UI_ToastPanel uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
-                    uI_ToastPanel.ShowToast($"{PhotonView.Owner.NickName}님이 사망하였습니다.");
-
-                    PlayerCustomProperty["IsDead"] = true;
-
-                    PhotonView.Owner.SetCustomProperties(PlayerCustomProperty);
-                }
-
                 _animator.SetTrigger(IsDead);
+
+                this.gameObject.GetComponent<Rigidbody>().isKinematic = true;
             }
         }
 
