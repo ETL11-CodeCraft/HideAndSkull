@@ -8,30 +8,31 @@ namespace HideAndSkull.Character
     [RequireComponent(typeof(BoxCollider))]
     public class Sword : MonoBehaviour
     {
-        public Skull Owner { get; set; }
+        public Skull SwordOwner { get; set; }
         private void OnTriggerEnter(Collider other)
         {
             //맞았는지 판단은 맞은 Skull에서 함
             if(other.TryGetComponent(out PhotonView photonView) && 
                photonView.IsMine)
             {
-                if (other.TryGetComponent(out Skull skull))
+                if (other.TryGetComponent(out Skull attackedSkull))
                 {
-                    if (skull.isDead)
+                    if (attackedSkull.isDead)
                         return;
 
                     //모든 플레이어에게 해당 character가 죽었다고 호출함
-                    skull.PhotonView.RPC(nameof(skull.Die), RpcTarget.All);
+                    attackedSkull.PhotonView.RPC(nameof(attackedSkull.Die), RpcTarget.All);
 
-                    if (skull.PlayMode == PlayMode.Player)
+                    if (attackedSkull.PlayMode == PlayMode.Player)
                     {
-                        skull.PlayerCustomProperty["IsDead"] = true;
-                        photonView.Owner.SetCustomProperties(skull.PlayerCustomProperty);
+                        int killcount = (int)SwordOwner.PhotonView.Owner.CustomProperties["KillCount"];
+                        SwordOwner.PlayerCustomProperty["KillCount"] = killcount + 1;
+                        SwordOwner.PhotonView.Owner.SetCustomProperties(SwordOwner.PlayerCustomProperty);
+
+                        attackedSkull.PlayerCustomProperty["IsDead"] = true;
+                        attackedSkull.PhotonView.Owner.SetCustomProperties(attackedSkull.PlayerCustomProperty);
                         UI_ToastPanel uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
                         uI_ToastPanel.ShowToast($"{photonView.Owner.NickName}님이 사망하였습니다.");
-                        int killcount = (int)Owner.PlayerCustomProperty["KillCount"];
-                        Owner.PlayerCustomProperty["KillCount"] = killcount + 1;
-                        Owner.PhotonView.Owner.SetCustomProperties(Owner.PlayerCustomProperty);
                     }
                 }
             }

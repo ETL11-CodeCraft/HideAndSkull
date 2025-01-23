@@ -88,7 +88,7 @@ namespace HideAndSkull.Character
         {
             _animator = GetComponent<Animator>();
             _swordCollider.enabled = false;
-            _swordCollider.GetComponent<Sword>().Owner = this;
+            _swordCollider.GetComponent<Sword>().SwordOwner = this;
             _skinnedMeshRenderers = GetComponentsInChildren<Renderer>();
             _characterCollider = GetComponent<CapsuleCollider>();
             _graphicRaycaster = GameObject.Find("Canvas - Buttons").GetComponent<GraphicRaycaster>();
