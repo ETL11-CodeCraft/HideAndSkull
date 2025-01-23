@@ -1,5 +1,6 @@
 ﻿using ExitGames.Client.Photon;
 using HideAndSkull.Lobby.UI;
+using HideAndSkull.Settings.Sound;
 using HideAndSkull.Settings.UI;
 using HideAndSkull.Survivors.UI;
 using Photon.Pun;
@@ -211,6 +212,7 @@ namespace HideAndSkull.Character
                 isDead = true;
                 _currentAct = ActFlag.Die;
                 _animator.SetTrigger(IsDead);
+                SoundManager.instance.PlaySFX("Die", transform.position);
 
                 this.gameObject.GetComponent<Rigidbody>().isKinematic = true;
             }
@@ -330,6 +332,7 @@ namespace HideAndSkull.Character
             _canAction = false;
 
             _animator.SetTrigger(IsAttacking);
+            SoundManager.instance.PlaySFX("Attack", transform.position);
         }
 
         public void OnEndAttackAnimation()
