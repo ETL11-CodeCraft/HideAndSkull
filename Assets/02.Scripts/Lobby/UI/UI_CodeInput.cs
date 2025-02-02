@@ -1,4 +1,5 @@
 ﻿using HideAndSkull.Lobby.Utilities;
+using HideAndSkull.Settings.Sound;
 using Photon.Pun;
 using TMPro;
 using UnityEngine.UI;
@@ -15,13 +16,18 @@ namespace HideAndSkull.Lobby.UI
         {
             base.Start();
 
-            _codeEnter.onClick.AddListener(() => 
+            _codeEnter.onClick.AddListener(() =>
             {
+                SoundManager.instance.PlayButtonSound();
                 PhotonNetwork.JoinRoom(_code.text);
                 Hide();
             });
 
-            _codeExit.onClick.AddListener(Hide);
+            _codeExit.onClick.AddListener(() =>
+            {
+                SoundManager.instance.PlayButtonSound();
+                Hide();
+            });
         }
 
         public override void Show()

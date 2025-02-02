@@ -1,7 +1,8 @@
 ﻿using HideAndSkull.Lobby.UI;
 using HideAndSkull.Lobby.Utilities;
-using UnityEngine.UI;
+using HideAndSkull.Settings.Sound;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace HideAndSkull.Settings.UI
 {
@@ -28,6 +29,8 @@ namespace HideAndSkull.Settings.UI
         {
             base.Show();
 
+            SoundManager.instance.PlayButtonSound();
+
             // 조작키 반전 토글
             _isReversedKey.isOn = PlayerPrefs.GetInt(SettingsParameter.IS_REVERSED_BUTTON, 0) == 1;
             _isReversedKey.onValueChanged.AddListener((value) =>
@@ -45,16 +48,18 @@ namespace HideAndSkull.Settings.UI
             // 종료 버튼
             _exitGame.onClick.AddListener(() =>
             {
+                SoundManager.instance.PlayButtonSound();
 #if UNITY_EDITOR
                 UnityEditor.EditorApplication.isPlaying = false;
 #else
                 Application.Quit();
 #endif
             });
-            
+
             // 닫기 버튼
             _close.onClick.AddListener(() =>
             {
+                SoundManager.instance.PlayButtonSound();
                 Hide();
             });
         }

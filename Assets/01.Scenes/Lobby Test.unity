@@ -636,14 +636,12 @@ MonoBehaviour:
   - name: Result
     clip: {fileID: 8300000, guid: 4a825eb62ea22a749bd6abbe0404604e, type: 3}
   sfxClipList:
-  - name: ClickUI
+  - name: ButtonClick
     clip: {fileID: 8300000, guid: 2e76fd66aa8789f49baf92ddf8c3d79c, type: 3}
   - name: Attack
-    clip: {fileID: 8300000, guid: 2e76fd66aa8789f49baf92ddf8c3d79c, type: 3}
-  - name: Damage
-    clip: {fileID: 8300000, guid: 2e76fd66aa8789f49baf92ddf8c3d79c, type: 3}
+    clip: {fileID: 8300000, guid: 2d590fdd4c9575a469fd0ec8e23953fa, type: 3}
   - name: Die
-    clip: {fileID: 8300000, guid: 2e76fd66aa8789f49baf92ddf8c3d79c, type: 3}
+    clip: {fileID: 8300000, guid: e55f4a0a48f83af4b8d9048ab6f1b882, type: 3}
 --- !u!82 &2026659552
 AudioSource:
   m_ObjectHideFlags: 0
@@ -875,7 +873,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1777105012450144862, guid: ce8541601ef9a4a4fb6d29a20ee6981d, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 42240
+      value: 72370
       objectReference: {fileID: 0}
     - target: {fileID: 2069203234371081125, guid: ce8541601ef9a4a4fb6d29a20ee6981d, type: 3}
       propertyPath: m_AnchorMax.y

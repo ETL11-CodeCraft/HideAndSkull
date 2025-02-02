@@ -1,4 +1,5 @@
 ﻿using HideAndSkull.Lobby.Utilities;
+using HideAndSkull.Settings.Sound;
 using Photon.Pun;
 using System.Collections;
 using TMPro;
@@ -25,15 +26,23 @@ namespace HideAndSkull.Lobby.UI
             base.Start();
 
             _serverConnect.gameObject.SetActive(false);
-            _connect.onClick.AddListener(Connect);
-            _exit.onClick.AddListener(Application.Quit);
+            _connect.onClick.AddListener(() =>
+                {
+                    SoundManager.instance.PlayButtonSound();
+                    Connect();
+                });
+            _exit.onClick.AddListener(() =>
+            {
+                SoundManager.instance.PlayButtonSound();
+                Application.Quit();
+            });
         }
 
         public override void Show()
         {
             base.Show();
 
-            if(PhotonNetwork.IsConnected)
+            if (PhotonNetwork.IsConnected)
             {
                 StartCoroutine(C_ServerConnectText());
             }
@@ -54,7 +63,7 @@ namespace HideAndSkull.Lobby.UI
         {
             string nickName = _nickName.text.Trim();
 
-            if(nickName == "")
+            if (nickName == "")
             {
                 UI_ConfirmWindow confirmWindow = UI_Manager.instance.Resolve<UI_ConfirmWindow>();
 
@@ -62,7 +71,7 @@ namespace HideAndSkull.Lobby.UI
                 return;
             }
 
-            if(nickName.Length > 11)
+            if (nickName.Length > 11)
             {
                 nickName = nickName.Substring(0, PLAYER_NICKNAME_MAX_LENGTH);
             }
@@ -80,7 +89,7 @@ namespace HideAndSkull.Lobby.UI
         /// <returns></returns>
         public IEnumerator C_ServerConnectText()
         {
-            _serverConnect.gameObject.SetActive(true) ;
+            _serverConnect.gameObject.SetActive(true);
 
             yield return new WaitForSeconds(3);
 

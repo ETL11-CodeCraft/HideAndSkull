@@ -88,7 +88,7 @@ namespace HideAndSkull.Settings.Sound
         {
             if (_sfxClips.ContainsKey(name))
             {
-                AudioSource.PlayClipAtPoint(_sfxClips[name], position);
+                AudioSource.PlayClipAtPoint(_sfxClips[name], position, _sfxSource.volume);
             }
         }
 
