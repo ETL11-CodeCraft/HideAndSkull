@@ -109,6 +109,8 @@ namespace HideAndSkull.Lobby.UI
                 { "RoomCode", randomRoomCode }, // 커스텀 프로퍼티에 랜덤 코드 추가
             },
             };
+            
+            roomOptions.CleanupCacheOnLeave = false;  // 방을 떠나도 객체 삭제 안함
 
             PhotonNetwork.CreateRoom(randomRoomCode, roomOptions);
         }

@@ -7,7 +7,9 @@ using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
 using System.Linq;
+using ExitGames.Client.Photon;
 using UnityEngine;
+using PlayMode = HideAndSkull.Character.PlayMode;
 
 namespace HideAndSkull.Lobby.Workflow
 {
@@ -23,7 +25,7 @@ namespace HideAndSkull.Lobby.Workflow
                 _survivePlayerCount = value;
 
                 if (isChanged && PhotonNetwork.IsMasterClient)
-                    uI_Survivors.SetSurvivorCount(_survivePlayerCount);
+                    _uISurvivors.SetSurvivorCount(_survivePlayerCount);
 
                 if (_survivePlayerCount == 1)
                     ShowWinner();
@@ -32,16 +34,16 @@ namespace HideAndSkull.Lobby.Workflow
         private int _survivePlayerCount;
 
 
-        public const int MAX_CHARACTER_COUNT = 20;
+        private const int MAX_CHARACTER_COUNT = 20;
 
-        List<Player> _playerList;
-        UI_ToastPanel uI_ToastPanel;
-        UI_Survivors uI_Survivors;
-        List<GameObject> _characters = new List<GameObject>(MAX_CHARACTER_COUNT);
-        List<Vector3> _spawnPoints;
-        HashSet<Vector3> _usedPositions;
-        bool isCharacterSpawned = false;
-        bool isSpawnPointsCached = false;
+        private List<Player> _playerList;
+        private UI_ToastPanel _uIToastPanel;
+        private UI_Survivors _uISurvivors;
+        private List<GameObject> _characters = new List<GameObject>(MAX_CHARACTER_COUNT);
+        private List<Vector3> _spawnPoints;
+        private HashSet<Vector3> _usedPositions;
+        private bool _isCharacterSpawned = false;
+        private bool _isSpawnPointsCached = false;
 
 
         private void OnEnable()
@@ -57,8 +59,8 @@ namespace HideAndSkull.Lobby.Workflow
         {
             SoundManager.instance.PlayBGM("GamePlay");
 
-            uI_ToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
-            uI_Survivors = UI_Manager.instance.Resolve<UI_Survivors>();
+            _uIToastPanel = UI_Manager.instance.Resolve<UI_ToastPanel>();
+            _uISurvivors = UI_Manager.instance.Resolve<UI_Survivors>();
 
             _playerList = PhotonNetwork.PlayerList.ToList();
             SurvivePlayerCount = _playerList.Count;
@@ -81,13 +83,13 @@ namespace HideAndSkull.Lobby.Workflow
                     Skull AISkull = characterObject.GetComponent<Skull>();
                     characterObject.GetComponent<Rigidbody>().isKinematic = true;
 
-                    AISkull.InitAI();
+                    //AISkull.InitAI();
 
                     _characters.Add(characterObject);
                 }
-                if(!isSpawnPointsCached)
+                if(!_isSpawnPointsCached)
                 {
-                    isCharacterSpawned = true;
+                    _isCharacterSpawned = true;
                 }
                 else
                 {
@@ -111,9 +113,9 @@ namespace HideAndSkull.Lobby.Workflow
             _spawnPoints = spawnPoints;
             _usedPositions = usedPositions;
 
-            if (!isCharacterSpawned)
+            if (!_isCharacterSpawned)
             {
-                isSpawnPointsCached = true;
+                _isSpawnPointsCached = true;
             }
             else
             {
@@ -134,10 +136,23 @@ namespace HideAndSkull.Lobby.Workflow
                 _characters[cnt].transform.position = spawnPoint + Vector3.up;
                 _usedPositions.Add(spawnPoint);
 
+                PhotonView photonView = _characters[cnt].GetComponent<PhotonView>();
+                
                 if(cnt >= 0 && cnt < _playerList.Count)
                 {
-                    PhotonView photonView = _characters[cnt].GetComponent<PhotonView>();
                     photonView.TransferOwnership(_playerList[cnt].ActorNumber);
+                    
+                    PhotonNetwork.RaiseEvent(Lobby.Network.PhotonEventCode.SYNC_PLAYMODE,
+                        new object[] { PlayMode.Player, photonView.ViewID },
+                        new RaiseEventOptions { Receivers = ReceiverGroup.All },
+                        SendOptions.SendReliable);
+                }
+                else
+                {
+                    PhotonNetwork.RaiseEvent(Lobby.Network.PhotonEventCode.SYNC_PLAYMODE,
+                        new object[] { PlayMode.AI, photonView.ViewID },
+                        new RaiseEventOptions { Receivers = ReceiverGroup.All },
+                        SendOptions.SendReliable);
                 }
 
                 _characters[cnt].GetComponent<Rigidbody>().isKinematic = false;
@@ -182,7 +197,7 @@ namespace HideAndSkull.Lobby.Workflow
                 {
                     SurvivePlayerCount--;
                 }
-                uI_ToastPanel.ShowToast($"{otherPlayer.NickName}님이 접속을 종료하였습니다.");
+                _uIToastPanel.ShowToast($"{otherPlayer.NickName}님이 접속을 종료하였습니다.");
             }
 
             _playerList.Remove(otherPlayer);
@@ -207,10 +222,7 @@ namespace HideAndSkull.Lobby.Workflow
 
         public void OnMasterClientSwitched(Player newMasterClient)
         {
-            if(newMasterClient == PhotonNetwork.LocalPlayer)
-            {
-                PhotonNetwork.LoadLevel(0);
-            }
+            
         }
     }
 }
