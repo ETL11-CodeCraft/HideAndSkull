@@ -21,8 +21,10 @@ public class RandomMapGenerator : MonoBehaviour
     private HashSet<Vector3> usedPositions;
 
     private GamePlayWorkflow _workflow; //플레이어들의 위치를 정해주기 위해 받은 참조
-
     PhotonView _photonView;
+
+    private int _mapSeed;
+
 
     private void Awake()
     {
@@ -31,8 +33,15 @@ public class RandomMapGenerator : MonoBehaviour
     }
     void Start()
     {
-        if (PhotonNetwork.IsMasterClient && SceneManager.GetActiveScene().buildIndex.Equals(1))
+        if (!PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("MapSeed"))
         {
+            Debug.LogError("MapSeed가 없습니다.");
+        }
+
+        if (SceneManager.GetActiveScene().buildIndex.Equals(1))
+        {
+            _mapSeed = (int)PhotonNetwork.CurrentRoom.CustomProperties["MapSeed"];
+            Random.InitState(_mapSeed);
             GenerateFloors();
             PlaceObjectRandomly(_objectPrefabs, MIN_DISTANCE);
             _workflow.CachedCharacterPosition(GenerateRandomPositionList(_floorPositionsList, 10), usedPositions);
@@ -78,7 +87,7 @@ public class RandomMapGenerator : MonoBehaviour
             return;
         }
 
-        PhotonNetwork.Instantiate("Map/Floor 1", position, Quaternion.identity);
+        Instantiate(_floorPrefab, position, Quaternion.identity);
 
         _floorPositionsList.Add(position);
     }
@@ -146,9 +155,9 @@ public class RandomMapGenerator : MonoBehaviour
             {
                 Vector3 FencePos = Position + direction / 2;
                 if (direction.x != 0)
-                    PhotonNetwork.Instantiate("Map/" + FencePrefab.name, FencePos, Quaternion.Euler(0, 90, 0));
+                    Instantiate(FencePrefab, FencePos, Quaternion.Euler(0, 90, 0));
                 else if (direction.z != 0)
-                    PhotonNetwork.Instantiate("Map/" + FencePrefab.name, FencePos, Quaternion.identity);
+                    Instantiate(FencePrefab, FencePos, Quaternion.identity);
             }
         }
     }
@@ -284,7 +293,7 @@ public class RandomMapGenerator : MonoBehaviour
                 }
 
                 //오브젝트 배치 
-                PhotonNetwork.Instantiate("Map/" + prefab.name, position, Quaternion.identity);
+                Instantiate(prefab, position, Quaternion.identity);
 
                 //금지된 위치 추가
                 usedPositions.Add(position);
