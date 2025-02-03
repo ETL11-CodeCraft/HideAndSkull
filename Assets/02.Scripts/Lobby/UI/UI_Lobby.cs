@@ -6,6 +6,7 @@ using Photon.Realtime;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Threading.Tasks;
 
 namespace HideAndSkull.Lobby.UI
 {
@@ -64,8 +65,10 @@ namespace HideAndSkull.Lobby.UI
             _backHome.onClick.AddListener(() =>
             {
                 SoundManager.instance.PlayButtonSound();
-                VivoxManager.Instance.LogoutOfVivoxAsync();
+                VivoxManager.instance.LogoutOfVivoxAsync();
 
+                UI_Manager.instance.Resolve<UI_Home>()
+               .Show();
             }
             );
         }
@@ -140,7 +143,7 @@ namespace HideAndSkull.Lobby.UI
 
         public void OnCreatedRoom()
         {
-            Debug.Log("OnCreatedRoom");
+            //Debug.Log("OnCreatedRoom");
         }
 
         public void OnCreateRoomFailed(short returnCode, string message)
@@ -163,13 +166,18 @@ namespace HideAndSkull.Lobby.UI
 
         public void OnJoinedLobby()
         {
-            Debug.Log("로비에 입장하였습니다.");
+            //Debug.Log("로비에 입장하였습니다.");
         }
 
         public void OnJoinedRoom()
         {
-            VivoxManager.Instance.JoinVoiceChannelAsync();
-            Debug.Log("룸에 입장하였습니다.");
+            VivoxManager.instance.JoinVoiceChannelAsync().ContinueWith(task =>
+            {
+                UI_Manager.instance.Resolve<UI_Room>()
+                    .Show();
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+
+            //Debug.Log("룸에 입장하였습니다.");
         }
 
         public void OnJoinRandomFailed(short returnCode, string message)
@@ -191,7 +199,7 @@ namespace HideAndSkull.Lobby.UI
 
         public void OnLeftRoom()
         {
-            VivoxManager.Instance.LeaveVoiceChannelAsync();
+            VivoxManager.instance.LeaveVoiceChannelAsync();
         }
 
         public void OnLobbyStatisticsUpdate(List<TypedLobbyInfo> lobbyStatistics)

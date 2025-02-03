@@ -67,7 +67,7 @@ namespace HideAndSkull.Lobby.UI
 
             _chatEnter.onClick.AddListener(MessageSend);
 
-            _voice.onClick.AddListener(VivoxManager.Instance.Mute);
+            _voice.onClick.AddListener(VivoxManager.instance.Mute);
 
             //방장 한 명만 룸에 있을 때, 게임 시작하기 버튼을 누르면 ConfirmWindow를 사용하여 게임 시작할 수 없음을 표기
             _gameStart.onClick.AddListener(() =>

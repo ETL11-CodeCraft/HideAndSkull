@@ -20,7 +20,7 @@ namespace HideAndSkull.Lobby.Network
                     s_instance = new GameObject(nameof(PhotonManager)).AddComponent<PhotonManager>();
                 }
 
-                return PhotonManager.instance;
+                return s_instance;
             }
         }
 

@@ -6,6 +6,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Threading.Tasks;
 
 namespace HideAndSkull.Lobby.UI
 {
@@ -79,7 +80,12 @@ namespace HideAndSkull.Lobby.UI
 
             PhotonNetwork.LocalPlayer.NickName = nickName;
             Debug.Log(PhotonNetwork.LocalPlayer.NickName + " 닉네임이 등록되었습니다.");
-            VivoxManager.Instance.LoginToVivoxAsync();
+            
+            VivoxManager.instance.LoginToVivoxAsync().ContinueWith(task =>
+            {
+                UI_Manager.instance.Resolve<UI_Lobby>()
+                    .Show();
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         /// <summary>

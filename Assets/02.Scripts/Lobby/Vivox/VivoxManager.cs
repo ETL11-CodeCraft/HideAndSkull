@@ -4,80 +4,92 @@ using Unity.Services.Vivox;
 using Unity.Services.Authentication;
 using Photon.Pun;
 using HideAndSkull.Lobby.UI;
+using UnityEngine.Android;
+using UnityEngine.SceneManagement;
+using HideAndSkull.Lobby.Network;
+using System.Threading.Tasks;
 
 namespace HideAndSkull.Lobby.Vivox
 {
     public class VivoxManager : MonoBehaviour
     {
-        public static VivoxManager Instance { get; private set; }
-
         private string _roomName;
+        public static VivoxManager instance
+        {
+            get
+            {
+                if (s_instance == null)
+                {
+                    s_instance = new GameObject(nameof(VivoxManager)).AddComponent<VivoxManager>();
+                }
 
+                return s_instance;
+            }
+        }
+
+        static VivoxManager s_instance;
 
         private void Awake()
         {
-            if (Instance == null)
-                Instance = this;
-            else
+            if (s_instance)
+            {
                 Destroy(gameObject);
-        }
+                return;
+            }
+            else
+            {
+                s_instance = this;
+            }
 
-        private void Start()
-        {
-            InitializeAsync();
-        }
+#if UNITY_ANDROID
+            if (!Permission.HasUserAuthorizedPermission(Permission.Microphone))
+            {
+                Permission.RequestUserPermission(Permission.Microphone);
+            }
+#endif
+            InitializeVivoxAsync();
 
-        private void OnDestroy()
-        {
-            if (VivoxService.Instance.IsLoggedIn)
-                LogoutOfVivoxAsync();
+            DontDestroyOnLoad(gameObject);
         }
-
 
         //인증
-        public async void InitializeAsync()
+        public async void InitializeVivoxAsync()
         {
             await UnityServices.InitializeAsync();
             try
             {
                 await AuthenticationService.Instance.SignInAnonymouslyAsync();
-                Debug.Log("로그인 성공");
+                Debug.Log("UnityServices 인증 성공");
             }
             catch
             {
-                Debug.Log("로그인 실패");
+                Debug.Log("UnityServices 인증 실패");
             }
 
             await VivoxService.Instance.InitializeAsync();
-
-            if (VivoxService.Instance.IsLoggedIn)
-                LogoutOfVivoxAsync();
 
             Debug.Log("Initialize Vivox");
         }
 
         //vivox 로그인
-        public async void LoginToVivoxAsync()
+        public async Task LoginToVivoxAsync()
         {
             if (VivoxService.Instance.IsLoggedIn) return;
 
             LoginOptions options = new LoginOptions();
             options.DisplayName = PhotonNetwork.LocalPlayer.NickName;
-            options.EnableTTS = false;
             await VivoxService.Instance.LoginAsync(options);
 
-            UI_Manager.instance.Resolve<UI_Lobby>()
-                .Show();
+            Debug.Log("Login Vivox");
         }
 
         //보이스 채널 참가
-        public async void JoinVoiceChannelAsync()
+        public async Task JoinVoiceChannelAsync()
         {
             _roomName = PhotonNetwork.CurrentRoom.Name;
             await VivoxService.Instance.JoinGroupChannelAsync(_roomName, ChatCapability.AudioOnly);
 
-            UI_Manager.instance.Resolve<UI_Room>()
-                               .Show();
+            Debug.Log("JoinChannel Vivox");
         }
 
         //보이스 채널 나가기
@@ -85,7 +97,7 @@ namespace HideAndSkull.Lobby.Vivox
         {
             await VivoxService.Instance.LeaveChannelAsync(_roomName);
 
-            Debug.Log("Vivox Leave Channel");
+            Debug.Log("LeaveChannel Vivox");
         }
 
         //로그아웃
@@ -95,8 +107,7 @@ namespace HideAndSkull.Lobby.Vivox
 
             await VivoxService.Instance.LogoutAsync();
 
-            UI_Manager.instance.Resolve<UI_Home>()
-               .Show();
+            Debug.Log("Logout Vivox");
         }
 
         //본인 음소거 사용 및 해제
