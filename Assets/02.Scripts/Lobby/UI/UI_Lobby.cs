@@ -1,5 +1,6 @@
 ﻿using HideAndSkull.Lobby.Utilities;
 using HideAndSkull.Settings.Sound;
+using HideAndSkull.Lobby.Vivox;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
@@ -63,8 +64,8 @@ namespace HideAndSkull.Lobby.UI
             _backHome.onClick.AddListener(() =>
             {
                 SoundManager.instance.PlayButtonSound();
-                UI_Manager.instance.Resolve<UI_Home>()
-                               .Show();
+                VivoxManager.Instance.LogoutOfVivoxAsync();
+
             }
             );
         }
@@ -163,9 +164,7 @@ namespace HideAndSkull.Lobby.UI
 
         public void OnJoinedRoom()
         {
-            UI_Manager.instance.Resolve<UI_Room>()
-                               .Show();
-
+            VivoxManager.Instance.JoinVoiceChannelAsync();
             Debug.Log("룸에 입장하였습니다.");
         }
 
@@ -188,6 +187,7 @@ namespace HideAndSkull.Lobby.UI
 
         public void OnLeftRoom()
         {
+            VivoxManager.Instance.LeaveVoiceChannelAsync();
         }
 
         public void OnLobbyStatisticsUpdate(List<TypedLobbyInfo> lobbyStatistics)

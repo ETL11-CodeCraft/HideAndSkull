@@ -1,6 +1,7 @@
 ﻿using ExitGames.Client.Photon;
 using HideAndSkull.Lobby.Utilities;
 using HideAndSkull.Settings.Sound;
+using HideAndSkull.Lobby.Vivox;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ namespace HideAndSkull.Lobby.UI
         [Resolve] TMP_Text _chatText;
         [Resolve] TMP_InputField _chatInput;
         [Resolve] Button _chatEnter;
+        [Resolve] Button _voice;
         [Resolve] Button _gameStart;
         [Resolve] Button _exitRoom;
         [Resolve] RectTransform _playerListContent;
@@ -64,6 +66,8 @@ namespace HideAndSkull.Lobby.UI
             base.Start();
 
             _chatEnter.onClick.AddListener(MessageSend);
+
+            _voice.onClick.AddListener(VivoxManager.Instance.Mute);
 
             //방장 한 명만 룸에 있을 때, 게임 시작하기 버튼을 누르면 ConfirmWindow를 사용하여 게임 시작할 수 없음을 표기
             _gameStart.onClick.AddListener(() =>

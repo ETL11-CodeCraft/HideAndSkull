@@ -1,5 +1,6 @@
 ﻿using HideAndSkull.Lobby.Utilities;
 using HideAndSkull.Settings.Sound;
+using HideAndSkull.Lobby.Vivox;
 using Photon.Pun;
 using System.Collections;
 using TMPro;
@@ -78,9 +79,7 @@ namespace HideAndSkull.Lobby.UI
 
             PhotonNetwork.LocalPlayer.NickName = nickName;
             Debug.Log(PhotonNetwork.LocalPlayer.NickName + " 닉네임이 등록되었습니다.");
-
-            UI_Manager.instance.Resolve<UI_Lobby>()
-                               .Show();
+            VivoxManager.Instance.LoginToVivoxAsync();
         }
 
         /// <summary>
