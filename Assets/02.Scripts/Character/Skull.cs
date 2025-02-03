@@ -245,11 +245,6 @@ namespace HideAndSkull.Character
         {
             if (!PhotonView.IsMine) return;
 
-            PhotonNetwork.RaiseEvent(Lobby.Network.PhotonEventCode.SYNC_PLAYMODE,
-                new object[] { PlayMode.Player, PhotonView.ViewID },
-                new RaiseEventOptions { Receivers = ReceiverGroup.All },
-                SendOptions.SendReliable);
-
             SetPlayerCamera();
             PhotonNetwork.LocalPlayer.SetCustomProperties(PlayerCustomProperty);
 
@@ -376,10 +371,7 @@ namespace HideAndSkull.Character
         #region AI
         public void InitAI()
         {
-            PhotonNetwork.RaiseEvent(Lobby.Network.PhotonEventCode.SYNC_PLAYMODE,
-                new object[] { PlayMode.AI, PhotonView.ViewID },
-                new RaiseEventOptions { Receivers = ReceiverGroup.All },
-                SendOptions.SendReliable);
+            
         }
 
 
@@ -428,10 +420,7 @@ namespace HideAndSkull.Character
 
         public void OnOwnershipTransfered(PhotonView targetView, Player previousOwner)
         {
-            if (targetView == PhotonView && PhotonView.IsMine)
-            {
-                InitPlayer();
-            }
+            
         }
 
         public void OnOwnershipTransferFailed(PhotonView targetView, Player senderOfFailedRequest)
@@ -460,7 +449,17 @@ namespace HideAndSkull.Character
             {
                 object[] data = (object[])photonEvent.CustomData;
                 if (PhotonView.ViewID == (int)data[1])
+                {
                     PlayMode = (PlayMode)data[0];
+                    if (PlayMode == PlayMode.AI)
+                    {
+                        InitAI();
+                    }
+                    else if (PlayMode == PlayMode.Player)
+                    {
+                       InitPlayer(); 
+                    }
+                }
             }
         }
         #endregion

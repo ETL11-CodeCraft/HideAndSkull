@@ -111,6 +111,8 @@ namespace HideAndSkull.Lobby.UI
                     {"MapSeed", seed},  //커스텀 프로퍼티에 맵씨드 추가
             },
             };
+            
+            roomOptions.CleanupCacheOnLeave = false;  // 방을 떠나도 객체 삭제 안함
 
             PhotonNetwork.CreateRoom(randomRoomCode, roomOptions);
         }
