@@ -103,6 +103,14 @@ namespace HideAndSkull.Lobby.UI
 
             SoundManager.instance.PlayBGM("Room");
 
+            if (PhotonNetwork.IsMasterClient)
+            {
+                Hashtable customRoomProperties = PhotonNetwork.CurrentRoom.CustomProperties;
+                customRoomProperties["MapSeed"] = Random.Range(0, int.MaxValue);
+                PhotonNetwork.CurrentRoom.SetCustomProperties(customRoomProperties);
+                Debug.Log($"MapSeed : {customRoomProperties["MapSeed"]}");
+            }
+
             //마스터 클라이언트가 Room을 Show했을 때 룸의 오픈상태를 true로 전환한다.
             if (PhotonNetwork.IsMasterClient)
             {

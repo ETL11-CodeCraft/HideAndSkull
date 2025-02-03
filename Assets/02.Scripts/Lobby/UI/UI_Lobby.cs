@@ -101,6 +101,7 @@ namespace HideAndSkull.Lobby.UI
             }
 
             string randomRoomCode = GenerateRandomRoomCode(ROOM_CODE_LENGTH);
+            int seed = Random.Range(0, int.MaxValue);
 
             RoomOptions roomOptions = new RoomOptions
             {
@@ -108,8 +109,11 @@ namespace HideAndSkull.Lobby.UI
                 CustomRoomProperties = new ExitGames.Client.Photon.Hashtable
             {
                 { "RoomCode", randomRoomCode }, // 커스텀 프로퍼티에 랜덤 코드 추가
+                    {"MapSeed", seed},  //커스텀 프로퍼티에 맵씨드 추가
             },
             };
+            
+            roomOptions.CleanupCacheOnLeave = false;  // 방을 떠나도 객체 삭제 안함
 
             PhotonNetwork.CreateRoom(randomRoomCode, roomOptions);
         }
