@@ -191,12 +191,13 @@ namespace HideAndSkull.Lobby.Workflow
 
         public void OnPlayerLeftRoom(Player otherPlayer)
         {
+            if (!(bool)otherPlayer.CustomProperties["IsDead"])
+            {
+                SurvivePlayerCount--;
+            }
+            
             if (PhotonNetwork.IsMasterClient)
             {
-                if (!(bool)otherPlayer.CustomProperties["IsDead"])
-                {
-                    SurvivePlayerCount--;
-                }
                 _uIToastPanel.ShowToast($"{otherPlayer.NickName}님이 접속을 종료하였습니다.");
             }
 
