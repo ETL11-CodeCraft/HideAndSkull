@@ -44,7 +44,9 @@ public class RandomMapGenerator : MonoBehaviour
             Random.InitState(_mapSeed);
             GenerateFloors();
             PlaceObjectRandomly(_objectPrefabs, MIN_DISTANCE);
-            _workflow.CachedCharacterPosition(GenerateRandomPositionList(_floorPositionsList, 10), usedPositions);
+
+            if (PhotonNetwork.IsMasterClient)
+                _workflow.CachedCharacterPosition(GenerateRandomPositionList(_floorPositionsList, 10), usedPositions);
         }
     }
 
