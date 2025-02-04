@@ -91,9 +91,6 @@ namespace HideAndSkull.Lobby.Vivox
         {
             _roomName = PhotonNetwork.CurrentRoom.Name;
             await VivoxService.Instance.JoinGroupChannelAsync(_roomName, ChatCapability.AudioOnly);
-            //await VivoxService.Instance.SetActiveInputDeviceAsync(default);
-            //await VivoxService.Instance.SetActiveOutputDeviceAsync(default);
-            await VivoxService.Instance.SetChannelVolumeAsync(_roomName, 50);
 
             Debug.Log("JoinChannel Vivox");
         }
