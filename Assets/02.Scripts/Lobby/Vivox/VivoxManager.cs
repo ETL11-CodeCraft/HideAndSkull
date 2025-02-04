@@ -3,10 +3,7 @@ using Unity.Services.Core;
 using Unity.Services.Vivox;
 using Unity.Services.Authentication;
 using Photon.Pun;
-using HideAndSkull.Lobby.UI;
 using UnityEngine.Android;
-using UnityEngine.SceneManagement;
-using HideAndSkull.Lobby.Network;
 using System.Threading.Tasks;
 
 namespace HideAndSkull.Lobby.Vivox
@@ -52,6 +49,12 @@ namespace HideAndSkull.Lobby.Vivox
             DontDestroyOnLoad(gameObject);
         }
 
+        private void OnDisable()
+        {
+            if (VivoxService.Instance.IsLoggedIn)
+                VivoxService.Instance.LogoutAsync();
+        }
+
         //인증
         public async void InitializeVivoxAsync()
         {
@@ -88,6 +91,9 @@ namespace HideAndSkull.Lobby.Vivox
         {
             _roomName = PhotonNetwork.CurrentRoom.Name;
             await VivoxService.Instance.JoinGroupChannelAsync(_roomName, ChatCapability.AudioOnly);
+            //await VivoxService.Instance.SetActiveInputDeviceAsync(default);
+            //await VivoxService.Instance.SetActiveOutputDeviceAsync(default);
+            await VivoxService.Instance.SetChannelVolumeAsync(_roomName, 50);
 
             Debug.Log("JoinChannel Vivox");
         }
