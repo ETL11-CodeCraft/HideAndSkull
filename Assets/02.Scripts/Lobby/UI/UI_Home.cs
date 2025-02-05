@@ -19,6 +19,7 @@ namespace HideAndSkull.Lobby.UI
         [Resolve] Button _connect;
         [Resolve] Button _exit;
         [Resolve] TMP_Text _serverConnect;
+        [Resolve] Image _fade;
 
         const int PLAYER_NICKNAME_MAX_LENGTH = 11;
 
@@ -30,6 +31,7 @@ namespace HideAndSkull.Lobby.UI
             _serverConnect.gameObject.SetActive(false);
             _connect.onClick.AddListener(() =>
                 {
+                    _fade.gameObject.SetActive(true);
                     SoundManager.instance.PlayButtonSound();
                     Connect();
                 });
@@ -43,6 +45,8 @@ namespace HideAndSkull.Lobby.UI
         public override void Show()
         {
             base.Show();
+
+            _fade.gameObject.SetActive(false);
 
             if (PhotonNetwork.IsConnected)
             {

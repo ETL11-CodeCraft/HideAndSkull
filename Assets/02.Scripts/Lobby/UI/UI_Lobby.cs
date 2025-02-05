@@ -23,6 +23,7 @@ namespace HideAndSkull.Lobby.UI
         [Resolve] Button _codeInput;
         [Resolve] Button _quickEnterRoom;
         [Resolve] Button _backHome;
+        [Resolve] Image _fade;
 
         const int ROOM_PLAYER_COUNT = 8;    //입장할 수 있는 플레이어의 최대 인원수는 8명. 모든 방은 8명방으로 생성
         const int ROOM_CODE_LENGTH = 6;     //랜덤으로 생성되는 코드의 길이
@@ -64,6 +65,7 @@ namespace HideAndSkull.Lobby.UI
             // 홈으로 돌아가기
             _backHome.onClick.AddListener(() =>
             {
+                _fade.gameObject.SetActive(true);
                 SoundManager.instance.PlayButtonSound();
                 VivoxManager.instance.LogoutOfVivoxAsync();
 
@@ -77,6 +79,7 @@ namespace HideAndSkull.Lobby.UI
         {
             base.Show();
 
+            _fade.gameObject.SetActive(false);
             PhotonNetwork.JoinLobby();
 
             Debug.Log(PhotonNetwork.LocalPlayer.NickName + "님이 로비에 입장하였습니다.");
@@ -169,6 +172,8 @@ namespace HideAndSkull.Lobby.UI
 
         public void OnJoinedRoom()
         {
+            _fade.gameObject.SetActive(true);
+
             VivoxManager.instance.JoinVoiceChannelAsync().ContinueWith(task =>
             {
                 UI_Manager.instance.Resolve<UI_Room>()
