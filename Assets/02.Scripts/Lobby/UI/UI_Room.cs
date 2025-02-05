@@ -1,6 +1,7 @@
 ﻿using ExitGames.Client.Photon;
 using HideAndSkull.Lobby.Utilities;
 using HideAndSkull.Settings.Sound;
+using HideAndSkull.Lobby.Vivox;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Services.Vivox;
 
 namespace HideAndSkull.Lobby.UI
 {
@@ -23,10 +25,14 @@ namespace HideAndSkull.Lobby.UI
         [Resolve] TMP_Text _chatText;
         [Resolve] TMP_InputField _chatInput;
         [Resolve] Button _chatEnter;
+        [Resolve] Button _voice;
         [Resolve] Button _gameStart;
         [Resolve] Button _exitRoom;
         [Resolve] RectTransform _playerListContent;
         [Resolve] TMP_Text _playerNickName;
+        [Resolve] Image _mic;
+        [Resolve] Image _micMute;
+        [Resolve] Image _fade;
         TMP_Text[] _chatArray;
         TMP_Text[] _playerArray;
         PhotonView _photonView;
@@ -65,9 +71,25 @@ namespace HideAndSkull.Lobby.UI
 
             _chatEnter.onClick.AddListener(MessageSend);
 
+            _voice.onClick.AddListener(() =>
+            {
+                VivoxManager.instance.MuteToggle();
+                if (VivoxService.Instance.IsInputDeviceMuted)
+                {
+                    _mic.GetComponent<Image>().enabled = false;
+                    _micMute.GetComponent<Image>().enabled = true;
+                }
+                else
+                {
+                    _mic.GetComponent<Image>().enabled = true;
+                    _micMute.GetComponent<Image>().enabled = false;
+                }
+            });
+
             //방장 한 명만 룸에 있을 때, 게임 시작하기 버튼을 누르면 ConfirmWindow를 사용하여 게임 시작할 수 없음을 표기
             _gameStart.onClick.AddListener(() =>
             {
+                _fade.gameObject.SetActive(true);
                 SoundManager.instance.PlayButtonSound();
 
                 if (PhotonNetwork.CurrentRoom.PlayerCount < GAMEPLAY_PLAYER_COUNT_MIN)
@@ -84,6 +106,7 @@ namespace HideAndSkull.Lobby.UI
 
             _exitRoom.onClick.AddListener(() =>
             {
+                _fade.gameObject.SetActive(true);
                 SoundManager.instance.PlayButtonSound();
                 SoundManager.instance.PlayBGM("Home");
                 PhotonNetwork.LeaveRoom();
@@ -96,6 +119,8 @@ namespace HideAndSkull.Lobby.UI
         public override void Show()
         {
             base.Show();
+
+            _fade.gameObject.SetActive(false);
 
             SoundManager.instance.PlayBGM("Room");
 
@@ -165,14 +190,14 @@ namespace HideAndSkull.Lobby.UI
 
         public void OnPlayerEnteredRoom(Player newPlayer)
         {
-             ChattingPlayerInAndOut($"<color=yellow>{newPlayer.NickName}님이 참가하셨습니다</color>");
+            ChattingPlayerInAndOut($"<color=yellow>{newPlayer.NickName}님이 참가하셨습니다</color>");
 
             _photonView.RPC("PlayerListRPC", RpcTarget.All);
         }
 
         public void OnPlayerLeftRoom(Player otherPlayer)
         {
-             ChattingPlayerInAndOut($"<color=yellow>{otherPlayer.NickName}님이 퇴장하셨습니다</color>");
+            ChattingPlayerInAndOut($"<color=yellow>{otherPlayer.NickName}님이 퇴장하셨습니다</color>");
 
             _photonView.RPC("PlayerListRPC", RpcTarget.All);
         }

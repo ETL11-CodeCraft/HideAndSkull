@@ -1,10 +1,12 @@
 ﻿using HideAndSkull.Lobby.Utilities;
 using HideAndSkull.Settings.Sound;
+using HideAndSkull.Lobby.Vivox;
 using Photon.Pun;
 using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Threading.Tasks;
 
 namespace HideAndSkull.Lobby.UI
 {
@@ -17,6 +19,7 @@ namespace HideAndSkull.Lobby.UI
         [Resolve] Button _connect;
         [Resolve] Button _exit;
         [Resolve] TMP_Text _serverConnect;
+        [Resolve] Image _fade;
 
         const int PLAYER_NICKNAME_MAX_LENGTH = 11;
 
@@ -28,6 +31,7 @@ namespace HideAndSkull.Lobby.UI
             _serverConnect.gameObject.SetActive(false);
             _connect.onClick.AddListener(() =>
                 {
+                    _fade.gameObject.SetActive(true);
                     SoundManager.instance.PlayButtonSound();
                     Connect();
                 });
@@ -41,6 +45,8 @@ namespace HideAndSkull.Lobby.UI
         public override void Show()
         {
             base.Show();
+
+            _fade.gameObject.SetActive(false);
 
             if (PhotonNetwork.IsConnected)
             {
@@ -78,9 +84,12 @@ namespace HideAndSkull.Lobby.UI
 
             PhotonNetwork.LocalPlayer.NickName = nickName;
             Debug.Log(PhotonNetwork.LocalPlayer.NickName + " 닉네임이 등록되었습니다.");
-
-            UI_Manager.instance.Resolve<UI_Lobby>()
-                               .Show();
+            
+            VivoxManager.instance.LoginToVivoxAsync().ContinueWith(task =>
+            {
+                UI_Manager.instance.Resolve<UI_Lobby>()
+                    .Show();
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         /// <summary>
