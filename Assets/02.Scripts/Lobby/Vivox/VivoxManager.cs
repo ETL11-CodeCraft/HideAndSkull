@@ -108,7 +108,7 @@ namespace HideAndSkull.Lobby.Vivox
         }
 
         //본인 음소거 사용 및 해제
-        public void Mute()
+        public void MuteToggle()
         {
             if (VivoxService.Instance.IsInputDeviceMuted)
                 VivoxService.Instance.UnmuteInputDevice();

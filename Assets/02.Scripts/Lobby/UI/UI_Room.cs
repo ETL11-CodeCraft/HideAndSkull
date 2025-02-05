@@ -73,7 +73,7 @@ namespace HideAndSkull.Lobby.UI
 
             _voice.onClick.AddListener(() =>
             {
-                VivoxManager.instance.Mute();
+                VivoxManager.instance.MuteToggle();
                 if (VivoxService.Instance.IsInputDeviceMuted)
                 {
                     _mic.GetComponent<Image>().enabled = false;
