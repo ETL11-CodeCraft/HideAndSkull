@@ -23,8 +23,6 @@ public class RandomMapGenerator : MonoBehaviour
     private GamePlayWorkflow _workflow; //플레이어들의 위치를 정해주기 위해 받은 참조
     PhotonView _photonView;
 
-    private int _mapSeed;
-
 
     private void Awake()
     {
@@ -33,21 +31,22 @@ public class RandomMapGenerator : MonoBehaviour
     }
     void Start()
     {
-        if (!PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("MapSeed"))
+        if (SceneManager.GetActiveScene().buildIndex.Equals(1) && PhotonNetwork.IsMasterClient)
         {
-            Debug.LogError("MapSeed가 없습니다.");
+            int mapSeed = Random.Range(0, int.MaxValue);
+            
+            _photonView.RPC(nameof(GenerateMap), RpcTarget.AllBuffered, mapSeed);
+            
+            _workflow.CachedCharacterPosition(GenerateRandomPositionList(_floorPositionsList, 10), usedPositions);
         }
+    }
 
-        if (SceneManager.GetActiveScene().buildIndex.Equals(1))
-        {
-            _mapSeed = (int)PhotonNetwork.CurrentRoom.CustomProperties["MapSeed"];
-            Random.InitState(_mapSeed);
-            GenerateFloors();
-            PlaceObjectRandomly(_objectPrefabs, MIN_DISTANCE);
-
-            if (PhotonNetwork.IsMasterClient)
-                _workflow.CachedCharacterPosition(GenerateRandomPositionList(_floorPositionsList, 10), usedPositions);
-        }
+    [PunRPC]
+    private void GenerateMap(int seed)
+    {
+        Random.InitState(seed);
+        GenerateFloors();
+        PlaceObjectRandomly(_objectPrefabs, MIN_DISTANCE);
     }
 
     /// <summary>
