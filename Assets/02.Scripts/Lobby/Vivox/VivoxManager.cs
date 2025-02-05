@@ -49,12 +49,6 @@ namespace HideAndSkull.Lobby.Vivox
             DontDestroyOnLoad(gameObject);
         }
 
-        private void OnDisable()
-        {
-            if (VivoxService.Instance.IsLoggedIn)
-                VivoxService.Instance.LogoutAsync();
-        }
-
         //인증
         public async void InitializeVivoxAsync()
         {
