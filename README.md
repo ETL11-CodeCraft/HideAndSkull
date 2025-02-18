@@ -41,9 +41,9 @@ https://youtu.be/w2tk3_-yusU?si=3MLNqgTK4ONVqmmg
 
 ## 코드 설명
 ### UI
-UI를 효율적으로 관리하기 위한 클래스들을 만들었습니다.<br>
-Attribute를 상속받은 ResolveAttribute 클래스를 만들어 [Resolve] Attribute를 통해 DI 해야할 변수에 접근할 수 있도록 했습니다.<br>
-ComponentResolvingBehavior 클래스를 만들어 [Resolve] Attribute가 붙은 변수들에 리플렉션을 이용해 접근하여 DI 했습니다.
+- UI를 효율적으로 관리하기 위한 클래스들을 만들었습니다.<br>
+- Attribute를 상속받은 ResolveAttribute 클래스를 만들어 [Resolve] Attribute를 통해 DI 해야할 변수에 접근할 수 있도록 했습니다.<br>
+- ComponentResolvingBehavior 클래스를 만들어 [Resolve] Attribute가 붙은 변수들에 리플렉션을 이용해 접근하여 DI 했습니다.
 ```
 private void ResolveAll()
 {
@@ -95,9 +95,9 @@ private void ResolveAll()
     }
 }
 ```
-해당 코드를 모든 UI에서 사용할 수 있도록 ComponentResolvingBehavior를 상속받은 UI_Base클래스를 만들고 해당 클래스를 상속받은 UI_Screen과 UI_Popup으로 분리하여 관리하였습니다.<br>
-Popup은 한 화면에 여러개 띄울수 있고, Screen은 하나만 띄울수 있으며, 해당 UI들의 관리는 UI_Manager라는 싱글톤 클래스에서 합니다.<br>
-UI_Manager에서는 UI를 Regist하고 Resolve할 수 있도록 관리합니다.
+- 해당 코드를 모든 UI에서 사용할 수 있도록 ComponentResolvingBehavior를 상속받은 UI_Base클래스를 만들고 해당 클래스를 상속받은 UI_Screen과 UI_Popup으로 분리하여 관리하였습니다.<br>
+- Popup은 한 화면에 여러개 띄울수 있고, Screen은 하나만 띄울수 있으며, 해당 UI들의 관리는 UI_Manager라는 싱글톤 클래스에서 합니다.<br>
+- UI_Manager에서는 UI를 Regist하고 Resolve할 수 있도록 관리합니다.
 
 ```
 public void Register(UI_Base ui)
@@ -151,8 +151,8 @@ public T Resolve<T>()
 ```
 
 ### 맵 생성
-동적으로 맵을 생성할 때 PhotonNetwork.Instantiate를 사용하던 방식에서 동일한 시드값을 사용한 랜덤생성 방식으로 변경하였습니다. <br>
-해당 방식을 통해 네트워크 트래픽이 감소됨을 측정할 수 있었습니다.
+- 동적으로 맵을 생성할 때 PhotonNetwork.Instantiate를 사용하던 방식에서 동일한 시드값을 사용한 랜덤생성 방식으로 변경하였습니다. <br>
+- 해당 방식을 통해 네트워크 트래픽이 감소됨을 측정할 수 있었습니다.
   - (Incoming) 103,396 byte -> 34,944 byte
   - (Outgoing) 18,033 byte -> 2,189 byte
   - 맵생성갯수600개, 실행후5초후기준
@@ -179,8 +179,8 @@ private void GenerateMap(int seed)
 ```
 
 ### 캐릭터 동기화
-캐릭터를 생성하고 해당 스폰위치로 이동시킨후 각 플레이어에게 권한을 넘기는 방식을 사용합니다.<br>
-TransferOwnership을 통해 해당 권한을 넘기고 RaiseEvent를 통해 자신이 플레이어인지 AI인지 넘긴후 권한을 가지고 있는 플레이어가 해당 캐릭터를 조종하는 방식입니다.
+- 캐릭터를 생성하고 해당 스폰위치로 이동시킨후 각 플레이어에게 권한을 넘기는 방식을 사용합니다.<br>
+- TransferOwnership을 통해 해당 권한을 넘기고 RaiseEvent를 통해 자신이 플레이어인지 AI인지 넘긴후 권한을 가지고 있는 플레이어가 해당 캐릭터를 조종하는 방식입니다.
 ```
 _characters[cnt].transform.position = spawnPoint + Vector3.up;
 _usedPositions.Add(spawnPoint);
@@ -205,8 +205,8 @@ else
 }
 ```
 
-캐릭터 스크립트인 Skull에는 인터페이스 분리원칙을 지키기 위해 PunBehaviour를 상속받지 않고, 사용하는 인터페이스만을 상속받아 구현하였습니다. <br>
-IPunObservable을 상속받아 구현한 OnPhotonSerializeView에서 플레이어가 이동중인지 전달받아 해당 애니메이션을 동기화 하였습니다.
+- 캐릭터 스크립트인 Skull에는 인터페이스 분리원칙을 지키기 위해 PunBehaviour를 상속받지 않고, 사용하는 인터페이스만을 상속받아 구현하였습니다. <br>
+- IPunObservable을 상속받아 구현한 OnPhotonSerializeView에서 플레이어가 이동중인지 전달받아 해당 애니메이션을 동기화 하였습니다.
 ```
 public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
 {
@@ -223,7 +223,7 @@ public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
 }
 ```
 
-캐릭터의 공격은 RPC를 통해 호출하였습니다.
+- 캐릭터의 공격은 RPC를 통해 호출하였습니다.
 ```
 [PunRPC]
 public void AttackPerform_RPC()
@@ -236,7 +236,7 @@ public void AttackPerform_RPC()
 }
 ```
 
-캐릭터의 킬수, 자신이 죽었는지등에 대한 정보는 CustomProperty에 저장합니다.
+- 캐릭터의 킬수, 자신이 죽었는지등에 대한 정보는 CustomProperty에 저장합니다.
 ```
 //맞았는지 판단은 맞은 Skull에서 함
 if(other.TryGetComponent(out PhotonView photonView) && 
